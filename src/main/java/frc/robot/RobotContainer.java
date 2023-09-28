@@ -7,11 +7,14 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 
 public class RobotContainer {
 
-	private final DriveController driveStick = DriveController.getInstance();
-	private final Autonomous autonomous = Autonomous.getInstance();
-	private final MessagingSystem messaging = MessagingSystem.getInstance();
+	private final Autonomous autonomous;
+	private final MessagingSystem messaging;
 
-	public RobotContainer() {}
+	public RobotContainer() {
+		DriveController.getInstance();
+		autonomous = Autonomous.getInstance();
+		messaging = MessagingSystem.getInstance();
+	}
 
 	public void autonomousInit() {
 		messaging.enableMessaging();

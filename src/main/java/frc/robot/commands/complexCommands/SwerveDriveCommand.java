@@ -47,9 +47,9 @@ public class SwerveDriveCommand extends CommandBase {
 
 	public double targetAngle = 0;
 
-	public SwerveDriveCommand() {
+	public SwerveDriveCommand(DriveController controller) {
 		swerve = SwerveDrive.getInstance();
-		controller = DriveController.getInstance();
+		this.controller = controller;
 		controlMode = ControlMode.FieldCentric; //default control mode is field-centric
 		angleController = new PIDController(1, 0, 0);
 		angleController.enableContinuousInput(-Math.PI, Math.PI);
