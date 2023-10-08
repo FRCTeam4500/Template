@@ -1,10 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.RobotBase;
 
 public class Constants {
-
 	public static class JoystickConstants {
 		// Joystick ports
 		public static final int DRIVER_PORT = 2;
@@ -38,30 +36,5 @@ public class Constants {
 		public static final Translation2d FRONT_RIGHT_MODULE_TRANSLATION = new Translation2d(0, 0);
 		public static final Translation2d BACK_LEFT_MODULE_TRANSLATION = new Translation2d(0, 0);
 		public static final Translation2d BACK_RIGHT_MODULE_TRANSLATION = new Translation2d(0, 0);
-	}
-
-	
-	public static class EnumConstants {}
-
-	public static class AutoConstants {}
-
-	public static class TelemetryConstants {
-
-		public static Mode getMode() {
-			return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
-		}
-
-		public static enum Mode {
-			/** Running on a real robot. */
-			REAL,
-
-			/** Running a physics simulator. */
-			SIM,
-
-			/** Replaying from a log file.
-			 *  TODO: Setup project for REPLAY mode.
-			 */
-			REPLAY,
-		}
 	}
 }
