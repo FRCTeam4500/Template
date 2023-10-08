@@ -37,4 +37,20 @@ public class Constants {
 		public static final Translation2d BACK_LEFT_MODULE_TRANSLATION = new Translation2d(0, 0);
 		public static final Translation2d BACK_RIGHT_MODULE_TRANSLATION = new Translation2d(0, 0);
 	}
+
+	public static class EnumConstants {
+		public static enum DriveMode {
+			AngleCentric,
+			RobotCentric
+		}
+
+		public static enum TalonModel {
+			TalonFX("Talon FX"),
+			TalonSRX("Talon SRX");
+			public String model;
+			private TalonModel(String model) {
+				this.model = model;
+			}
+		}
+	}
 }

@@ -1,22 +1,20 @@
 package frc.robot.subsystems.swerve;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.hardware.Gyro;
 import frc.robot.subsystems.messaging.MessagingSystem;
-import frc.robot.subsystems.vision.Vision;
 
 /**
  * Subsystem class which represents the drivetrain of our robot
@@ -26,9 +24,8 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 	private Gyro gyro;	
 	private SwerveModule[] modules;
 	private SwerveDriveKinematics kinematics;
-	private SwerveDrivePoseEstimator poseEstimator;
+	private SwerveDriveOdometry odometry;
 	private static SwerveDrive instanceSwerve;
-	private Vision vision;
 	private double currentGyroZero;
 	private DriveInputsAutoLogged inputs = new DriveInputsAutoLogged();
 
@@ -87,14 +84,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		currentGyroZero = 0;
 		gyro = new Gyro(I2C.Port.kMXP);
 		kinematics = new SwerveDriveKinematics(getModuleTranslations());
-		poseEstimator =
-			new SwerveDrivePoseEstimator(
-				kinematics,
-				new Rotation2d(gyro.getAngle()),
-				getModulePositions(),
-				new Pose2d()
-			);
-		this.vision = Vision.getInstance();
+		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getModulePositions());
 	}
 
 	/**
@@ -113,16 +103,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 	 */
 	@Override
 	public void periodic() {
-		poseEstimator.update(
-			new Rotation2d(gyro.getAngle()),
-			getModulePositions()
-		);
-		if (vision.hasValidTargets(0)) {
-			poseEstimator.addVisionMeasurement(
-				vision.getRobotPose(0),
-				Timer.getFPGATimestamp()
-			);
-		}
+		odometry.update(gyro.getRotation2d(), getModulePositions());
 	}
 
 	/**
@@ -241,7 +222,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 	}
 
 	/**
-	 * Gets the positions of the swerve modules. Used primarily for poseEstimator
+	 * Gets the positions of the swerve modules. Used primarily for odometry
 	 * @return an array containing the positions of the swerve modules in the same order they were put into the SwerveDrive constructor
 	 */
 	public SwerveModulePosition[] getModulePositions() {
@@ -261,11 +242,11 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 	}
 
 	/**
-	 * Gets the robot's current odometric position -- Estimated Using Vision if Possible
+	 * Gets the robot's current odometric position
 	 * @return the robot's current pose
 	 */
 	public Pose2d getRobotPose() {
-		return poseEstimator.getEstimatedPosition();
+		return odometry.getPoseMeters();
 	}
 
 	/**
@@ -273,11 +254,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 	 * @param newPose the pose the robot should be
 	 */
 	public void resetPose(Pose2d newPose) {
-		poseEstimator.resetPosition(
-			new Rotation2d(gyro.getAngle()),
-			getModulePositions(),
-			newPose
-		);
+		odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), newPose);
 	}
 
 	/**

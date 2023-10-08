@@ -4,15 +4,16 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
+import frc.robot.Constants.EnumConstants.TalonModel;
 import frc.robot.hardware.interfaces.SwerveMotorController;
 import frc.robot.subsystems.messaging.MessagingSystem;
 
 public class TalonMotorController extends BaseTalon implements SwerveMotorController{
     private double TICKS_PER_RADIAN;
 
-    public TalonMotorController(int deviceID, String motorModel) {
-        super(deviceID, motorModel);
-        switch (motorModel) {
+    public TalonMotorController(int deviceID, TalonModel model) {
+        super(deviceID, model.model);
+        switch (model.model) {
             case "Talon FX":
                 TICKS_PER_RADIAN = 2048 / Math.PI / 2;
                 break;

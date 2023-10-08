@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.EnumConstants.TalonModel;
 import frc.robot.hardware.SparkMaxMotorController;
 import frc.robot.hardware.TalonMotorController;
 import frc.robot.hardware.interfaces.SwerveMotorController;
@@ -40,13 +41,13 @@ public class SwerveModule {
 		if (neoDrive) {
 			driveMotor = new SparkMaxMotorController(driveId, MotorType.kBrushless);
 		} else {
-			driveMotor = new TalonMotorController(driveId, "Talon FX");
+			driveMotor = new TalonMotorController(driveId, TalonModel.TalonFX);
 		}
 
 		if (neoAngle) {
 			angleMotor = new SparkMaxMotorController(angleId, MotorType.kBrushless);
 		} else {
-			angleMotor = new TalonMotorController(angleId, "Talon FX");
+			angleMotor = new TalonMotorController(angleId, TalonModel.TalonFX);
 		}
 
 		driveMotor.configureForSwerve(invertDrive, 35, drivekP, 0, true);
