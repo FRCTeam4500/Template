@@ -60,7 +60,7 @@ public class SwerveDriveCommand extends CommandBase {
 		double triggerTotal = controller.getLeftTriggerAxis() - controller.getRightTriggerAxis();
 		double rightX = -controller.getRightX();
 		double rightY = -controller.getRightY();
-		double rightAngle = Math.atan(rightY / rightX);
+		double rightAngle = Math.toDegrees(Math.atan(rightY / rightX));
 		double rightMagnitude = Math.sqrt((Math.pow(rightX, 2)) + Math.pow(rightY, 2));
 		double leftX = -controller.getLeftX();
 		double leftY = -controller.getLeftY();
