@@ -98,20 +98,21 @@ public class Limelight {
 	 * @return
 	 */
 	public Pose3d getRobotPoseToAlliance(Alliance alliance) {
-		double[] raw;
-		String allianceString;
-		if (alliance.name() != null) {
-			allianceString = alliance.name();
-		} else {
-			return null;
+		double[] raw = new double[6];
+		switch(alliance) {
+			case Red:
+				raw = table.getEntry("botpose_wpired").getDoubleArray(new double[6]);
+			case Blue:
+				raw = table.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+			default:
+				break;
 		}
-		raw = table.getEntry(allianceString).getDoubleArray(new double[6]);
 		return new Pose3d(
-			raw[0],
-			raw[1],
-			raw[2],
-			new Rotation3d(raw[3], raw[4], raw[5])
-		);
+					raw[0],
+					raw[1],
+					raw[2],
+					new Rotation3d(raw[3], raw[4], raw[5])
+				);
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package frc.robot.utilities;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.subsystems.messaging.MessagingSystem;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.vision.Vision;
@@ -30,6 +31,8 @@ public class LogSubsystemInputsTask extends TimerTask {
 		Logger.getInstance().processInputs("Messaging System", messagingSystem.getInputs());
 		Logger.getInstance().processInputs("Vision", vision.getInputs());
 		Logger.getInstance().recordOutput("Odometry", swerve.getRobotPose());
+		Logger.getInstance().recordOutput("Vision Odometry", vision.getLimelight(0).getRobotPoseToAlliance(Alliance.Red).toPose2d());
+		Logger.getInstance().recordOutput("Visoni Odometry", vision.fieldPose);
 		SwerveModuleState[] states = swerve.getModuleStates();
 		Logger
 			.getInstance()

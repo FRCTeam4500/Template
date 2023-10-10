@@ -4,6 +4,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
 import frc.robot.hardware.Limelight.CameraMode;
@@ -12,7 +14,7 @@ public class Vision extends SubsystemBase implements VisionInterface{
 
 	private static Vision instanceVision;
 	private Limelight[] limelights = new Limelight[2];
-
+	public Pose2d fieldPose;
 	private VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
 
 	private Vision() {
@@ -20,10 +22,19 @@ public class Vision extends SubsystemBase implements VisionInterface{
 		limelights[1] = new Limelight("limelight-haha"); // Limelight 2, used for game pieces
 		setPipeline(0, 0);
 		setPipeline(1, 0);
+		Shuffleboard.getTab("Vision").addInteger("Tag ID", () -> limelights[0].getTargetTagId());
+		Shuffleboard.getTab("Vision").addDouble("Robot X", () -> limelights[0].getRobotPoseToField().getX());
+		Shuffleboard.getTab("Vision").addDouble("Robot Y", () -> limelights[0].getRobotPoseToField().getY());
+		Shuffleboard.getTab("Vision").addDouble("Robot Z", () -> limelights[0].getRobotPoseToField().getRotation().toRotation2d().getDegrees());
 	}
 
 	public VisionInputsAutoLogged getInputs() {
 		return inputs;
+	}
+
+	@Override
+	public void periodic() {
+		this.fieldPose = limelights[0].getRobotPoseToAlliance(Alliance.Red).toPose2d();
 	}
 
 	public void updateInputs(VisionInputs inputs) {

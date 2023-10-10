@@ -66,7 +66,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 				true,
 				false,
 				new PIDConstants(0.075, 0, 0),
-				new PIDConstants(0.3, 0, 0),
+				new PIDConstants(0.25, 0, 0),
 				false,
 				false
 			),
