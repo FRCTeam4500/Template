@@ -92,12 +92,12 @@ public class SwerveDriveCommand extends CommandBase {
 	}
 
 	private void moveAngleCentric(double xSpeed, double ySpeed) {
-		double wSpeed =
-			3.75 *
-			angleController.calculate(
-				swerve.getRobotAngle(),
-				Math.toRadians(targetAngle)
-			);
+		double angleDif = Math.toRadians(targetAngle) - swerve.getRobotAngle();
+		double wSpeed = 0;
+		if (Math.abs(angleDif) < Math.PI / 4) {
+			wSpeed = angleDif * 3.75;
+		}
+		
 		swerve.driveFieldCentric(ySpeed, xSpeed, wSpeed);
 	}
 
