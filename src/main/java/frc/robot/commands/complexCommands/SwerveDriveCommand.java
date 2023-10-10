@@ -102,7 +102,7 @@ public class SwerveDriveCommand extends CommandBase {
 	}
 
 	public void resetGyro(double offsetDegrees) {
-		targetAngle = 0;
+		targetAngle = offsetDegrees;
 		swerve.resetRobotAngle(Math.toRadians(offsetDegrees));
 	}
 
