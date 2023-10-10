@@ -43,14 +43,16 @@ public class SwerveDriveCommand extends CommandBase {
 	private double ySpeed;
 	private double zSpeed;
 
-	private double targetAngle = 0;
+	private double targetAngle;
 
 	public SwerveDriveCommand(DriveController xboxController) {
 		swerve = SwerveDrive.getInstance();
 		controller = xboxController;
 		driveMode = DriveMode.AngleCentric;
-		angleController = new PIDController(1, 0, 0);
+		angleController = new PIDController(4, 0, 0);
 		angleController.enableContinuousInput(-Math.PI, Math.PI);
+		angleController.setTolerance(Math.PI/32, Math.PI/32);
+		setTargetAngle(Math.toDegrees(swerve.getRobotAngle() % (2 * Math.PI)));
 		fastSpeed();
 		addRequirements(swerve);
 	}
@@ -62,10 +64,10 @@ public class SwerveDriveCommand extends CommandBase {
 		double leftX = -controller.getLeftX();
 		double leftY = -controller.getLeftY();
 		if (Math.abs(rightY) > 0.5) {
-			targetAngle = 90 - 90 * Math.signum(rightY);
+			setTargetAngle(90 - 90 * Math.signum(rightY));
 		}
 		if (Math.abs(rightX) > 0.1) {
-			targetAngle += rightX * zSens;
+			setTargetAngle(targetAngle + rightX * zSens);
 		}
 
 		if(doSlew) {
@@ -92,17 +94,18 @@ public class SwerveDriveCommand extends CommandBase {
 	}
 
 	private void moveAngleCentric(double xSpeed, double ySpeed) {
-		double angleDif = Math.toRadians(targetAngle) - swerve.getRobotAngle();
 		double wSpeed = 0;
-		if (Math.abs(angleDif) < Math.PI / 4) {
-			wSpeed = angleDif * 3.75;
+		if (!angleController.atSetpoint()) {
+			wSpeed = angleController.calculate(
+				swerve.getRobotAngle() % (2 * Math.PI)
+			);
 		}
 		
 		swerve.driveFieldCentric(ySpeed, xSpeed, wSpeed);
 	}
 
 	public void resetGyro(double offsetDegrees) {
-		targetAngle = offsetDegrees;
+		setTargetAngle(offsetDegrees);
 		swerve.resetRobotAngle(Math.toRadians(offsetDegrees));
 	}
 
@@ -124,6 +127,7 @@ public class SwerveDriveCommand extends CommandBase {
 
 	public void setTargetAngle(double angle) {
 		targetAngle = angle;
+		angleController.setSetpoint(Math.toRadians(angle));
 	}
 
 	public void switchDriveMode() {

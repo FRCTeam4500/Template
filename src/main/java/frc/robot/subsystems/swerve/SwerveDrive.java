@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import com.pathplanner.lib.auto.PIDConstants;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -41,8 +43,8 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 				SwerveConstants.FRONT_LEFT_MODULE_TRANSLATION,
 				true,
 				false,
-				0.1,
-				0.3,
+				new PIDConstants(0.075, 0, 0),
+				new PIDConstants(0.3, 0, 0),
 				false,
 				false
 			),
@@ -52,8 +54,8 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 				SwerveConstants.FRONT_RIGHT_MODULE_TRANSLATION,
 				false,
 				false,
-				0.1,
-				0.3,
+				new PIDConstants(0.05, 0, 0),
+				new PIDConstants(0.3, 0, 0),
 				false,
 				false
 			),
@@ -63,8 +65,8 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 				SwerveConstants.BACK_LEFT_MODULE_TRANSLATION,
 				true,
 				false,
-				0.1,
-				0.3,
+				new PIDConstants(0.075, 0, 0),
+				new PIDConstants(0.3, 0, 0),
 				false,
 				false
 			),
@@ -74,8 +76,8 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 				SwerveConstants.BACK_RIGHT_MODULE_TRANSLATION,
 				false,
 				false,
-				0.1,
-				0.3,
+				new PIDConstants(0.05, 0, 0),
+				new PIDConstants(0.3, 0, 0),
 				false,
 				false
 			),

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import com.pathplanner.lib.auto.PIDConstants;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -33,8 +34,8 @@ public class SwerveModule {
 		Translation2d translationToCenter,
 		boolean invertDrive,
 		boolean invertAngle,
-		double drivekP,
-		double anglekP,
+		PIDConstants drivePID,
+		PIDConstants anglePID,
 		boolean neoDrive,
 		boolean neoAngle
 	) {
@@ -50,8 +51,8 @@ public class SwerveModule {
 			angleMotor = new TalonMotorController(angleId, TalonModel.TalonFX);
 		}
 
-		driveMotor.configureForSwerve(invertDrive, 35, drivekP, 0, true);
-		angleMotor.configureForSwerve(invertAngle, 25, anglekP, 0, false);
+		driveMotor.configureForSwerve(invertDrive, 35, drivePID, true);
+		angleMotor.configureForSwerve(invertAngle, 25, anglePID, false);
 		this.translationFromCenter = translationToCenter;
 	}
 

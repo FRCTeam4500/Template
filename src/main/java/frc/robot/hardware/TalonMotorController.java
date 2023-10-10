@@ -3,6 +3,7 @@ package frc.robot.hardware;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.pathplanner.lib.auto.PIDConstants;
 
 import frc.robot.Constants.EnumConstants.TalonModel;
 import frc.robot.hardware.interfaces.SwerveMotorController;
@@ -53,17 +54,20 @@ public class TalonMotorController extends BaseTalon implements SwerveMotorContro
         return getSelectedSensorPosition() / TICKS_PER_RADIAN;
     }
 
-    public void configureForSwerve(boolean isInverted, int currentLimit, double kP, double kD, boolean isDriveMotor){
+    public void configureForSwerve(boolean isInverted, int currentLimit, PIDConstants pid, boolean isDriveMotor){
         if (isDriveMotor) {
             configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit + 1, 0.1),
 			50);
-            config_kP(0, kP);
-            config_kF(0, 0.047);
+            config_kP(0, pid.kP);
+            config_kI(0, pid.kI);
+            config_kD(0, pid.kD);
             config_IntegralZone(0, 0);
             setInverted(isInverted);
         } else {
             setInverted(isInverted);
-            config_kP(0, kP);
+            config_kP(0, pid.kP);
+            config_kI(0, pid.kI);
+            config_kD(0, pid.kD);
             configMotionCruiseVelocity(10000);
             configMotionAcceleration(10000);
             configAllowableClosedloopError(0, 0);
