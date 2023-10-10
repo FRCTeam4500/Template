@@ -57,19 +57,15 @@ public class SwerveDriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		double triggerTotal = controller.getLeftTriggerAxis() - controller.getRightTriggerAxis();
 		double rightX = -controller.getRightX();
 		double rightY = -controller.getRightY();
-		double rightAngle = Math.toDegrees(Math.atan(rightY / rightX));
-		double rightMagnitude = Math.sqrt((Math.pow(rightX, 2)) + Math.pow(rightY, 2));
 		double leftX = -controller.getLeftX();
 		double leftY = -controller.getLeftY();
-
-		if (rightMagnitude > 0.1) {
-			targetAngle = rightAngle;
+		if (Math.abs(rightY) > 0.5) {
+			targetAngle = 90 + 90 * Math.signum(rightY);
 		}
-		if (Math.abs(triggerTotal) > 0.1) {
-			targetAngle += triggerTotal * Math.toDegrees(zSens);
+		if (Math.abs(rightX) > 0.1) {
+			targetAngle += rightX * zSens;
 		}
 
 		if(doSlew) {
