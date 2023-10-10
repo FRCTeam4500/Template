@@ -101,6 +101,11 @@ public class SwerveDriveCommand extends CommandBase {
 		swerve.driveFieldCentric(ySpeed, xSpeed, wSpeed);
 	}
 
+	public void resetGyro(double offsetDegrees) {
+		targetAngle = 0;
+		swerve.resetRobotAngle(Math.toRadians(offsetDegrees));
+	}
+
 	public void fastSpeed() {
 		xSens = 4;
 		ySens = 4;

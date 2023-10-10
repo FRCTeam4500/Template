@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.JoystickConstants;
 import frc.robot.commands.baseCommands.CancellationCommand;
-import frc.robot.commands.baseCommands.ResetGyroCommand;
 import frc.robot.commands.complexCommands.SwerveDriveCommand;
 import frc.robot.subsystems.messaging.MessagingSystem;
 import frc.robot.subsystems.swerve.SwerveDrive;
@@ -40,7 +39,7 @@ public class DriveController extends CommandXboxController {
 
 		switchDriveModeButton.toggleOnTrue(new InstantCommand(() -> swerveCommand.switchDriveMode()));
 
-		resetGyroButton.toggleOnTrue(new ResetGyroCommand());
+		resetGyroButton.toggleOnTrue(new InstantCommand(() -> swerveCommand.resetGyro(0)));
 
 		slowModeButton.toggleOnTrue(new InstantCommand(() -> swerveCommand.slowSpeed()));
 		slowModeButton.toggleOnFalse(new InstantCommand(() -> swerveCommand.fastSpeed()));
