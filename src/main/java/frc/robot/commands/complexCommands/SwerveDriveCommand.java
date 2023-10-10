@@ -62,7 +62,7 @@ public class SwerveDriveCommand extends CommandBase {
 		double leftX = -controller.getLeftX();
 		double leftY = -controller.getLeftY();
 		if (Math.abs(rightY) > 0.5) {
-			targetAngle = 90 + 90 * Math.signum(rightY);
+			targetAngle = 90 - 90 * Math.signum(rightY);
 		}
 		if (Math.abs(rightX) > 0.1) {
 			targetAngle += rightX * zSens;
