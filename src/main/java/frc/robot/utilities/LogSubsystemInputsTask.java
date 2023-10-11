@@ -31,8 +31,7 @@ public class LogSubsystemInputsTask extends TimerTask {
 		Logger.getInstance().processInputs("Messaging System", messagingSystem.getInputs());
 		Logger.getInstance().processInputs("Vision", vision.getInputs());
 		Logger.getInstance().recordOutput("Odometry", swerve.getRobotPose());
-		Logger.getInstance().recordOutput("Vision Odometry", vision.getLimelight(0).getRobotPoseToAlliance(Alliance.Red).toPose2d());
-		Logger.getInstance().recordOutput("Visoni Odometry", vision.fieldPose);
+		Logger.getInstance().recordOutput("Vision Odometry", vision.getLimelight(0).getRobotPoseToAlliance(Alliance.Red));
 		SwerveModuleState[] states = swerve.getModuleStates();
 		Logger
 			.getInstance()
