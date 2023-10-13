@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import org.littletonrobotics.junction.LogTable;
+
 import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,23 +19,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.hardware.Gyro;
 import frc.robot.subsystems.messaging.MessagingSystem;
+import frc.robot.utilities.Loggable;
 
 /**
  * Subsystem class which represents the drivetrain of our robot
  * <p> Used to move the robot chassis
  */
-public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
+public class SwerveDrive extends SubsystemBase implements Loggable {
 	private Gyro gyro;	
 	private SwerveModule[] modules;
 	private SwerveDriveKinematics kinematics;
 	private SwerveDriveOdometry odometry;
 	private static SwerveDrive instanceSwerve;
 	private double currentGyroZero;
-	private DriveInputsAutoLogged inputs = new DriveInputsAutoLogged();
-
-	public DriveInputsAutoLogged getInputs() {
-		return inputs;
-	}
 
 	private SwerveDrive() {
 		SwerveModule[] modules = {
@@ -288,48 +286,21 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		return currentGyroZero;
 	}
 
-	/**
-	 * Update with real values
-	 * <p>Order:
-	 * <p>Front Left, Front Right, Back Left, Back Right
-	 */
 	@Override
-	public void updateInputs(DriveInputs inputs) {
-		// inputs.frontLeftModuleDriveMeters =
-		// 	modules[0].getModulePosition().distanceMeters;
-		inputs.frontLeftModuleDriveVelocity =
-			modules[0].getModuleState().speedMetersPerSecond;
-		inputs.frontLeftModuleAngleRad =
-			modules[0].getModuleState().angle.getRadians();
-		// inputs.frontLeftModuleAngleVelocity = modules[0].getAngularVelocity();
+	public void logData(LogTable table) {
+		table.put("Front Left Module Velocity (M/S)", modules[0].getModuleState().speedMetersPerSecond);
+		table.put("Front Left Module Angle (Radians)", modules[0].getModuleState().angle.getRadians());
+		table.put("Front Right Module Velocity (M/S)", modules[1].getModuleState().speedMetersPerSecond);
+		table.put("Front Right Module Angle (Radians)", modules[1].getModuleState().angle.getRadians());
+		table.put("Back Left Module Velocity (M/S)", modules[2].getModuleState().speedMetersPerSecond);
+		table.put("Back Left Module Angle (Radians)", modules[2].getModuleState().angle.getRadians());
+		table.put("Back Right Module Velocity (M/S)", modules[3].getModuleState().speedMetersPerSecond);
+		table.put("Back Right Module Angle (Radians)", modules[3].getModuleState().angle.getRadians());
+	}
 
-		// inputs.frontRightModuleDriveMeters =
-		// 	modules[1].getModulePosition().distanceMeters;
-		inputs.frontRightModuleDriveVelocity =
-			modules[1].getModuleState().speedMetersPerSecond;
-		inputs.frontRightModuleAngleRad =
-			modules[1].getModuleState().angle.getRadians();
-		// inputs.frontRightModuleAngleVelocity = modules[1].getAngularVelocity();
-
-		// inputs.backLeftModuleDriveMeters =
-		// 	modules[2].getModulePosition().distanceMeters;
-		inputs.backLeftModuleDriveVelocity =
-			modules[2].getModuleState().speedMetersPerSecond;
-		inputs.backLeftModuleAngleRad =
-			modules[2].getModuleState().angle.getRadians();
-		// inputs.backLeftModuleAngleVelocity = modules[2].getAngularVelocity();
-
-		// inputs.backRightModuleDriveMeters =
-		// 	modules[3].getModulePosition().distanceMeters;
-		inputs.backRightModuleDriveVelocity =
-			modules[3].getModuleState().speedMetersPerSecond;
-		inputs.backRightModuleAngleRad =
-			modules[3].getModuleState().angle.getRadians();
-		// inputs.backRightModuleAngleVelocity = modules[3].getAngularVelocity();
-
-		// inputs.gyroYawRad = gyro.getAngle();
-		// inputs.gyroPitchRad = gyro.getPitch();
-		// inputs.gyroRollRad = gyro.getRoll();
+	@Override
+	public String getTableName() {
+		return "Swerve";
 	}
 
 	/**

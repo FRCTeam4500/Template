@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
 
+import org.littletonrobotics.junction.LogTable;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -8,12 +10,12 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
 import frc.robot.hardware.Limelight.CameraMode;
+import frc.robot.utilities.Loggable;
 
-public class Vision extends SubsystemBase implements VisionInterface{
+public class Vision extends SubsystemBase implements Loggable{
 
 	private static Vision instanceVision;
 	private Limelight[] limelights = new Limelight[2];
-	private VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
 
 	private Vision() {
 		limelights[0] = new Limelight("limelight-hehehe"); // Limelight 3, used for april tags
@@ -24,13 +26,14 @@ public class Vision extends SubsystemBase implements VisionInterface{
 		Shuffleboard.getTab("Vision").addDouble("Tag Skew", () -> Math.toDegrees(limelights[0].getSkew()));
 	}
 
-	public VisionInputsAutoLogged getInputs() {
-		return inputs;
+	@Override
+	public void logData(LogTable table) {
+		table.put("Tag ID", limelights[0].getTargetTagId());
 	}
 
-	public void updateInputs(VisionInputs inputs) {
-		inputs.horizontalAngleOffset = getHorizontalAngleOffset(0);
-		inputs.robotPose = getRobotPose(0);
+	@Override
+	public String getTableName() {
+		return "Vision";
 	}
 
 	public static synchronized Vision getInstance() {

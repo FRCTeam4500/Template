@@ -1,19 +1,16 @@
 package frc.robot.subsystems.messaging;
 
+import org.littletonrobotics.junction.LogTable;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.Loggable;
 
-public class MessagingSystem extends SubsystemBase implements MessagingSystemInterface{
+public class MessagingSystem extends SubsystemBase implements Loggable{
     private static MessagingSystem systemInstance;
     private String message;
     private String newestMessage;
     private boolean isEnabled = false;
-
-    private MessagingSystemInputsAutoLogged inputs = new MessagingSystemInputsAutoLogged();
-
-    public MessagingSystemInputsAutoLogged getInputs() {
-        return inputs;
-    }
 
     private MessagingSystem() {
         message = "MESSAGES APPEAR BELOW";
@@ -41,8 +38,14 @@ public class MessagingSystem extends SubsystemBase implements MessagingSystemInt
 		return systemInstance;
 	}
 
-    public void updateInputs(MessagingSystemInputs inputs) {
-        inputs.messageString = newestMessage;
+    @Override
+    public void logData(LogTable table) {
+        table.put("Message", newestMessage);
+    }
+
+    @Override
+    public String getTableName() {
+        return "Messaging System";
     }
 
     public void initSendable(SendableBuilder builder) {
