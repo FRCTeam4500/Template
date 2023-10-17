@@ -1,6 +1,7 @@
 package frc.robot.utilities;
 
 import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class LogInputs implements LoggableInputs{
@@ -20,7 +21,7 @@ public class LogInputs implements LoggableInputs{
     }
 
     public void toLog(LogTable table) {
-        target.logData(table);
+        target.logData(Logger.getInstance(), table);
     }
 
     public void fromLog(LogTable table) {}

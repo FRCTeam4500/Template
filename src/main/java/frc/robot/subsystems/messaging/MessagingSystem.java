@@ -1,6 +1,7 @@
 package frc.robot.subsystems.messaging;
 
 import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +40,7 @@ public class MessagingSystem extends SubsystemBase implements Loggable{
 	}
 
     @Override
-    public void logData(LogTable table) {
+    public void logData(Logger logger,LogTable table) {
         table.put("Message", newestMessage);
     }
 

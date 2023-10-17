@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.PIDConstants;
 
@@ -287,7 +288,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	}
 
 	@Override
-	public void logData(LogTable table) {
+	public void logData(Logger logger, LogTable table) {
 		table.put("Front Left Module Velocity (M/S)", modules[0].getModuleState().speedMetersPerSecond);
 		table.put("Front Left Module Angle (Radians)", modules[0].getModuleState().angle.getRadians());
 		table.put("Front Right Module Velocity (M/S)", modules[1].getModuleState().speedMetersPerSecond);
@@ -296,6 +297,8 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		table.put("Back Left Module Angle (Radians)", modules[2].getModuleState().angle.getRadians());
 		table.put("Back Right Module Velocity (M/S)", modules[3].getModuleState().speedMetersPerSecond);
 		table.put("Back Right Module Angle (Radians)", modules[3].getModuleState().angle.getRadians());
+		logger.recordOutput("Swerve Odometry", getRobotPose());
+		logger.recordOutput("Module States", getModuleStates());
 	}
 
 	@Override
