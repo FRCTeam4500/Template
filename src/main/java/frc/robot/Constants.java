@@ -105,17 +105,7 @@ public class Constants {
 			-0.3175,
 			-0.2413
 		);
-
-
-		public static final int DBRPORT = 9; //drive back right port
-		public static final int DBLPORT = 2; //drive back left port
-		public static final int DFLPORT = 3; //drive front left port
-		public static final int DFRPORT = 4; //drive front right port
-		public static final int ABRPORT = 5; //angle back right port
-		public static final int ABLPORT = 6; //angle back left port
-		public static final int AFLPORT = 7; //angle front left port
-		public static final int AFRPORT = 8; //angle front right port
-
+		
 		public static final double WHEEL_DIAMETER = 0.0762; // in meters
 
 
