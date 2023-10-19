@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.PIDConstants;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -16,21 +17,21 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.hardware.Gyro;
 import frc.robot.subsystems.messaging.MessagingSystem;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.utilities.Loggable;
 
-/**
- * Subsystem class which represents the drivetrain of our robot
- * <p> Used to move the robot chassis
- */
 public class SwerveDrive extends SubsystemBase implements Loggable {
 	private Gyro gyro;	
+	private Vision vision;
 	private SwerveModule[] modules;
 	private SwerveDriveKinematics kinematics;
 	private SwerveDriveOdometry odometry;
+	private SwerveDrivePoseEstimator poseEstimator;
 	private static SwerveDrive instanceSwerve;
 	private double currentGyroZero;
 
@@ -85,13 +86,10 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		currentGyroZero = 0;
 		gyro = new Gyro(I2C.Port.kMXP);
 		kinematics = new SwerveDriveKinematics(getModuleTranslations());
-		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getModulePositions());
+		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
+		poseEstimator = new SwerveDrivePoseEstimator(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
 	}
 
-	/**
-	 * Gets the instance of the swerve drive. If the instance doesn't exist, it creates it
-	 * @return the instance of the swerve drive
-	 */
 	public static synchronized SwerveDrive getInstance() {
 		if (instanceSwerve == null) {
 			instanceSwerve = new SwerveDrive();
@@ -99,12 +97,13 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		return instanceSwerve;
 	}
 
-	/**
-	 * A method from Subsystem Base. <p>Our code probably shouldn't call this. This is called every scheduler tick (20ms) by WPI. Code that needs to be run repeadly should be put here
-	 */
 	@Override
 	public void periodic() {
 		odometry.update(gyro.getRotation2d(), getModulePositions());
+		poseEstimator.update(gyro.getRotation2d(), getModulePositions());
+		if (vision.getTagId() != -1) {
+			poseEstimator.addVisionMeasurement(vision.getRobotPose(), Timer.getFPGATimestamp());
+		}
 	}
 
 	/**
@@ -148,10 +147,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		);
 	}
 
-	/**
-	 * Uses inverse kinematics to convert a robot-relative set of chassis speeds into states to send to the swerve modules
-	 * @param targetChassisSpeeds The target robot-relative chassis speeds
-	 */
 	public void driveModules(ChassisSpeeds targetChassisSpeeds) {
 		SwerveModuleState[] states = kinematics.toSwerveModuleStates(
 			discretize(targetChassisSpeeds)
@@ -198,10 +193,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		}
 	}
 
-	/**
-	 * Gets the translations of the swerve modules from the center of the robot. Used when initializing the kinematics object
-	 * @return an array containing the translations of the swerve modules in the same order they were put into the SwerveDrive constructor
-	 */
 	public Translation2d[] getModuleTranslations() {
 		Translation2d[] translations = new Translation2d[modules.length];
 		for (int i = 0; i < modules.length; i++) {
@@ -210,10 +201,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		return translations;
 	}
 
-	/**
-	 * Gets the states of the swerve modules. Used primarily for kinematics
-	 * @return an array containing the states of the swerve modules in the same order they were put into the SwerveDrive constructor
-	 */
 	public SwerveModuleState[] getModuleStates() {
 		SwerveModuleState[] states = new SwerveModuleState[modules.length];
 		for (int i = 0; i < modules.length; i++) {
@@ -222,10 +209,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		return states;
 	}
 
-	/**
-	 * Gets the positions of the swerve modules. Used primarily for odometry
-	 * @return an array containing the positions of the swerve modules in the same order they were put into the SwerveDrive constructor
-	 */
 	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
 		for (int i = 0; i < modules.length; i++) {
@@ -234,34 +217,23 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		return positions;
 	}
 
-	/**
-	 * Uses forward kinematics to turn the swerve module's states into a chassis speeds for the robot
-	 * @return The robot's current chassis speeds
-	 */
 	public ChassisSpeeds getChassisSpeeds() {
 		return kinematics.toChassisSpeeds(getModuleStates());
 	}
 
-	/**
-	 * Gets the robot's current odometric position
-	 * @return the robot's current pose
-	 */
 	public Pose2d getRobotPose() {
+		return poseEstimator.getEstimatedPosition();
+	}
+
+	public Pose2d getRobotPoseNoVision() {
 		return odometry.getPoseMeters();
 	}
 
-	/**
-	 * Sets the robot's odometric position to a given position
-	 * @param newPose the pose the robot should be
-	 */
 	public void resetPose(Pose2d newPose) {
 		odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), newPose);
+		poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), newPose);
 	}
 
-	/**
-	 * Gets the angle of the robot relative to the current field-centric zero
-	 * @return the robot's field-centric angle in radians
-	 */
 	public double getRobotAngle() {
 		return gyro.getAngle() - currentGyroZero;
 	}
@@ -276,9 +248,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		MessagingSystem.getInstance().addMessage("Swerve -> Reset Gyro");
 	}
 
-	/**
-	 * Sets where the robot is currently facing to the field-centric zero
-	 */
 	public void resetRobotAngle() {
 		resetRobotAngle(0);
 	}
@@ -297,7 +266,8 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		table.put("Back Left Module Angle (Radians)", modules[2].getModuleState().angle.getRadians());
 		table.put("Back Right Module Velocity (M/S)", modules[3].getModuleState().speedMetersPerSecond);
 		table.put("Back Right Module Angle (Radians)", modules[3].getModuleState().angle.getRadians());
-		logger.recordOutput("Swerve Odometry", getRobotPose());
+		logger.recordOutput("Swerve Odometry", getRobotPoseNoVision());
+		logger.recordOutput("Swerve + Vision Odometry", getRobotPose());
 		logger.recordOutput("Module States", getModuleStates());
 	}
 
@@ -306,9 +276,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		return "Swerve";
 	}
 
-	/**
-	 * A method from SubsystemBase. <p>Adds properties of the subsystem to shuffleboard. Our code should never call this class, that is done by WPI
-	 */
 	@Override
 	public void initSendable(SendableBuilder builder) {
 		builder.addDoubleProperty("Gyro Angle: ", () -> gyro.getAngle(), null);
@@ -333,17 +300,17 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 			null
 		);
 		builder.addDoubleProperty(
-			"Odometric X: ",
+			"Estimated X: ",
 			() -> getRobotPose().getX(),
 			null
 		);
 		builder.addDoubleProperty(
-			"Odometric Y: ",
+			"Estimated Y: ",
 			() -> getRobotPose().getY(),
 			null
 		);
 		builder.addDoubleProperty(
-			"Odometric Rotation: ",
+			"Estimated Rotation: ",
 			() -> getRobotPose().getRotation().getRadians(),
 			null
 		);

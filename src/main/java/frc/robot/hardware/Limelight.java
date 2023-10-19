@@ -19,7 +19,7 @@ public class Limelight {
 
 	public Limelight(String limelightName) {
 		table = NetworkTableInstance.getDefault().getTable(limelightName);
-		table.getEntry("getpipe").setNumber(0);
+		setPipeline(0);
 	}
 
 	public enum CameraMode {

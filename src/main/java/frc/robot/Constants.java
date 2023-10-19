@@ -51,6 +51,12 @@ public class Constants {
 		);
 	}
 
+	public static class VisionConstants {
+		public static int APRIL_TAG_PIPLINE = 0;
+		public static int REFLECTIVE_TAPE_PIPELINE = 0;
+	}
+
+
 	public static class EnumConstants {
 		public static enum DriveMode {
 			AngleCentric,
