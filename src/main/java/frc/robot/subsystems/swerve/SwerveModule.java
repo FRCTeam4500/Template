@@ -18,41 +18,21 @@ public class SwerveModule {
 	private SwerveMotorController angleMotor;
 	private Translation2d translationFromCenter;
 
-	/**
-	 * Creates a new swerve module
-	 * @param driveId The CAN ID of the drive motor
-	 * @param angleId The CAN ID of the angle motor
-	 * @param translationToCenter The translation of the swerve module relative to the center of the robot
-	 * @param invertDrive Whether to invert the direction of the drive motor
-	 * @param invertAngle Whether to invert the direction of the angle motor
-	 * @param drivekP The P value used in the PID controller of the drive motor
-	 * @param anglekP The P value used in the PID controller of the angle motor
-	 */
 	public SwerveModule(
-		int driveId,
-		int angleId,
-		Translation2d translationToCenter,
-		boolean invertDrive,
-		boolean invertAngle,
-		PIDConstants drivePID,
-		PIDConstants anglePID,
-		boolean neoDrive,
-		boolean neoAngle
+		SwerveMotorConfig driveConfig,
+		SwerveMotorConfig angleConfig,
+		Translation2d translationToCenter
 	) {
-		if (neoDrive) {
-			driveMotor = new SparkMaxMotorController(driveId, MotorType.kBrushless);
-		} else {
-			driveMotor = new TalonMotorController(driveId, TalonModel.TalonFX);
-		}
+		driveMotor = driveConfig.isNeo ? 
+			new SparkMaxMotorController(driveConfig.canId, MotorType.kBrushless) :
+			new TalonMotorController(driveConfig.canId, TalonModel.TalonFX);
 
-		if (neoAngle) {
-			angleMotor = new SparkMaxMotorController(angleId, MotorType.kBrushless);
-		} else {
-			angleMotor = new TalonMotorController(angleId, TalonModel.TalonFX);
-		}
+		angleMotor = angleConfig.isNeo ? 
+			new SparkMaxMotorController(angleConfig.canId, MotorType.kBrushless) :
+			new TalonMotorController(angleConfig.canId, TalonModel.TalonFX);
 
-		driveMotor.configureForSwerve(invertDrive, 35, drivePID, true);
-		angleMotor.configureForSwerve(invertAngle, 25, anglePID, false);
+		driveMotor.configureForSwerve(driveConfig);
+		angleMotor.configureForSwerve(angleConfig);
 		this.translationFromCenter = translationToCenter;
 	}
 
@@ -107,5 +87,24 @@ public class SwerveModule {
 			2 /
 			(SwerveConstants.DRIVE_RATIO * SwerveConstants.WHEEL_DIAMETER)
 		);
+	}
+
+	public static class SwerveMotorConfig {
+		public boolean isDriveMotor;
+		public boolean isNeo;
+		public boolean invert;
+		public int canId;
+		public int currentLimit;
+		public PIDConstants pid;
+		public SwerveMotorConfig(
+			int canId, boolean isDriveMotor, boolean invert, 
+			boolean isNeo, int currentLimit, PIDConstants pid) {
+			this.canId = canId;
+			this.isDriveMotor = isDriveMotor;
+			this.invert = invert;
+			this.isNeo = isNeo;
+			this.currentLimit = currentLimit;
+			this.pid = pid;
+		}
 	}
 }

@@ -3,11 +3,11 @@ package frc.robot.hardware;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.pathplanner.lib.auto.PIDConstants;
 
 import frc.robot.Constants.EnumConstants.TalonModel;
 import frc.robot.hardware.interfaces.SwerveMotorController;
 import frc.robot.subsystems.messaging.MessagingSystem;
+import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public class TalonMotorController extends BaseTalon implements SwerveMotorController{
     private double TICKS_PER_RADIAN;
@@ -54,25 +54,16 @@ public class TalonMotorController extends BaseTalon implements SwerveMotorContro
         return getSelectedSensorPosition() / TICKS_PER_RADIAN;
     }
 
-    public void configureForSwerve(boolean isInverted, int currentLimit, PIDConstants pid, boolean isDriveMotor){
-        if (isDriveMotor) {
-            configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit + 1, 0.1),
-			50);
-            config_kP(0, pid.kP);
-            config_kI(0, pid.kI);
-            config_kD(0, pid.kD);
-            config_IntegralZone(0, 0);
-            setInverted(isInverted);
-        } else {
-            setInverted(isInverted);
-            config_kP(0, pid.kP);
-            config_kI(0, pid.kI);
-            config_kD(0, pid.kD);
-            configMotionCruiseVelocity(10000);
-            configMotionAcceleration(10000);
-            configAllowableClosedloopError(0, 0);
-            configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit + 1, 0.1), 50);
-            configClearPositionOnQuadIdx(true, 10);
-        }
+    public void configureForSwerve(SwerveMotorConfig config){
+        configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, config.currentLimit, config.currentLimit + 1, 0.1), 50);
+        setInverted(config.invert);
+        config_kP(0, config.pid.kP);
+        config_kI(0, config.pid.kI);
+        config_kD(0, config.pid.kD);
+        config_IntegralZone(0, 0);
+        configMotionCruiseVelocity(10000);
+        configMotionAcceleration(10000);
+        configAllowableClosedloopError(0, 0);
+        configClearPositionOnQuadIdx(true, 10);
     }
 }

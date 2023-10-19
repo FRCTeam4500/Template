@@ -1,7 +1,7 @@
 package frc.robot.hardware.interfaces;
 
-import com.pathplanner.lib.auto.PIDConstants;
+import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public interface SwerveMotorController extends EncodedMotorController{
-    public void configureForSwerve(boolean isInverted, int currentLimit, PIDConstants pid, boolean isDriveMotor);
+    public void configureForSwerve(SwerveMotorConfig config);
 }

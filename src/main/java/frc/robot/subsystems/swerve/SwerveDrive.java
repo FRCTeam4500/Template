@@ -3,8 +3,6 @@ package frc.robot.subsystems.swerve;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.auto.PIDConstants;
-
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -38,48 +36,24 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	private SwerveDrive() {
 		SwerveModule[] modules = {
 			new SwerveModule(
-				SwerveConstants.DFLPORT,
-				SwerveConstants.AFLPORT,
-				SwerveConstants.FRONT_LEFT_MODULE_TRANSLATION,
-				true,
-				false,
-				new PIDConstants(0.075, 0, 0),
-				new PIDConstants(0.3, 0, 0),
-				false,
-				false
+				SwerveConstants.FRONT_LEFT_DRIVE_CONFIG, 
+				SwerveConstants.FRONT_LEFT_ANGLE_CONFIG, 
+				SwerveConstants.FRONT_LEFT_MODULE_TRANSLATION
 			),
 			new SwerveModule(
-				SwerveConstants.DFRPORT,
-				SwerveConstants.AFRPORT,
-				SwerveConstants.FRONT_RIGHT_MODULE_TRANSLATION,
-				false,
-				false,
-				new PIDConstants(0.05, 0, 0),
-				new PIDConstants(0.3, 0, 0),
-				false,
-				false
+				SwerveConstants.FRONT_RIGHT_DRIVE_CONFIG, 
+				SwerveConstants.FRONT_RIGHT_ANGLE_CONFIG, 
+				SwerveConstants.FRONT_RIGHT_MODULE_TRANSLATION
 			),
 			new SwerveModule(
-				SwerveConstants.DBLPORT,
-				SwerveConstants.ABLPORT,
-				SwerveConstants.BACK_LEFT_MODULE_TRANSLATION,
-				true,
-				false,
-				new PIDConstants(0.075, 0, 0),
-				new PIDConstants(0.25, 0, 0),
-				false,
-				false
+				SwerveConstants.BACK_LEFT_DRIVE_CONFIG, 
+				SwerveConstants.BACK_LEFT_ANGLE_CONFIG, 
+				SwerveConstants.BACK_LEFT_MODULE_TRANSLATION
 			),
 			new SwerveModule(
-				SwerveConstants.DBRPORT,
-				SwerveConstants.ABRPORT,
-				SwerveConstants.BACK_RIGHT_MODULE_TRANSLATION,
-				false,
-				false,
-				new PIDConstants(0.05, 0, 0),
-				new PIDConstants(0.3, 0, 0),
-				false,
-				false
+				SwerveConstants.BACK_RIGHT_DRIVE_CONFIG, 
+				SwerveConstants.BACK_RIGHT_ANGLE_CONFIG, 
+				SwerveConstants.BACK_RIGHT_MODULE_TRANSLATION
 			),
 		};
 		this.modules = modules;
