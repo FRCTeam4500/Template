@@ -74,7 +74,7 @@ public class Constants {
 			new PIDConstants(0.075, 0, 0)
 		);
 		public static final SwerveMotorConfig BACK_LEFT_ANGLE_CONFIG = new SwerveMotorConfig(
-			7, 
+			6, 
 			false, 
 			false, 
 			false, 25, 
