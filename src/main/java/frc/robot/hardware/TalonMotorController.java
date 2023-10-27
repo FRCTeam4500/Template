@@ -14,11 +14,11 @@ public class TalonMotorController extends BaseTalon implements SwerveMotorContro
 
     public TalonMotorController(int deviceID, TalonModel model) {
         super(deviceID, model.model);
-        switch (model.model) {
-            case "Talon FX":
+        switch (model) {
+            case TalonFX:
                 TICKS_PER_RADIAN = 2048 / Math.PI / 2;
                 break;
-            case "Talon SRX": 
+            case TalonSRX: 
                 TICKS_PER_RADIAN = 4096 / Math.PI / 2;
                 break;
             default:
