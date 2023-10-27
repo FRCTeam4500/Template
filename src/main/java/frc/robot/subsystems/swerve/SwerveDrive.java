@@ -59,6 +59,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		this.modules = modules;
 		currentGyroZero = 0;
 		gyro = new Gyro(I2C.Port.kMXP);
+		vision = Vision.getInstance();
 		kinematics = new SwerveDriveKinematics(getModuleTranslations());
 		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
 		poseEstimator = new SwerveDrivePoseEstimator(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
