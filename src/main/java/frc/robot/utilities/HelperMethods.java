@@ -33,6 +33,10 @@ public class HelperMethods {
 		return Math.min(max, Math.max(min, output));
 	}
 
+	public static double clampAroundZero(double input, double max) {
+        return Math.abs(input) > Math.abs(max) ? Math.signum(input) * Math.abs(max) : input;
+    }
+
 	public static double dot(Translation2d a, Translation2d b) {
 		return a.getX() * b.getX() + a.getY() * b.getY();
 	}
