@@ -13,20 +13,17 @@ import frc.robot.hardware.Limelight;
 import frc.robot.utilities.Loggable;
 
 public class Vision extends SubsystemBase implements Loggable{
-	private static Vision instanceVision;
-	private Limelight hehehe;
-	private Limelight haha;
+	private static Vision instance;
+	private Limelight aprilTagLimelight;
+	private Limelight gamePieceLimelight;
 
 	private Vision() {
-		hehehe = new Limelight("limelight-hehehe");
-		haha = new Limelight("limelight-haha");
+		aprilTagLimelight = new Limelight("limelight-hehehe");
+		gamePieceLimelight = new Limelight("limelight-haha");
 	}
 
 	public static synchronized Vision getInstance() {
-		if (instanceVision == null) {
-			instanceVision = new Vision();
-		}
-		return instanceVision;
+		return instance == null ? new Vision() : instance;
 	}
 
 	@Override
@@ -40,77 +37,66 @@ public class Vision extends SubsystemBase implements Loggable{
 		return "Vision";
 	}
 
-	public Limelight getLimelight3() {
-		return hehehe;
+	public Limelight getAprilTageLimelight() {
+		return aprilTagLimelight;
 	}
 
-	public Limelight getLimelight2() {
-		return haha;
+	public Limelight getGamePieceLimelight() {
+		return gamePieceLimelight;
 	}
 
-	/** Gets the id of the april tag currently being targeted
-	 * <p><strong>Note: Defaults to -1 </strong> */
+	/** Defaults to -1 */
 	public int getTagId() {
-		return hehehe.getTargetTagId();
+		return aprilTagLimelight.getTargetTagId();
 	}
 
-	/** Gets the robot's position relative to the current alliance <p>
-	 * <strong>Note: Defaults to a pose at (0,0) with no rotation if no tag is seen</strong> */
+	/** Defaults to a default Pose2d */
 	public Pose2d getRobotPose() {
 		return getRobotPose(DriverStation.getAlliance());
 	}
 
-	/** Gets the robot's position relative to a specified alliance <p>
-	 * <strong>Note: Defaults to a pose at (0,0) with no rotation if no tag is seen</strong>
-	 * @param poseOrigin Sets which alliance the position is relative to */
+	/** Defaults to a default Pose2d */
 	public Pose2d getRobotPose(Alliance poseOrigin) {
-		return hehehe.getRobotPoseToAlliance(poseOrigin);
+		return aprilTagLimelight.getRobotPoseToAlliance(poseOrigin);
 	}
 
-	/** Gets the position of the currently targeted april tag relative to the robot 
-	 * <p><strong>Note: Defaults to a pose at (0,0) with no rotation if no tag is seen</strong> */
+	/** Defaults to a default Pose2d */
 	public Pose2d getRelativeTargetPose() {
-		return hehehe.getTargetPoseToRobot();
+		return aprilTagLimelight.getTargetPoseToRobot();
 	}
 
-	/** Gets the horizontal angle of the limelight 2's target 
-	 * <p><strong>Note: Defaults to 0 <strong> */
-	public double getHorizontalAngleOffset() {
-		return haha.getHorizontalOffsetFromCrosshair();
+	/** Defaults to 0 */
+	public double getGamePieceHorizontalAngleOffset() {
+		return gamePieceLimelight.getHorizontalOffsetFromCrosshair();
 	}
 
-	/** Gets the vertical angle of the limelight 2's target 
-	 * <p><strong>Note: Defaults to 0 <strong> */
-	public double getVerticalAngleOffset() {
-		return haha.getVerticalOffsetFromCrosshair();
+	/** Defaults to 0 */
+	public double getGamePieceVerticalAngleOffset() {
+		return gamePieceLimelight.getVerticalOffsetFromCrosshair();
 	}
 
-	/** Gets the % area taken by the limelight 2's target 
-	 * <p><strong>Note: Defaults to 0 <strong> */
-	public double getTakenArea() {
-		return haha.getTargetArea();
+	/** Defaults to 0 */
+	public double getGamePieceTakenArea() {
+		return gamePieceLimelight.getTargetArea();
 	}
 
-	/** Gets the skew (rotation) of the limelight 2's target 
-	 * <p><strong>Note: Defaults to 0 <strong> */
-	public double getSkew() {
-		return haha.getSkew();
+	/** Defaults to 0 */
+	public double getGamePieceSkew() {
+		return gamePieceLimelight.getSkew();
 	}
 
-	/** Checks if the limelight 2 has any valid targets */
-	public boolean hasValidTargets() {
-		return haha.hasValidTargets();
+	public boolean seesGamePieces() {
+		return gamePieceLimelight.hasValidTargets();
 	}
-
-	/** Sets the vision pipeline of the limelight 2 */
-	public void setPipeline(int pipeline) {
-		haha.setPipeline(pipeline);
+	
+	public void setGamePiecePipeline(int pipeline) {
+		gamePieceLimelight.setPipeline(pipeline);
 	}
 
 	@Override
 	public void initSendable(SendableBuilder builder) {
-		builder.addBooleanProperty("Haha: Valid Targets", () -> hasValidTargets(), null);
-		builder.addDoubleProperty("Haha: Horizontal Offset (Degrees)", () -> Units.radiansToDegrees(getHorizontalAngleOffset()), null);
-		builder.addDoubleProperty("Haha: Target Area (%)", () -> getTakenArea(), null);
+		builder.addBooleanProperty("Game Piece Limelight: Valid Targets", () -> seesGamePieces(), null);
+		builder.addDoubleProperty("Game Piece Limelight: Horizontal Offset (Degrees)", () -> Units.radiansToDegrees(getGamePieceHorizontalAngleOffset()), null);
+		builder.addDoubleProperty("Game Piece Limelight: Target Area (%)", () -> getGamePieceTakenArea(), null);
 	}
 }

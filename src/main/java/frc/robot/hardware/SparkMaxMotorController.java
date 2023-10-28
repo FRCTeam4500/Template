@@ -6,18 +6,17 @@ import frc.robot.hardware.interfaces.SwerveMotorController;
 import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public class SparkMaxMotorController extends CANSparkMax implements SwerveMotorController {
-
 	public SparkMaxMotorController(int deviceID, MotorType type) {
 		super(deviceID, type);
 	}
 
 	public double getAngle() {
-		return getEncoder().getPosition() * 2 * Math.PI;
+		return Units.radiansToRotations(getEncoder().getPosition());
 	}
 
 	public void setAngle(double position) {
 		getPIDController()
-			.setReference(position / (2 * Math.PI), ControlType.kPosition);
+			.setReference(Units.radiansToRotations(position), ControlType.kPosition);
 	}
 
 	public void setOutput(double output) {
@@ -31,11 +30,7 @@ public class SparkMaxMotorController extends CANSparkMax implements SwerveMotorC
 	public double getAngularVelocity() {
 		return Units.rotationsPerMinuteToRadiansPerSecond(getEncoder().getVelocity());
 	}
-
-	/**
-	 * set velocity, in rad/s
-	 * @param velocity angular velocity, in rad/s
-	 */
+	
 	public void setAngularVelocity(double velocity) {
 		getPIDController()
 			.setReference(

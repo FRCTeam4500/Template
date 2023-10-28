@@ -8,8 +8,8 @@ import java.util.TimerTask;
 import org.littletonrobotics.junction.Logger;
 
 public class LogSubsystemInputsTask extends TimerTask {
-	private LogInputs inputHandler = LogInputs.getInstance();
-	private Loggable[] thingsToLog = {
+	private LogInputs loggingHelper = LogInputs.getInstance();
+	private Loggable[] loggingTargets = {
 		SwerveDrive.getInstance(),
 		Vision.getInstance(),
 		MessagingSystem.getInstance()
@@ -17,9 +17,9 @@ public class LogSubsystemInputsTask extends TimerTask {
 
 	@Override
 	public void run() {
-		for (int i = 0; i < thingsToLog.length; i++) {
-			inputHandler.setLoggingTarget(thingsToLog[i]);
-			Logger.getInstance().processInputs(thingsToLog[i].getTableName(), inputHandler);
+		for (Loggable target : loggingTargets) {
+			loggingHelper.setLoggingTarget(target);
+			Logger.getInstance().processInputs(target.getTableName(), loggingHelper);
 		}
 	}
 }

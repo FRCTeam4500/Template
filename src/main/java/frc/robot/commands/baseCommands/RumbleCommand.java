@@ -6,19 +6,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import frc.robot.DriveController;
 
 public class RumbleCommand extends CommandBase {
-
 	private CommandGenericHID controller;
 	private double time;
 	private double localTime;
 
-	/**
-	 * Sets the controller to rumble for a certain amount of time
-	 * @param controller the controller to make rumble
-	 * @param time the time it should rumble for, in seconds
-	 */
-	public RumbleCommand(double time) {
+	public RumbleCommand(double timeSeconds) {
 		this.controller = DriveController.getInstance();
-		this.time = 50 * time; // 50 is how many times execute is called per second.
+		this.time = 50 * timeSeconds; // 50 is how many times execute is called per second.
 	}
 
 	public void initialize() {

@@ -5,15 +5,11 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class LogInputs implements LoggableInputs{
-    private static LogInputs instance = null;
+    private static LogInputs instance;
 	private Loggable target;
-	public LogInputs() {}
 
 	public static synchronized LogInputs getInstance() {
-        if (instance == null) {
-            instance = new LogInputs();
-        }
-        return instance;
+        return instance == null ? new LogInputs() : instance;
     }
 
     public void setLoggingTarget(Loggable target) {

@@ -42,7 +42,7 @@ public class SwerveModule {
 			getModuleState().angle
 		);
 		setModuleVelocity(
-			targetState.speedMetersPerSecond  *// This is multiplying the drive wheel's velocity by the cosine of how far the modules angle is from where it should be.
+			targetState.speedMetersPerSecond  *// This is scales the velocity by how off the wheel is from the target angle.
 			Math.abs(targetState.angle.minus(getModuleState().angle).getCos())
 		);
 		setModuleAngle(targetState.angle.getRadians());
