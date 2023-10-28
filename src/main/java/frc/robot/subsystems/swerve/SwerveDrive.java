@@ -34,7 +34,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	private double currentGyroZero;
 
 	private SwerveDrive() {
-		SwerveModule[] modules = {
+		modules = new SwerveModule[] {
 			new SwerveModule(
 				SwerveConstants.FRONT_LEFT_DRIVE_CONFIG, 
 				SwerveConstants.FRONT_LEFT_ANGLE_CONFIG, 
@@ -54,9 +54,8 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 				SwerveConstants.BACK_RIGHT_DRIVE_CONFIG, 
 				SwerveConstants.BACK_RIGHT_ANGLE_CONFIG, 
 				SwerveConstants.BACK_RIGHT_MODULE_TRANSLATION
-			),
+			)
 		};
-		this.modules = modules;
 		currentGyroZero = 0;
 		gyro = new Gyro(I2C.Port.kMXP);
 		vision = Vision.getInstance();

@@ -124,11 +124,13 @@ public class Constants {
 		}
 
 		public static enum TalonModel {
-			TalonFX("Talon FX"),
-			TalonSRX("Talon SRX");
-			public String model;
-			private TalonModel(String model) {
-				this.model = model;
+			TalonFX("Talon FX", 2048 / Math.PI / 2),
+			TalonSRX("Talon SRX", 4096 / Math.PI / 2);
+			public String name;
+			public double ticksPerRadian;
+			private TalonModel(String name, double ticksPerRadian) {
+				this.name = name;
+				this.ticksPerRadian = ticksPerRadian;
 			}
 		}
 	}
