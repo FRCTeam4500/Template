@@ -33,7 +33,7 @@ public class TalonMotorController extends BaseTalon implements SwerveMotorContro
     }
 
     public void setAngle(double targetAngle) {
-        if (model.ticksPerRadian == 4096 / Math.PI / 2) {
+        if (model == TalonModel.TalonSRX) {
             set(ControlMode.Position, targetAngle * model.ticksPerRadian);
         } else {
             set(ControlMode.MotionMagic, targetAngle * model.ticksPerRadian);
