@@ -1,5 +1,7 @@
 package frc.robot.hardware.interfaces;
 
+import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
+
 public interface SwerveMotorController extends EncodedMotorController{
-    public void configureForSwerve(boolean isInverted, int currentLimit, double kP, double kD, boolean isDriveMotor);
+    public void configureForSwerve(SwerveMotorConfig config);
 }

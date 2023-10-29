@@ -3,6 +3,7 @@ package frc.robot.hardware;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.util.Units;
 import frc.robot.hardware.interfaces.SwerveMotorController;
+import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public class SparkMaxMotorController extends CANSparkMax implements SwerveMotorController {
 
@@ -43,12 +44,12 @@ public class SparkMaxMotorController extends CANSparkMax implements SwerveMotorC
 			);
 	}
 
-	public void configureForSwerve(boolean isInverted, int currentLimit, double kP, double kD, boolean isDriveMotor) {
-		setInverted(isInverted);
-        getPIDController().setP(kP);
-        getPIDController().setI(0);
-        getPIDController().setD(kD);
+	public void configureForSwerve(SwerveMotorConfig config) {
+		setInverted(config.invert);
+        getPIDController().setP(config.pid.kP);
+        getPIDController().setI(config.pid.kI);
+        getPIDController().setD(config.pid.kD);
         getPIDController().setFF(0);
-        setSmartCurrentLimit(currentLimit);
+        setSmartCurrentLimit(config.currentLimit);
 	}
 }

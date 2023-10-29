@@ -4,19 +4,21 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
+import frc.robot.Constants.EnumConstants.TalonModel;
 import frc.robot.hardware.interfaces.SwerveMotorController;
 import frc.robot.subsystems.messaging.MessagingSystem;
+import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public class TalonMotorController extends BaseTalon implements SwerveMotorController{
     private double TICKS_PER_RADIAN;
 
-    public TalonMotorController(int deviceID, String motorModel) {
-        super(deviceID, motorModel);
-        switch (motorModel) {
-            case "Talon FX":
+    public TalonMotorController(int deviceID, TalonModel model) {
+        super(deviceID, model.model);
+        switch (model) {
+            case TalonFX:
                 TICKS_PER_RADIAN = 2048 / Math.PI / 2;
                 break;
-            case "Talon SRX": 
+            case TalonSRX: 
                 TICKS_PER_RADIAN = 4096 / Math.PI / 2;
                 break;
             default:
@@ -52,22 +54,16 @@ public class TalonMotorController extends BaseTalon implements SwerveMotorContro
         return getSelectedSensorPosition() / TICKS_PER_RADIAN;
     }
 
-    public void configureForSwerve(boolean isInverted, int currentLimit, double kP, double kD, boolean isDriveMotor){
-        if (isDriveMotor) {
-            configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit + 1, 0.1),
-			50);
-            config_kP(0, kP);
-            config_kF(0, 0.047);
-            config_IntegralZone(0, 0);
-            setInverted(isInverted);
-        } else {
-            setInverted(isInverted);
-            config_kP(0, kP);
-            configMotionCruiseVelocity(10000);
-            configMotionAcceleration(10000);
-            configAllowableClosedloopError(0, 0);
-            configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, currentLimit, currentLimit + 1, 0.1), 50);
-            configClearPositionOnQuadIdx(true, 10);
-        }
+    public void configureForSwerve(SwerveMotorConfig config){
+        configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, config.currentLimit, config.currentLimit + 1, 0.1), 50);
+        setInverted(config.invert);
+        config_kP(0, config.pid.kP);
+        config_kI(0, config.pid.kI);
+        config_kD(0, config.pid.kD);
+        config_IntegralZone(0, 0);
+        configMotionCruiseVelocity(10000);
+        configMotionAcceleration(10000);
+        configAllowableClosedloopError(0, 0);
+        configClearPositionOnQuadIdx(true, 10);
     }
 }

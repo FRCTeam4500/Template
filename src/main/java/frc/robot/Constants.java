@@ -1,6 +1,9 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.PIDConstants;
+
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public class Constants {
 	public static class JoystickConstants {
@@ -10,31 +13,119 @@ public class Constants {
 	}
 
 	public static class SwerveConstants {
+		
 		public static final double MAX_LINEAR_SPEED = 0;
 		public static final double MAX_LINEAR_ACCELERATION = 0; 
-		public static final double MAX_ROTATIONAL_SPEED = 0;
-		public static final double MAX_ROTATIONAL_ACCELERATION = 0;
+		public static final double MAX_ROTATIONAL_SPEED = 0.0;
+		public static final double MAX_ROTATIONAL_ACCELERATION = 0.0;
 
-		public static final double DRIVE_RATIO = 0;
-		public static final double ANGLE_RATIO = 0;
+		public static final double DRIVE_RATIO = 1 / 1.; // drive rotations per motor rotation
+		public static final double ANGLE_RATIO = 1 / 1.; // angle rotations per motor rotation
 
-		public static final int DBRPORT = 0; //drive back right port
-		public static final int DBLPORT = 0; //drive back left port
-		public static final int DFLPORT = 0; //drive front left port
-		public static final int DFRPORT = 0; //drive front right port
-		public static final int ABRPORT = 0; //angle back right port
-		public static final int ABLPORT = 0; //angle back left port
-		public static final int AFLPORT = 0; //angle front left port
-		public static final int AFRPORT = 0; //angle front right port
+		public static final SwerveMotorConfig FRONT_LEFT_DRIVE_CONFIG = new SwerveMotorConfig(
+			0, 
+			true, 
+			true, 
+			false, 
+			35, 
+			new PIDConstants(0.075, 0, 0)
+		);
+		public static final SwerveMotorConfig FRONT_LEFT_ANGLE_CONFIG = new SwerveMotorConfig(
+			0, 
+			false, 
+			false, 
+			false, 25, 
+			new PIDConstants(0.3, 0, 0)
+		);
+		public static final Translation2d FRONT_LEFT_MODULE_TRANSLATION = new Translation2d(
+			0,
+			0
+		);
 
-		public static final double WHEEL_DIAMETER = 0; // in meters
+		public static final SwerveMotorConfig FRONT_RIGHT_DRIVE_CONFIG = new SwerveMotorConfig(
+			0, 
+			true, 
+			false, 
+			false, 
+			35, 
+			new PIDConstants(0.05, 0, 0)
+		);
+		public static final SwerveMotorConfig FRONT_RIGHT_ANGLE_CONFIG = new SwerveMotorConfig(
+			0, 
+			false, 
+			false, 
+			false, 
+			25, 
+			new PIDConstants(0.3, 0, 0)
+		);
+		public static final Translation2d FRONT_RIGHT_MODULE_TRANSLATION = new Translation2d(
+			0,
+			0
+		);
 
-		// These are the translations of the swerve modules from the center of the robot.
-		// Specifically, these measurments should land on the line that the swerve module wheel rotates around
-		// Units are meters
-		public static final Translation2d FRONT_LEFT_MODULE_TRANSLATION = new Translation2d(0, 0);
-		public static final Translation2d FRONT_RIGHT_MODULE_TRANSLATION = new Translation2d(0, 0);
-		public static final Translation2d BACK_LEFT_MODULE_TRANSLATION = new Translation2d(0, 0);
-		public static final Translation2d BACK_RIGHT_MODULE_TRANSLATION = new Translation2d(0, 0);
+		public static final SwerveMotorConfig BACK_LEFT_DRIVE_CONFIG = new SwerveMotorConfig(
+			0, 
+			true, 
+			true, 
+			false, 
+			35, 
+			new PIDConstants(0.075, 0, 0)
+		);
+		public static final SwerveMotorConfig BACK_LEFT_ANGLE_CONFIG = new SwerveMotorConfig(
+			0, 
+			false, 
+			false, 
+			false, 25, 
+			new PIDConstants(0.25, 0, 0)
+		);
+		public static final Translation2d BACK_LEFT_MODULE_TRANSLATION = new Translation2d(
+			0,
+			0
+		);
+
+		public static final SwerveMotorConfig BACK_RIGHT_DRIVE_CONFIG = new SwerveMotorConfig(
+			0, 
+			true, 
+			false, 
+			false, 
+			35, 
+			new PIDConstants(0.05, 0, 0)
+		);
+		public static final SwerveMotorConfig BACK_RIGHT_ANGLE_CONFIG = new SwerveMotorConfig(
+			0, 
+			false, 
+			false, 
+			false, 
+			25, 
+			new PIDConstants(0.3, 0, 0)
+		);
+		public static final Translation2d BACK_RIGHT_MODULE_TRANSLATION = new Translation2d(
+			0, 
+			0
+		);
+		
+		public static final double WHEEL_DIAMETER = 0.0;
+	}
+
+	public static class VisionConstants {
+		public static int APRIL_TAG_PIPLINE = 0;
+		public static int REFLECTIVE_TAPE_PIPELINE = 0;
+	}
+
+
+	public static class EnumConstants {
+		public static enum DriveMode {
+			AngleCentric,
+			RobotCentric
+		}
+
+		public static enum TalonModel {
+			TalonFX("Talon FX"),
+			TalonSRX("Talon SRX");
+			public String model;
+			private TalonModel(String model) {
+				this.model = model;
+			}
+		}
 	}
 }

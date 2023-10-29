@@ -7,8 +7,8 @@
 
 package frc.robot.hardware;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -19,7 +19,7 @@ public class Limelight {
 
 	public Limelight(String limelightName) {
 		table = NetworkTableInstance.getDefault().getTable(limelightName);
-		table.getEntry("getpipe").setNumber(0);
+		setPipeline(0);
 	}
 
 	public enum CameraMode {
@@ -83,13 +83,12 @@ public class Limelight {
 	 * Pose of the robot in Field Coordinates
 	 * @return Pose3d x,y,z pitch,yaw,roll
 	 */
-	public Pose3d getRobotPoseToField() {
+	public Pose2d getRobotPoseToField() {
 		double[] raw = table.getEntry("botpose").getDoubleArray(new double[6]);
-		return new Pose3d(
+		return new Pose2d(
 			raw[0],
 			raw[1],
-			raw[2],
-			new Rotation3d(raw[3], raw[4], raw[5])
+			Rotation2d.fromDegrees(raw[5])
 		);
 	}
 
@@ -97,36 +96,31 @@ public class Limelight {
 	 * Pose of the robot in Field Coordinates relative to Alliance
 	 * @return
 	 */
-	public Pose3d getRobotPoseToAlliance(Alliance alliance) {
-		double[] raw;
-		String allianceString;
-		if (alliance.name() != null) {
-			allianceString = alliance.name();
-		} else {
-			return null;
+	public Pose2d getRobotPoseToAlliance(Alliance alliance) {
+		double[] raw = new double[6];
+		switch(alliance) {
+			case Red:
+				raw = table.getEntry("botpose_wpired").getDoubleArray(new double[6]);
+			case Blue:
+				raw = table.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+			default:
+				break;
 		}
-		raw = table.getEntry(allianceString).getDoubleArray(new double[6]);
-		return new Pose3d(
-			raw[0],
-			raw[1],
-			raw[2],
-			new Rotation3d(raw[3], raw[4], raw[5])
-		);
+		return new Pose2d(raw[0], raw[1], Rotation2d.fromDegrees(raw[5]));
 	}
 
 	/**
 	 * Pose of the robot in terms of the April Tag coordinate system
 	 * @return Transform3D x,y,z pitch,yaw,roll
 	 */
-	public Pose3d getRobotPoseToTarget() {
+	public Pose2d getRobotPoseToTarget() {
 		double[] raw = table
 			.getEntry("botpose_targetspace")
 			.getDoubleArray(new double[6]);
-		return new Pose3d(
+		return new Pose2d(
 			raw[0],
 			raw[1],
-			raw[2],
-			new Rotation3d(raw[3], raw[4], raw[5])
+			Rotation2d.fromDegrees(raw[5])
 		);
 	}
 
@@ -134,15 +128,14 @@ public class Limelight {
 	 * Pose of the Target April Tag in terms of the Camera coordinate system
 	 * @return Transform3D x,y,z pitch,yaw,roll
 	 */
-	public Pose3d getTargetPoseToCamera() {
+	public Pose2d getTargetPoseToCamera() {
 		double[] raw = table
 			.getEntry("targetpose_cameraspace")
 			.getDoubleArray(new double[6]);
-		return new Pose3d(
+		return new Pose2d(
 			raw[0],
 			raw[1],
-			raw[2],
-			new Rotation3d(raw[3], raw[4], raw[5])
+			Rotation2d.fromDegrees(raw[5])
 		);
 	}
 
@@ -150,15 +143,14 @@ public class Limelight {
 	 * Pose of the Target April Tag in terms of Robot coordinate system
 	 * @return Transform3D x,y,z pitch,yaw,roll
 	 */
-	public Pose3d getTargetPoseToRobot() {
+	public Pose2d getTargetPoseToRobot() {
 		double[] raw = table
 			.getEntry("targetpose_robotspace")
 			.getDoubleArray(new double[6]);
-		return new Pose3d(
+		return new Pose2d(
 			raw[0],
 			raw[1],
-			raw[2],
-			new Rotation3d(raw[3], raw[4], raw[5])
+			Rotation2d.fromDegrees(raw[5])
 		);
 	}
 
@@ -166,15 +158,14 @@ public class Limelight {
 	 * Pose of the camera in terms of the Target coordinate system
 	 * @return Transform3D x,y,z pitch,yaw,roll
 	 */
-	public Pose3d getCameraPoseToTarget() {
+	public Pose2d getCameraPoseToTarget() {
 		double[] raw = table
 			.getEntry("camerapose_targetspace")
 			.getDoubleArray(new double[6]);
-		return new Pose3d(
+		return new Pose2d(
 			raw[0],
 			raw[1],
-			raw[2],
-			new Rotation3d(raw[3], raw[4], raw[5])
+			Rotation2d.fromDegrees(raw[5])
 		);
 	}
 

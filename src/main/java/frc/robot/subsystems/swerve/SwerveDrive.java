@@ -1,5 +1,8 @@
 package frc.robot.subsystems.swerve;
 
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -17,90 +21,50 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.hardware.Gyro;
 import frc.robot.subsystems.messaging.MessagingSystem;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.utilities.Loggable;
 
-/**
- * Subsystem class which represents the drivetrain of our robot
- * <p> Used to move the robot chassis
- */
-public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
+public class SwerveDrive extends SubsystemBase implements Loggable {
 	private Gyro gyro;	
+	private Vision vision;
 	private SwerveModule[] modules;
 	private SwerveDriveKinematics kinematics;
+	private SwerveDriveOdometry odometry;
 	private SwerveDrivePoseEstimator poseEstimator;
 	private static SwerveDrive instanceSwerve;
-	private Vision vision;
 	private double currentGyroZero;
-	private DriveInputsAutoLogged inputs = new DriveInputsAutoLogged();
-
-	public DriveInputsAutoLogged getInputs() {
-		return inputs;
-	}
 
 	private SwerveDrive() {
 		SwerveModule[] modules = {
 			new SwerveModule(
-				SwerveConstants.DFLPORT,
-				SwerveConstants.AFLPORT,
-				SwerveConstants.FRONT_LEFT_MODULE_TRANSLATION,
-				true,
-				false,
-				0.1,
-				0.3,
-				false,
-				false
+				SwerveConstants.FRONT_LEFT_DRIVE_CONFIG, 
+				SwerveConstants.FRONT_LEFT_ANGLE_CONFIG, 
+				SwerveConstants.FRONT_LEFT_MODULE_TRANSLATION
 			),
 			new SwerveModule(
-				SwerveConstants.DFRPORT,
-				SwerveConstants.AFRPORT,
-				SwerveConstants.FRONT_RIGHT_MODULE_TRANSLATION,
-				false,
-				false,
-				0.1,
-				0.3,
-				false,
-				false
+				SwerveConstants.FRONT_RIGHT_DRIVE_CONFIG, 
+				SwerveConstants.FRONT_RIGHT_ANGLE_CONFIG, 
+				SwerveConstants.FRONT_RIGHT_MODULE_TRANSLATION
 			),
 			new SwerveModule(
-				SwerveConstants.DBLPORT,
-				SwerveConstants.ABLPORT,
-				SwerveConstants.BACK_LEFT_MODULE_TRANSLATION,
-				true,
-				false,
-				0.1,
-				0.3,
-				false,
-				false
+				SwerveConstants.BACK_LEFT_DRIVE_CONFIG, 
+				SwerveConstants.BACK_LEFT_ANGLE_CONFIG, 
+				SwerveConstants.BACK_LEFT_MODULE_TRANSLATION
 			),
 			new SwerveModule(
-				SwerveConstants.DBRPORT,
-				SwerveConstants.ABRPORT,
-				SwerveConstants.BACK_RIGHT_MODULE_TRANSLATION,
-				false,
-				false,
-				0.1,
-				0.3,
-				false,
-				false
+				SwerveConstants.BACK_RIGHT_DRIVE_CONFIG, 
+				SwerveConstants.BACK_RIGHT_ANGLE_CONFIG, 
+				SwerveConstants.BACK_RIGHT_MODULE_TRANSLATION
 			),
 		};
 		this.modules = modules;
 		currentGyroZero = 0;
 		gyro = new Gyro(I2C.Port.kMXP);
+		vision = Vision.getInstance();
 		kinematics = new SwerveDriveKinematics(getModuleTranslations());
-		poseEstimator =
-			new SwerveDrivePoseEstimator(
-				kinematics,
-				new Rotation2d(gyro.getAngle()),
-				getModulePositions(),
-				new Pose2d()
-			);
-		this.vision = Vision.getInstance();
+		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
+		poseEstimator = new SwerveDrivePoseEstimator(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
 	}
 
-	/**
-	 * Gets the instance of the swerve drive. If the instance doesn't exist, it creates it
-	 * @return the instance of the swerve drive
-	 */
 	public static synchronized SwerveDrive getInstance() {
 		if (instanceSwerve == null) {
 			instanceSwerve = new SwerveDrive();
@@ -108,20 +72,12 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		return instanceSwerve;
 	}
 
-	/**
-	 * A method from Subsystem Base. <p>Our code probably shouldn't call this. This is called every scheduler tick (20ms) by WPI. Code that needs to be run repeadly should be put here
-	 */
 	@Override
 	public void periodic() {
-		poseEstimator.update(
-			new Rotation2d(gyro.getAngle()),
-			getModulePositions()
-		);
-		if (vision.hasValidTargets(0)) {
-			poseEstimator.addVisionMeasurement(
-				vision.getRobotPose(0),
-				Timer.getFPGATimestamp()
-			);
+		odometry.update(gyro.getRotation2d(), getModulePositions());
+		poseEstimator.update(gyro.getRotation2d(), getModulePositions());
+		if (vision.getTagId() != -1) {
+			poseEstimator.addVisionMeasurement(vision.getRobotPose(), Timer.getFPGATimestamp());
 		}
 	}
 
@@ -166,10 +122,6 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		);
 	}
 
-	/**
-	 * Uses inverse kinematics to convert a robot-relative set of chassis speeds into states to send to the swerve modules
-	 * @param targetChassisSpeeds The target robot-relative chassis speeds
-	 */
 	public void driveModules(ChassisSpeeds targetChassisSpeeds) {
 		SwerveModuleState[] states = kinematics.toSwerveModuleStates(
 			discretize(targetChassisSpeeds)
@@ -216,10 +168,6 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		}
 	}
 
-	/**
-	 * Gets the translations of the swerve modules from the center of the robot. Used when initializing the kinematics object
-	 * @return an array containing the translations of the swerve modules in the same order they were put into the SwerveDrive constructor
-	 */
 	public Translation2d[] getModuleTranslations() {
 		Translation2d[] translations = new Translation2d[modules.length];
 		for (int i = 0; i < modules.length; i++) {
@@ -228,10 +176,6 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		return translations;
 	}
 
-	/**
-	 * Gets the states of the swerve modules. Used primarily for kinematics
-	 * @return an array containing the states of the swerve modules in the same order they were put into the SwerveDrive constructor
-	 */
 	public SwerveModuleState[] getModuleStates() {
 		SwerveModuleState[] states = new SwerveModuleState[modules.length];
 		for (int i = 0; i < modules.length; i++) {
@@ -240,10 +184,6 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		return states;
 	}
 
-	/**
-	 * Gets the positions of the swerve modules. Used primarily for poseEstimator
-	 * @return an array containing the positions of the swerve modules in the same order they were put into the SwerveDrive constructor
-	 */
 	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
 		for (int i = 0; i < modules.length; i++) {
@@ -252,38 +192,23 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		return positions;
 	}
 
-	/**
-	 * Uses forward kinematics to turn the swerve module's states into a chassis speeds for the robot
-	 * @return The robot's current chassis speeds
-	 */
 	public ChassisSpeeds getChassisSpeeds() {
 		return kinematics.toChassisSpeeds(getModuleStates());
 	}
 
-	/**
-	 * Gets the robot's current odometric position -- Estimated Using Vision if Possible
-	 * @return the robot's current pose
-	 */
 	public Pose2d getRobotPose() {
 		return poseEstimator.getEstimatedPosition();
 	}
 
-	/**
-	 * Sets the robot's odometric position to a given position
-	 * @param newPose the pose the robot should be
-	 */
-	public void resetPose(Pose2d newPose) {
-		poseEstimator.resetPosition(
-			new Rotation2d(gyro.getAngle()),
-			getModulePositions(),
-			newPose
-		);
+	public Pose2d getRobotPoseNoVision() {
+		return odometry.getPoseMeters();
 	}
 
-	/**
-	 * Gets the angle of the robot relative to the current field-centric zero
-	 * @return the robot's field-centric angle in radians
-	 */
+	public void resetPose(Pose2d newPose) {
+		odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), newPose);
+		poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), newPose);
+	}
+
 	public double getRobotAngle() {
 		return gyro.getAngle() - currentGyroZero;
 	}
@@ -298,9 +223,6 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		MessagingSystem.getInstance().addMessage("Swerve -> Reset Gyro");
 	}
 
-	/**
-	 * Sets where the robot is currently facing to the field-centric zero
-	 */
 	public void resetRobotAngle() {
 		resetRobotAngle(0);
 	}
@@ -309,53 +231,26 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 		return currentGyroZero;
 	}
 
-	/**
-	 * Update with real values
-	 * <p>Order:
-	 * <p>Front Left, Front Right, Back Left, Back Right
-	 */
 	@Override
-	public void updateInputs(DriveInputs inputs) {
-		// inputs.frontLeftModuleDriveMeters =
-		// 	modules[0].getModulePosition().distanceMeters;
-		inputs.frontLeftModuleDriveVelocity =
-			modules[0].getModuleState().speedMetersPerSecond;
-		inputs.frontLeftModuleAngleRad =
-			modules[0].getModuleState().angle.getRadians();
-		// inputs.frontLeftModuleAngleVelocity = modules[0].getAngularVelocity();
-
-		// inputs.frontRightModuleDriveMeters =
-		// 	modules[1].getModulePosition().distanceMeters;
-		inputs.frontRightModuleDriveVelocity =
-			modules[1].getModuleState().speedMetersPerSecond;
-		inputs.frontRightModuleAngleRad =
-			modules[1].getModuleState().angle.getRadians();
-		// inputs.frontRightModuleAngleVelocity = modules[1].getAngularVelocity();
-
-		// inputs.backLeftModuleDriveMeters =
-		// 	modules[2].getModulePosition().distanceMeters;
-		inputs.backLeftModuleDriveVelocity =
-			modules[2].getModuleState().speedMetersPerSecond;
-		inputs.backLeftModuleAngleRad =
-			modules[2].getModuleState().angle.getRadians();
-		// inputs.backLeftModuleAngleVelocity = modules[2].getAngularVelocity();
-
-		// inputs.backRightModuleDriveMeters =
-		// 	modules[3].getModulePosition().distanceMeters;
-		inputs.backRightModuleDriveVelocity =
-			modules[3].getModuleState().speedMetersPerSecond;
-		inputs.backRightModuleAngleRad =
-			modules[3].getModuleState().angle.getRadians();
-		// inputs.backRightModuleAngleVelocity = modules[3].getAngularVelocity();
-
-		// inputs.gyroYawRad = gyro.getAngle();
-		// inputs.gyroPitchRad = gyro.getPitch();
-		// inputs.gyroRollRad = gyro.getRoll();
+	public void logData(Logger logger, LogTable table) {
+		table.put("Front Left Module Velocity (M/S)", modules[0].getModuleState().speedMetersPerSecond);
+		table.put("Front Left Module Angle (Radians)", modules[0].getModuleState().angle.getRadians());
+		table.put("Front Right Module Velocity (M/S)", modules[1].getModuleState().speedMetersPerSecond);
+		table.put("Front Right Module Angle (Radians)", modules[1].getModuleState().angle.getRadians());
+		table.put("Back Left Module Velocity (M/S)", modules[2].getModuleState().speedMetersPerSecond);
+		table.put("Back Left Module Angle (Radians)", modules[2].getModuleState().angle.getRadians());
+		table.put("Back Right Module Velocity (M/S)", modules[3].getModuleState().speedMetersPerSecond);
+		table.put("Back Right Module Angle (Radians)", modules[3].getModuleState().angle.getRadians());
+		logger.recordOutput("Swerve Odometry", getRobotPoseNoVision());
+		logger.recordOutput("Swerve + Vision Odometry", getRobotPose());
+		logger.recordOutput("Module States", getModuleStates());
 	}
 
-	/**
-	 * A method from SubsystemBase. <p>Adds properties of the subsystem to shuffleboard. Our code should never call this class, that is done by WPI
-	 */
+	@Override
+	public String getTableName() {
+		return "Swerve";
+	}
+
 	@Override
 	public void initSendable(SendableBuilder builder) {
 		builder.addDoubleProperty("Gyro Angle: ", () -> gyro.getAngle(), null);
@@ -380,17 +275,17 @@ public class SwerveDrive extends SubsystemBase implements SwerveDriveInterface {
 			null
 		);
 		builder.addDoubleProperty(
-			"Odometric X: ",
+			"Estimated X: ",
 			() -> getRobotPose().getX(),
 			null
 		);
 		builder.addDoubleProperty(
-			"Odometric Y: ",
+			"Estimated Y: ",
 			() -> getRobotPose().getY(),
 			null
 		);
 		builder.addDoubleProperty(
-			"Odometric Rotation: ",
+			"Estimated Rotation: ",
 			() -> getRobotPose().getRotation().getRadians(),
 			null
 		);

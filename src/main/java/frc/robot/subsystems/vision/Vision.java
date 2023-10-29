@@ -1,34 +1,25 @@
 package frc.robot.subsystems.vision;
 
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
-import frc.robot.hardware.Limelight.CameraMode;
+import frc.robot.utilities.Loggable;
 
-public class Vision extends SubsystemBase implements VisionInterface{
-
+public class Vision extends SubsystemBase implements Loggable{
 	private static Vision instanceVision;
-	private Limelight[] limelights = new Limelight[2];
-
-	private VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
+	private Limelight hehehe;
+	private Limelight haha;
 
 	private Vision() {
-		limelights[0] = new Limelight("limelight-hehehe"); // Limelight 3, used for april tags
-		limelights[1] = new Limelight("limelight-haha"); // Limelight 2, used for game pieces
-		setPipeline(0, 0);
-		setPipeline(1, 0);
-	}
-
-	public VisionInputsAutoLogged getInputs() {
-		return inputs;
-	}
-
-	public void updateInputs(VisionInputs inputs) {
-		inputs.horizontalAngleOffset = getHorizontalAngleOffset(0);
-		inputs.robotPose = getRobotPose(0);
+		hehehe = new Limelight("limelight-hehehe");
+		haha = new Limelight("limelight-haha");
 	}
 
 	public static synchronized Vision getInstance() {
@@ -38,50 +29,88 @@ public class Vision extends SubsystemBase implements VisionInterface{
 		return instanceVision;
 	}
 
-	public double getHorizontalAngleOffset(int limelightId) {
-		return limelights[limelightId].getHorizontalOffsetFromCrosshair();
+	@Override
+	public void logData(Logger logger, LogTable table) {
+		table.put("Tag ID", getTagId());
+		logger.recordOutput("Vision Odometry", getRobotPose());
 	}
 
-	public double getVerticalAngleOffset(int limelightId) {
-		return limelights[limelightId].getVerticalOffsetFromCrosshair();
+	@Override
+	public String getTableName() {
+		return "Vision";
 	}
 
-	public double getTakenArea(int limelightId) {
-		return limelights[limelightId].getTargetArea();
+	public Limelight getLimelight3() {
+		return hehehe;
 	}
 
-	public double getSkew(int limelightId) {
-		return limelights[limelightId].getSkew();
+	public Limelight getLimelight2() {
+		return haha;
 	}
 
-	public Pose2d getRobotPose(int limelightId) {
-		return limelights[limelightId].getRobotPoseToAlliance(DriverStation.getAlliance()).toPose2d();
+	/** Gets the id of the april tag currently being targeted
+	 * <p><strong>Note: Defaults to -1 </strong> */
+	public int getTagId() {
+		return hehehe.getTargetTagId();
 	}
 
-	public Pose2d getRelativeTargetPose(int limelightId) {
-		return limelights[limelightId].getTargetPoseToRobot().toPose2d();
+	/** Gets the robot's position relative to the current alliance <p>
+	 * <strong>Note: Defaults to a pose at (0,0) with no rotation if no tag is seen</strong> */
+	public Pose2d getRobotPose() {
+		return getRobotPose(DriverStation.getAlliance());
 	}
 
-	public boolean hasValidTargets(int limelightId) {
-		return limelights[limelightId].hasValidTargets();
+	/** Gets the robot's position relative to a specified alliance <p>
+	 * <strong>Note: Defaults to a pose at (0,0) with no rotation if no tag is seen</strong>
+	 * @param poseOrigin Sets which alliance the position is relative to */
+	public Pose2d getRobotPose(Alliance poseOrigin) {
+		return hehehe.getRobotPoseToAlliance(poseOrigin);
 	}
 
-	public void setPipeline(int limelightId, int pipeline) {
-		limelights[limelightId].setPipeline(pipeline);
+	/** Gets the position of the currently targeted april tag relative to the robot 
+	 * <p><strong>Note: Defaults to a pose at (0,0) with no rotation if no tag is seen</strong> */
+	public Pose2d getRelativeTargetPose() {
+		return hehehe.getTargetPoseToRobot();
 	}
 
-	public void setCameraMode(int limelightId, CameraMode mode) {
-		limelights[limelightId].setCameraMode(mode);
+	/** Gets the horizontal angle of the limelight 2's target 
+	 * <p><strong>Note: Defaults to 0 <strong> */
+	public double getHorizontalAngleOffset() {
+		return haha.getHorizontalOffsetFromCrosshair();
 	}
 
-	public Limelight getLimelight(int limelightId) {
-		return limelights[limelightId];
+	/** Gets the vertical angle of the limelight 2's target 
+	 * <p><strong>Note: Defaults to 0 <strong> */
+	public double getVerticalAngleOffset() {
+		return haha.getVerticalOffsetFromCrosshair();
+	}
+
+	/** Gets the % area taken by the limelight 2's target 
+	 * <p><strong>Note: Defaults to 0 <strong> */
+	public double getTakenArea() {
+		return haha.getTargetArea();
+	}
+
+	/** Gets the skew (rotation) of the limelight 2's target 
+	 * <p><strong>Note: Defaults to 0 <strong> */
+	public double getSkew() {
+		return haha.getSkew();
+	}
+
+	/** Checks if the limelight 2 has any valid targets */
+	public boolean hasValidTargets() {
+		return haha.hasValidTargets();
+	}
+
+	/** Sets the vision pipeline of the limelight 2 */
+	public void setPipeline(int pipeline) {
+		haha.setPipeline(pipeline);
 	}
 
 	@Override
 	public void initSendable(SendableBuilder builder) {
-		builder.addBooleanProperty("Hehehe: Valid Targets", () -> hasValidTargets(0), null);
-		builder.addDoubleProperty("Hehehe: Horizontal Offset (Degrees)", () -> Units.radiansToDegrees(getHorizontalAngleOffset(0)), null);
-		builder.addDoubleProperty("Hehehe: Target Area (%)", () -> getTakenArea(0), null);
+		builder.addBooleanProperty("Haha: Valid Targets", () -> hasValidTargets(), null);
+		builder.addDoubleProperty("Haha: Horizontal Offset (Degrees)", () -> Units.radiansToDegrees(getHorizontalAngleOffset()), null);
+		builder.addDoubleProperty("Haha: Target Area (%)", () -> getTakenArea(), null);
 	}
 }
