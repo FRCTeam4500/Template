@@ -12,19 +12,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.EnumConstants.CameraMode;
 
 public class Limelight {
-
 	private NetworkTable table;
 
 	public Limelight(String limelightName) {
 		table = NetworkTableInstance.getDefault().getTable(limelightName);
 		setPipeline(0);
-	}
-
-	public enum CameraMode {
-		VisionProcessor,
-		DriverCamera,
 	}
 
 	public boolean hasValidTargets() {
@@ -64,7 +59,7 @@ public class Limelight {
 			setEntry("camMode", 1);
 		} else if (mode == CameraMode.VisionProcessor) {
 			setEntry("camMode", 0);
-		} // Maybe add exception for bad entry
+		}
 	}
 
 	public void setPipeline(int index) {
@@ -79,10 +74,6 @@ public class Limelight {
 		table.getEntry(key).setNumber(value);
 	}
 
-	/**
-	 * Pose of the robot in Field Coordinates
-	 * @return Pose3d x,y,z pitch,yaw,roll
-	 */
 	public Pose2d getRobotPoseToField() {
 		double[] raw = table.getEntry("botpose").getDoubleArray(new double[6]);
 		return new Pose2d(
@@ -92,10 +83,6 @@ public class Limelight {
 		);
 	}
 
-	/**
-	 * Pose of the robot in Field Coordinates relative to Alliance
-	 * @return
-	 */
 	public Pose2d getRobotPoseToAlliance(Alliance alliance) {
 		double[] raw = new double[6];
 		switch(alliance) {
@@ -109,10 +96,6 @@ public class Limelight {
 		return new Pose2d(raw[0], raw[1], Rotation2d.fromDegrees(raw[5]));
 	}
 
-	/**
-	 * Pose of the robot in terms of the April Tag coordinate system
-	 * @return Transform3D x,y,z pitch,yaw,roll
-	 */
 	public Pose2d getRobotPoseToTarget() {
 		double[] raw = table
 			.getEntry("botpose_targetspace")
@@ -124,10 +107,6 @@ public class Limelight {
 		);
 	}
 
-	/**
-	 * Pose of the Target April Tag in terms of the Camera coordinate system
-	 * @return Transform3D x,y,z pitch,yaw,roll
-	 */
 	public Pose2d getTargetPoseToCamera() {
 		double[] raw = table
 			.getEntry("targetpose_cameraspace")
@@ -139,10 +118,6 @@ public class Limelight {
 		);
 	}
 
-	/**
-	 * Pose of the Target April Tag in terms of Robot coordinate system
-	 * @return Transform3D x,y,z pitch,yaw,roll
-	 */
 	public Pose2d getTargetPoseToRobot() {
 		double[] raw = table
 			.getEntry("targetpose_robotspace")
@@ -154,10 +129,6 @@ public class Limelight {
 		);
 	}
 
-	/**
-	 * Pose of the camera in terms of the Target coordinate system
-	 * @return Transform3D x,y,z pitch,yaw,roll
-	 */
 	public Pose2d getCameraPoseToTarget() {
 		double[] raw = table
 			.getEntry("camerapose_targetspace")

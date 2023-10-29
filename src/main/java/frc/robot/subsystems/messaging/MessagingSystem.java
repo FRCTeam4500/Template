@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.Loggable;
 
 public class MessagingSystem extends SubsystemBase implements Loggable{
-    private static MessagingSystem systemInstance;
+    private static MessagingSystem instance;
     private String message;
     private String newestMessage;
     private boolean isEnabled = false;
@@ -33,10 +33,7 @@ public class MessagingSystem extends SubsystemBase implements Loggable{
     }
 
     public static synchronized MessagingSystem getInstance() {
-		if (systemInstance == null) {
-			systemInstance = new MessagingSystem();
-		}
-		return systemInstance;
+		return instance == null ? new MessagingSystem() : instance;
 	}
 
     @Override

@@ -12,9 +12,8 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.vision.Vision;
 
 public class DriveController extends CommandXboxController {
-	SwerveDriveCommand swerveCommand;
-	private static DriveController instanceDriveController = null;
-
+	private static DriveController instance;
+	private SwerveDriveCommand swerveCommand;
 	private final Trigger switchDriveModeButton = this.x();
 	private final Trigger resetGyroButton = this.a();
 	private final Trigger slowModeButton = this.leftBumper();
@@ -27,13 +26,10 @@ public class DriveController extends CommandXboxController {
 	}
 
 	public static synchronized DriveController getInstance() {
-		if (instanceDriveController == null) {
-			instanceDriveController = new DriveController();
-		}
-		return instanceDriveController;
+		return instance == null ? new DriveController() : instance;
 	}
 
-	public void setButtons() {
+	private void setButtons() {
 		swerveCommand = new SwerveDriveCommand(this);
 		SwerveDrive.getInstance().setDefaultCommand(swerveCommand);
 
@@ -47,11 +43,10 @@ public class DriveController extends CommandXboxController {
 		cancelButton.toggleOnTrue(new CancellationCommand());
 	}
 
-	public void addToShuffleBoard() {
+	private void addToShuffleBoard() {
 		Shuffleboard.getTab("Messaging").add("Messaging System", MessagingSystem.getInstance());
 		Shuffleboard.getTab("Swerve").add("Swerve", SwerveDrive.getInstance());
 		Shuffleboard.getTab("Vision").add("Vision", Vision.getInstance());
 		Shuffleboard.getTab("Swerve").add("Swerve Command", swerveCommand);
-
 	}
 }

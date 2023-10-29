@@ -7,9 +7,7 @@ import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public class Constants {
 	public static class JoystickConstants {
-		// Joystick ports
 		public static final int DRIVER_PORT = 2;
-		public static final int OPERATOR_PORT = 1;
 	}
 
 	public static class SwerveConstants {
@@ -112,19 +110,26 @@ public class Constants {
 		public static int REFLECTIVE_TAPE_PIPELINE = 0;
 	}
 
-
 	public static class EnumConstants {
 		public static enum DriveMode {
 			AngleCentric,
 			RobotCentric
 		}
 
+		public static enum CameraMode {
+			VisionProcessor,
+			DriverCamera,
+		}
+
 		public static enum TalonModel {
-			TalonFX("Talon FX"),
-			TalonSRX("Talon SRX");
-			public String model;
-			private TalonModel(String model) {
-				this.model = model;
+			TalonFX("Talon FX", 2048 / Math.PI / 2),
+			TalonSRX("Talon SRX", 4096 / Math.PI / 2);
+			
+			public String name;
+			public double ticksPerRadian;
+			private TalonModel(String name, double ticksPerRadian) {
+				this.name = name;
+				this.ticksPerRadian = ticksPerRadian;
 			}
 		}
 	}

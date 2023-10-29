@@ -15,7 +15,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 /**
  * This is a simple container for methods which are useful
  */
-public class HelperMethods {
+public class ExtendedMath {
 
 	/**
 	 * Clamps an output between {@code min} and {@code max}. "Clamping" refers to restricting a
@@ -209,10 +209,6 @@ public class HelperMethods {
 
 	public static double cubicLinear(double input, double a, double b) {
 		return (a * Math.pow(input, 3) + b * input);
-	}
-
-	public static double pythagorean(double a, double b) {
-		return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
 	}
 
 	public static Twist2d log(final Pose2d transform) {

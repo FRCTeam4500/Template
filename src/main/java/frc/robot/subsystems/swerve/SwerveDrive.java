@@ -18,23 +18,22 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.hardware.Gyro;
+import frc.robot.hardware.NavX;
 import frc.robot.subsystems.messaging.MessagingSystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.utilities.Loggable;
 
 public class SwerveDrive extends SubsystemBase implements Loggable {
-	private Gyro gyro;	
+	private static SwerveDrive instance;
+	private NavX gyro;	
 	private Vision vision;
 	private SwerveModule[] modules;
 	private SwerveDriveKinematics kinematics;
 	private SwerveDriveOdometry odometry;
 	private SwerveDrivePoseEstimator poseEstimator;
-	private static SwerveDrive instanceSwerve;
-	private double currentGyroZero;
 
 	private SwerveDrive() {
-		SwerveModule[] modules = {
+		modules = new SwerveModule[] {
 			new SwerveModule(
 				SwerveConstants.FRONT_LEFT_DRIVE_CONFIG, 
 				SwerveConstants.FRONT_LEFT_ANGLE_CONFIG, 
@@ -54,39 +53,28 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 				SwerveConstants.BACK_RIGHT_DRIVE_CONFIG, 
 				SwerveConstants.BACK_RIGHT_ANGLE_CONFIG, 
 				SwerveConstants.BACK_RIGHT_MODULE_TRANSLATION
-			),
+			)
 		};
-		this.modules = modules;
-		currentGyroZero = 0;
-		gyro = new Gyro(I2C.Port.kMXP);
+		gyro = new NavX(I2C.Port.kMXP);
 		vision = Vision.getInstance();
 		kinematics = new SwerveDriveKinematics(getModuleTranslations());
-		odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
-		poseEstimator = new SwerveDrivePoseEstimator(kinematics, gyro.getRotation2d(), getModulePositions(), vision.getRobotPose());
+		odometry = new SwerveDriveOdometry(kinematics, gyro.getAngleAsRotation2d(), getModulePositions(), vision.getRobotPose());
+		poseEstimator = new SwerveDrivePoseEstimator(kinematics, gyro.getAngleAsRotation2d(), getModulePositions(), vision.getRobotPose());
 	}
 
 	public static synchronized SwerveDrive getInstance() {
-		if (instanceSwerve == null) {
-			instanceSwerve = new SwerveDrive();
-		}
-		return instanceSwerve;
+		return instance == null ? new SwerveDrive() : instance;
 	}
 
 	@Override
 	public void periodic() {
-		odometry.update(gyro.getRotation2d(), getModulePositions());
-		poseEstimator.update(gyro.getRotation2d(), getModulePositions());
+		odometry.update(gyro.getAngleAsRotation2d(), getModulePositions());
+		poseEstimator.update(gyro.getAngleAsRotation2d(), getModulePositions());
 		if (vision.getTagId() != -1) {
 			poseEstimator.addVisionMeasurement(vision.getRobotPose(), Timer.getFPGATimestamp());
 		}
 	}
 
-	/**
-	 * Drives the robot relative to the field (forward is away from the alliance wall) based on target forward, sideways, and rotational velocities
-	 * @param forwardVelocity the target forward velocity of the robot. Units are m/s and forward is positive
-	 * @param sidewaysVelocity the target sideways velocity of the robot. Units are m/s and left is positive
-	 * @param rotationalVelocity the target rotational velocity of the robot. Units are rad/s and counter-clockwise is positive
-	 */
 	public void driveFieldCentric(
 		double forwardVelocity,
 		double sidewaysVelocity,
@@ -102,12 +90,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		);
 	}
 
-	/**
-	 * Drives the robot relative to itself based on target forward, sideways, and rotational velocities
-	 * @param forwardVelocity the target forward velocity of the robot. Units are m/s and forward is positive
-	 * @param sidewaysVelocity the target sideways velocity of the robot. Units are m/s and left is positive
-	 * @param rotationalVelocity the target rotational velocity of the robot. Units are rad/s and counter-clockwise is positive
-	 */
 	public void driveRobotCentric(
 		double forwardVelocity,
 		double sidewaysVelocity,
@@ -157,7 +139,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		);
 	}
 
-	public Gyro getGyro() {
+	public NavX getGyro() {
 		return gyro;
 	}
 
@@ -205,12 +187,12 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	}
 
 	public void resetPose(Pose2d newPose) {
-		odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), newPose);
-		poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), newPose);
+		odometry.resetPosition(gyro.getAngleAsRotation2d(), getModulePositions(), newPose);
+		poseEstimator.resetPosition(gyro.getAngleAsRotation2d(), getModulePositions(), newPose);
 	}
 
 	public double getRobotAngle() {
-		return gyro.getAngle() - currentGyroZero;
+		return Math.toDegrees(gyro.getOffsetedAngle());
 	}
 
 	/**
@@ -219,7 +201,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	 * @param offset the angle relative to the robot, in radians
 	 */
 	public void resetRobotAngle(double offset) {
-		currentGyroZero = gyro.getAngle() - offset;
+		gyro.offsetGyroZero(offset);
 		MessagingSystem.getInstance().addMessage("Swerve -> Reset Gyro");
 	}
 
@@ -228,7 +210,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	}
 
 	public double getCurrentZero() {
-		return currentGyroZero;
+		return gyro.getGyroZero();
 	}
 
 	@Override
@@ -253,7 +235,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 
 	@Override
 	public void initSendable(SendableBuilder builder) {
-		builder.addDoubleProperty("Gyro Angle: ", () -> gyro.getAngle(), null);
+		builder.addDoubleProperty("Gyro Angle: ", () -> gyro.getRawAngle(), null);
 		builder.addDoubleProperty(
 			"Gyro Offset From Zero: ",
 			() -> getRobotAngle() % (2 * Math.PI),

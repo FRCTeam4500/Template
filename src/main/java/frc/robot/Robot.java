@@ -33,7 +33,6 @@ public class Robot extends LoggedRobot {
 		Logger logger = Logger.getInstance();
 		timer = new Timer();
 
-		// Record metadata
 		logger.recordMetadata("ProjectName", BuildInfo.MAVEN_NAME);
 		logger.recordMetadata("BuildDate", BuildInfo.BUILD_DATE);
 		logger.recordMetadata("GitSHA", BuildInfo.GIT_SHA);
@@ -54,14 +53,14 @@ public class Robot extends LoggedRobot {
 		logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 		LoggedPowerDistribution.getInstance(1, ModuleType.kRev); // Enables power distribution logging
 
-		logger.start(); // Start logging
+		logger.start();
 		robotContainer = new RobotContainer();
 		timer.schedule(new LogSubsystemInputsTask(), 10, 20);
 	}
 
 	@Override
 	public void robotPeriodic() {
-		CommandScheduler.getInstance().run(); // Runs the scheduler, which is what runs all commands and subsystems
+		CommandScheduler.getInstance().run();
 	}
 
 	@Override

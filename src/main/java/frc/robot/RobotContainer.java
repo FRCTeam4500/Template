@@ -5,7 +5,6 @@ import frc.robot.autonomous.Autonomous;
 import frc.robot.subsystems.messaging.MessagingSystem;
 
 public class RobotContainer {
-
 	private final Autonomous autonomous;
 	private final MessagingSystem messaging;
 	private Command autoCommand;
@@ -14,7 +13,6 @@ public class RobotContainer {
 		DriveController.getInstance();
 		autonomous = Autonomous.getInstance();
 		messaging = MessagingSystem.getInstance();
-		autoCommand = null;
 	}
 
 	public void autonomousInit() {

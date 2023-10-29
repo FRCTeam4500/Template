@@ -6,24 +6,14 @@ import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 
 import frc.robot.Constants.EnumConstants.TalonModel;
 import frc.robot.hardware.interfaces.SwerveMotorController;
-import frc.robot.subsystems.messaging.MessagingSystem;
 import frc.robot.subsystems.swerve.SwerveModule.SwerveMotorConfig;
 
 public class TalonMotorController extends BaseTalon implements SwerveMotorController{
-    private double TICKS_PER_RADIAN;
+    private TalonModel model;
 
     public TalonMotorController(int deviceID, TalonModel model) {
-        super(deviceID, model.model);
-        switch (model) {
-            case TalonFX:
-                TICKS_PER_RADIAN = 2048 / Math.PI / 2;
-                break;
-            case TalonSRX: 
-                TICKS_PER_RADIAN = 4096 / Math.PI / 2;
-                break;
-            default:
-                MessagingSystem.getInstance().addMessage("Can ID #" + deviceID + "'s motor model isn't a valid option");
-        }
+        super(deviceID, model.name);
+        this.model = model;
     }
 
     public void setOutput(double targetPercentOutput) {
@@ -35,23 +25,23 @@ public class TalonMotorController extends BaseTalon implements SwerveMotorContro
     }
 
     public void setAngularVelocity(double targetAngularVelocity) {
-        set(ControlMode.Velocity, targetAngularVelocity * TICKS_PER_RADIAN / 10.0);
+        set(ControlMode.Velocity, targetAngularVelocity * model.ticksPerRadian / 10.0);
     }
 
     public double getAngularVelocity() {
-        return getSelectedSensorVelocity() / TICKS_PER_RADIAN * 10;
+        return getSelectedSensorVelocity() / model.ticksPerRadian * 10;
     }
 
     public void setAngle(double targetAngle) {
-        if (TICKS_PER_RADIAN == 4096 / Math.PI / 2) {
-            set(ControlMode.Position, targetAngle * TICKS_PER_RADIAN);
+        if (model == TalonModel.TalonSRX) {
+            set(ControlMode.Position, targetAngle * model.ticksPerRadian);
         } else {
-            set(ControlMode.MotionMagic, targetAngle * TICKS_PER_RADIAN);
+            set(ControlMode.MotionMagic, targetAngle * model.ticksPerRadian);
         }
     }
 
     public double getAngle() {
-        return getSelectedSensorPosition() / TICKS_PER_RADIAN;
+        return getSelectedSensorPosition() / model.ticksPerRadian;
     }
 
     public void configureForSwerve(SwerveMotorConfig config){
