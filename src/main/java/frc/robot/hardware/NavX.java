@@ -11,63 +11,69 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI.Port;
+import frc.robot.utilities.ExtendedMath;
 
 public class NavX {
 	private AHRS ahrs;
-	private double gyroZero;
+	private Rotation2d gyroZero;
 
 	public NavX(edu.wpi.first.wpilibj.I2C.Port kmxp) {
 		ahrs = new AHRS(kmxp);
-		gyroZero = 0;
+		gyroZero = new Rotation2d();
 	}
 
 	public NavX(Port kmxp) {
 		ahrs = new AHRS(kmxp);
-		gyroZero = 0;
+		gyroZero = new Rotation2d();
 	}
 
-	public Rotation2d getAngleAsRotation2d() {
+	public AHRS getAHRS() {
+		return ahrs;
+	}
+
+	public Rotation2d getUnwrappedAngle() {
 		return ahrs.getRotation2d();
 	}
 
-	/** Interval: [-infinity, infinity] @return Radians */
-	public double getRawAngle() {
-		return ahrs.getRotation2d().getRadians();
+	/** Interval: [-pi, pi] */
+	public Rotation2d getAngle() {
+		return getYaw();
 	}
 
-	/** Interval: [-pi, pi] @return Radians */
-	public double getOffsetedAngle() {
-		return getWrappedYaw() - getGyroZero();
+	/** Interval: [-pi, pi] */
+	public Rotation2d getOffsetedAngle() {
+		return ExtendedMath.wrapRotation2d(getAngle().minus(getGyroZero()));
 	}
 
-	/** Interval: [-pi, pi] @return Radians */
-	public double getWrappedYaw() {
-		return -Math.toRadians(ahrs.getYaw());
+	/** Interval: [-pi, pi] */
+	public Rotation2d getYaw() {
+		return Rotation2d.fromDegrees(-ahrs.getYaw());
 	}
 
-	/** Interval: [-pi, pi] @return Radians */
-	public double getWrappedPitch() {
-		return -Math.toRadians(ahrs.getPitch());
+	/** Interval: [-pi, pi] */
+	public Rotation2d getPitch() {
+		return Rotation2d.fromDegrees(-ahrs.getPitch());
 	}
 
-	/** Interval: [-pi, pi] @return Radians */
-	public double getWrappedRoll() {
-		return -Math.toRadians(ahrs.getRoll());
+	/** Interval: [-pi, pi] */
+	public Rotation2d getRoll() {
+		return Rotation2d.fromDegrees(-ahrs.getRoll());
 	}
 
-	public double getGyroZero() {
+	/** Interval: [-pi, pi] */
+	public Rotation2d getGyroZero() {
 		return gyroZero;
 	}
 
 	public void zeroGyro() {
-		gyroZero = getOffsetedAngle();
+		gyroZero = new Rotation2d();
 	}
 
-	public void setGyroZero(double newZeroRadians) {
-		gyroZero = newZeroRadians;
+	public void zeroGyroWithOffset(Rotation2d offset) {
+		gyroZero = ExtendedMath.wrapRotation2d(getAngle().minus(offset));
 	}
 
-	public void offsetGyroZero(double offsetRadians) {
-		gyroZero -= offsetRadians;
+	public void setGyroZero(Rotation2d newZero) {
+		gyroZero = ExtendedMath.wrapRotation2d(newZero);
 	}
 }

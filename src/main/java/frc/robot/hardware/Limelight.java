@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.Constants.EnumConstants.CameraMode;
 
 public class Limelight {
 	private NetworkTable table;
@@ -31,19 +30,19 @@ public class Limelight {
 		}
 	}
 
-	public double getHorizontalOffsetFromCrosshair() {
-		return Math.toRadians(getEntry("tx"));
+	public Rotation2d getHorizontalOffsetFromCrosshair() {
+		return Rotation2d.fromDegrees(-getEntry("tx"));
 	}
 
-	public double getVerticalOffsetFromCrosshair() {
-		return Math.toRadians(getEntry("ty"));
+	public Rotation2d getVerticalOffsetFromCrosshair() {
+		return Rotation2d.fromDegrees(getEntry("ty"));
 	}
 
 	public double getTargetArea() {
 		return getEntry("ta");
 	}
 
-	public double getSkew() {
+	public Rotation2d getSkew() {
 		double rawDegrees = getEntry("ts");
 		double adjustedDegrees;
 		if (Math.abs(rawDegrees) < 45) {
@@ -51,15 +50,7 @@ public class Limelight {
 		} else {
 			adjustedDegrees = -(90 + rawDegrees);
 		}
-		return Math.toRadians(adjustedDegrees);
-	}
-
-	public void setCameraMode(CameraMode mode) {
-		if (mode == CameraMode.DriverCamera) {
-			setEntry("camMode", 1);
-		} else if (mode == CameraMode.VisionProcessor) {
-			setEntry("camMode", 0);
-		}
+		return Rotation2d.fromDegrees(adjustedDegrees);
 	}
 
 	public void setPipeline(int index) {
@@ -88,8 +79,10 @@ public class Limelight {
 		switch(alliance) {
 			case Red:
 				raw = table.getEntry("botpose_wpired").getDoubleArray(new double[6]);
+                break;
 			case Blue:
 				raw = table.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+                break;
 			default:
 				break;
 		}
