@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -22,7 +23,7 @@ public class SwerveModule {
 	}
 
 	public void drive(SwerveModuleState initialTargetState) {
-		SwerveModuleState targetState = optimizeTalon(
+		SwerveModuleState targetState = optimizeModuleState(
 			initialTargetState,
 			getModuleState().angle
 		);
@@ -87,51 +88,29 @@ public class SwerveModule {
 	 * @param desiredState The desired state.
 	 * @param currentAngle The current module angle.
 	 */
-	private SwerveModuleState optimizeTalon(SwerveModuleState desiredState, Rotation2d currentAngle) {
-		double targetAngle = placeInAppropriate0To360Scope(currentAngle.getDegrees(), desiredState.angle.getDegrees());
-		double targetSpeed = desiredState.speedMetersPerSecond;
-		return adjustTargetAngleAndSpeed(targetAngle, targetSpeed, currentAngle.getDegrees());
-	}
-
-	/**
-	 * Adjusts the target angle and speed based on the current angle of the swerve
-	 * module.
-	 * If the difference between the target angle and current angle is greater than
-	 * 90 degrees,
-	 * the target speed is negated and the target angle is adjusted by 180 degrees.
-	 *
-	 * @param targetAngle  the desired angle for the swerve module to reach
-	 * @param targetSpeed  the desired speed for the swerve module to reach
-	 * @param currentAngle the current angle of the swerve module
-	 * @return Optimized target module state
-	 */
-	private SwerveModuleState adjustTargetAngleAndSpeed(
-			double targetAngle,
-			double targetSpeed,
-			double currentAngle) {
-		double delta = targetAngle - currentAngle;
-		if (Math.abs(delta) > 90) {
-			targetSpeed = -targetSpeed;
-			targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
+	private SwerveModuleState optimizeModuleState(SwerveModuleState desiredState, Rotation2d currentAngle) {
+		if (angleMotor.hasContinuousRotation()) {
+			return SwerveModuleState.optimize(desiredState, currentAngle);
 		}
-		return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
-	}
-
-	/**
-	 * Places the given angle in the appropriate 0 to 360 degree scope based on the
-	 * reference angle.
-	 * 
-	 * @param scopeReference the reference angle to place the new angle in scope of
-	 * @param newAngle       the angle to place in the scope
-	 * @return the new angle within the appropriate 0 to 360 degree scope
-	 */
-	private double placeInAppropriate0To360Scope(double scopeReference, double newAngle) {
-		double delta = newAngle - scopeReference;
-		delta += 180; // shift range to [0, 360]
-		delta %= 360; // normalize to [0, 360]
-		if (delta < 0)
-			delta += 360; // correct negative values
-		delta -= 180; // shift range back to [-180, 180]
-		return scopeReference + delta;
+		double newTargetAngle = desiredState.angle.plus(
+			Rotation2d.fromDegrees(
+				MathUtil.inputModulus(
+					desiredState.angle.getDegrees() 
+					- currentAngle.getDegrees() + 180, 
+					0, 
+					360
+				)- 180
+			)
+		).getDegrees();
+		double targetVelocity = desiredState.speedMetersPerSecond;
+		double delta = newTargetAngle - currentAngle.getDegrees();
+		if (Math.abs(delta) > 90) {
+			targetVelocity *= -1;
+			newTargetAngle = newTargetAngle - Math.signum(delta) * 180;
+		}
+		return new SwerveModuleState(
+			targetVelocity, 
+			Rotation2d.fromDegrees(newTargetAngle)
+		);
 	}
 }
