@@ -40,7 +40,7 @@ public class SwerveModule {
 			SwerveConstants.DRIVE_RATIO *
 			SwerveConstants.WHEEL_DIAMETER_METERS /
 			2,
-			new Rotation2d(angleMotor.getAngle() * SwerveConstants.ANGLE_RATIO)
+			new Rotation2d(angleMotor.getAngleRadians() * SwerveConstants.ANGLE_RATIO)
 		);
 	}
 
@@ -50,7 +50,7 @@ public class SwerveModule {
 
 	public SwerveModulePosition getModulePosition() {
 		return new SwerveModulePosition(
-			driveMotor.getAngle() /
+			driveMotor.getAngleRadians() /
 			(2 * Math.PI) * 
 			SwerveConstants.DRIVE_RATIO *
 			SwerveConstants.WHEEL_DIAMETER_METERS *

@@ -12,7 +12,7 @@ public class SparkMaxMotorController extends CANSparkMax implements EncodedMotor
 	}
 
     @Override
-	public double getAngle() {
+	public double getAngleRadians() {
 		return Units.rotationsToRadians(getEncoder().getPosition());
 	}
 
@@ -28,7 +28,7 @@ public class SparkMaxMotorController extends CANSparkMax implements EncodedMotor
 	}
 
     @Override
-	public double getOutput() {
+	public double getPercentOutput() {
 		return get();
 	}
 
@@ -44,6 +44,11 @@ public class SparkMaxMotorController extends CANSparkMax implements EncodedMotor
 				Units.radiansPerSecondToRotationsPerMinute(velocity),
 				ControlType.kVelocity
 			);
+	}
+
+	@Override
+	public boolean hasContinuousRotation() {
+		return true;
 	}
 
 	@Override
