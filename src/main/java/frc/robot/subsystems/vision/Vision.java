@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
 import frc.robot.utilities.Loggable;
@@ -21,25 +20,13 @@ public class Vision extends SubsystemBase implements Loggable {
 	private Limelight gamePieceLimelight;
 
 	// TODO: Change these!
-	private final double GAMEPIECE_LIMELIGHT_HEIGHT_METERS = 0;
-	private final double GAMEPIECE_HALF_HEIGHT_METERS = 0;
-	private final Rotation2d GAMEPIECE_LIMELIGHT_ANGLE = Rotation2d.fromDegrees(0);
+	private final double GAMEPIECE_LIMELIGHT_HEIGHT_METERS = 0.232;
+	private final double GAMEPIECE_HALF_HEIGHT_METERS = 0.16;
+	private final Rotation2d GAMEPIECE_LIMELIGHT_ANGLE = Rotation2d.fromDegrees(-12);
 
 	private Vision() {
 		aprilTagLimelight = new Limelight("limelight-hehehe");
 		gamePieceLimelight = new Limelight("limelight-haha");
-		Shuffleboard.getTab("Display").addDouble(
-			"Horizontal Offset", 
-			() -> getGamePieceHorizontalOffset().orElse(new Rotation2d()).getDegrees()
-		);
-		Shuffleboard.getTab("Display").addDouble(
-			"Forward Distance", 
-			() -> getGamePieceTranslation().orElse(new Translation2d()).getX()
-		);
-		Shuffleboard.getTab("Display").addDouble(
-			"Sideways Distance",
-			() -> getGamePieceTranslation().orElse(new Translation2d()).getY()
-		);
 	}
 
 	public static synchronized Vision getInstance() {
@@ -110,10 +97,13 @@ public class Vision extends SubsystemBase implements Loggable {
 		return Optional.of(aprilTagLimelight.getRobotPoseToAlliance(poseOrigin));
 	}
 
-	public Optional<Pose2d> getRelativeTargetPose() {
-		if (!seesTag()) return Optional.empty();
-		return Optional.of(aprilTagLimelight.getTargetPoseToRobot());
-	}
+    public Optional<Pose2d> getRelativeTagPose() {
+        if (!seesTag()) return Optional.empty();
+        return Optional.of(
+            getRobotPose(Alliance.Blue).orElse(new Pose2d())
+                .relativeTo(getTagPose(getTagId().orElse(0)))
+        );
+    }
 
 	public Optional<Rotation2d> getGamePieceHorizontalOffset() {
 		if (!seesGamePiece()) return Optional.empty();
@@ -134,4 +124,65 @@ public class Vision extends SubsystemBase implements Loggable {
 		if (!seesGamePiece()) return Optional.empty();
 		return Optional.of(gamePieceLimelight.getSkew());
 	}
+
+    private Pose2d getTagPose(int tagId) {
+        Rotation2d tagRotation = Rotation2d.fromDegrees(tagId > 4 ? 0 : 180);
+        Translation2d tagTranslation = new Translation2d();
+        double longOffset = 16.4846 / 2;
+        double shortOffset = 8.1026 / 2;
+        switch (tagId) {
+            case 1:
+                tagTranslation = new Translation2d(
+                    7.24310 + longOffset,
+                    -2.93659 + shortOffset
+                );
+                break;
+            case 2:
+                tagTranslation = new Translation2d(
+                    7.24310 + longOffset,
+                    -1.26019 + shortOffset
+                );
+                break;
+            case 3:
+                tagTranslation = new Translation2d(
+                    7.24310 + longOffset,
+                    0.41621 + shortOffset
+                );
+                break;
+            case 4:
+                tagTranslation = new Translation2d(
+                    7.90832 + longOffset,
+                    2.74161 + shortOffset
+                );
+                break;
+            case 5:
+                tagTranslation = new Translation2d(
+                    -7.90832 + longOffset,
+                    2.74161 + shortOffset
+                );
+                break;
+            case 6:
+                tagTranslation = new Translation2d(
+                    -7.24310 + longOffset,
+                    0.41621 + shortOffset
+                );
+                break;
+            case 7:
+                tagTranslation = new Translation2d(
+                    -7.24310 + longOffset,
+                    -1.26019 + shortOffset
+                );
+                break;
+            case 8:
+                tagTranslation = new Translation2d(
+                    -7.24310 + longOffset,
+                    -1.26019 + shortOffset
+                );
+                break;
+            default:
+                tagTranslation = new Translation2d();
+                break;
+        }
+        return new Pose2d(tagTranslation, tagRotation);  
+    }
 }
