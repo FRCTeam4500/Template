@@ -3,7 +3,6 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -62,17 +61,6 @@ public class Vision extends SubsystemBase implements Loggable {
 		return gamePieceLimelight.hasValidTargets();
 	}
 
-	public ChassisSpeeds alignToGamePiece(
-		Rotation2d horizontalOffset,
-		Rotation2d verticalOffset
-	) {
-		return new ChassisSpeeds(
-			getHorizontalOffset(new Rotation2d()).minus(horizontalOffset).getDegrees() / 10, 
-			getHorizontalOffset(new Rotation2d()).minus(horizontalOffset).getDegrees() / 10, 
-			0
-		);
-	}
-
 	public Translation2d getTranslation(Translation2d defaultTranslation) {
 		if (!seesGamePiece()) return defaultTranslation;
 		double forwardDistance = 
@@ -105,11 +93,11 @@ public class Vision extends SubsystemBase implements Loggable {
 			.orElse(defaultPose);
 	}
 
-	public Pose2d getRelativeAprilTagPose(Pose2d defaultPose) {
-		return aprilTagLimelight
-			.getTargetPoseToRobot()
-			.orElse(defaultPose);
-	}
+    public Pose2d getRelativeTagPose(Pose2d defaultPose) {
+        if (!seesTag()) return defaultPose;
+		return getRobotPose(new Pose2d(), Alliance.Blue)
+			.relativeTo(getTagPose(getTagId(0)));
+    }
 
 	public Rotation2d getHorizontalOffset(Rotation2d defaultRotation) {
 		return gamePieceLimelight
@@ -134,4 +122,65 @@ public class Vision extends SubsystemBase implements Loggable {
 			.getSkew()
 			.orElse(defaultSkew);
 	}
+
+    private Pose2d getTagPose(int tagId) {
+        Rotation2d tagRotation = Rotation2d.fromDegrees(tagId > 4 ? 0 : 180);
+        Translation2d tagTranslation = new Translation2d();
+        double longOffset = 16.4846 / 2;
+        double shortOffset = 8.1026 / 2;
+        switch (tagId) {
+            case 1:
+                tagTranslation = new Translation2d(
+                    7.24310 + longOffset,
+                    -2.93659 + shortOffset
+                );
+                break;
+            case 2:
+                tagTranslation = new Translation2d(
+                    7.24310 + longOffset,
+                    -1.26019 + shortOffset
+                );
+                break;
+            case 3:
+                tagTranslation = new Translation2d(
+                    7.24310 + longOffset,
+                    0.41621 + shortOffset
+                );
+                break;
+            case 4:
+                tagTranslation = new Translation2d(
+                    7.90832 + longOffset,
+                    2.74161 + shortOffset
+                );
+                break;
+            case 5:
+                tagTranslation = new Translation2d(
+                    -7.90832 + longOffset,
+                    2.74161 + shortOffset
+                );
+                break;
+            case 6:
+                tagTranslation = new Translation2d(
+                    -7.24310 + longOffset,
+                    0.41621 + shortOffset
+                );
+                break;
+            case 7:
+                tagTranslation = new Translation2d(
+                    -7.24310 + longOffset,
+                    -1.26019 + shortOffset
+                );
+                break;
+            case 8:
+                tagTranslation = new Translation2d(
+                    -7.24310 + longOffset,
+                    -1.26019 + shortOffset
+                );
+                break;
+            default:
+                tagTranslation = new Translation2d();
+                break;
+        }
+        return new Pose2d(tagTranslation, tagRotation);  
+    }
 }

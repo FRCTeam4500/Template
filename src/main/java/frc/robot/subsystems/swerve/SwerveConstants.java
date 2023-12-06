@@ -19,7 +19,7 @@ public class SwerveConstants {
 
     public static final EncodedMotorController FRONT_LEFT_DRIVE_MOTOR = 
         new TalonFXMotorController(CANConstants.SWERVE_FRONT_LEFT_DRIVE_ID)
-            .setInversion(false)
+            .setInversion(true)
             .setCurrentLimit(35)
             .setPID(new PIDConstants(0.05, 0, 0));
     public static final EncodedMotorController FRONT_LEFT_ANGLE_MOTOR = 
@@ -49,7 +49,7 @@ public class SwerveConstants {
 
     public static final EncodedMotorController BACK_LEFT_DRIVE_MOTOR = 
         new TalonFXMotorController(CANConstants.SWERVE_BACK_LEFT_DRIVE_ID)
-            .setInversion(false)
+            .setInversion(true)
             .setCurrentLimit(35)
             .setPID(new PIDConstants(0.05, 0, 0));
     public static final EncodedMotorController BACK_LEFT_ANGLE_MOTOR = 
