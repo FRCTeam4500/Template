@@ -13,11 +13,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.NavX;
 import frc.robot.subsystems.vision.Vision;
@@ -157,11 +155,13 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 
 	public void driveToAprilTag() {
 		Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
-		ChassisSpeeds adjustedSpeeds = holonomicDriveController.calculate(
-			new Pose2d(),
-			relTagPose,
-			2, // TODO: Change
-			relTagPose.getRotation()
+		driveRobotCentric(
+			holonomicDriveController.calculate(
+				new Pose2d(),
+				relTagPose,
+				2, // TODO: Change
+				relTagPose.getRotation()
+			)
 		);
 	}
 
