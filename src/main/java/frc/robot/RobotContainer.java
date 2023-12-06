@@ -52,7 +52,6 @@ public class RobotContainer {
 		cancelationButton.onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
 	}
 
-
 	public Command rumbleCommand(double timeSeconds) {
 		return Commands.startEnd(
 			() -> xbox.getHID().setRumble(RumbleType.kBothRumble, 0.5),

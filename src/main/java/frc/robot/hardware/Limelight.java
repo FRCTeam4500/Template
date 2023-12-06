@@ -7,6 +7,8 @@
 
 package frc.robot.hardware;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -22,27 +24,32 @@ public class Limelight {
 	}
 
 	public boolean hasValidTargets() {
-		double value = getEntry("tv");
-		if (value == 1) {
-			return true;
-		} else {
-			return false;
-		}
+		return getEntry("tv") == 1;
 	}
 
-	public Rotation2d getHorizontalOffsetFromCrosshair() {
-		return Rotation2d.fromDegrees(-getEntry("tx"));
+	public Optional<Rotation2d> getHorizontalOffsetFromCrosshair() {
+		if (!hasValidTargets()) return Optional.empty();
+		return Optional.of(
+			Rotation2d.fromDegrees(-getEntry("tx"))
+		);
 	}
 
-	public Rotation2d getVerticalOffsetFromCrosshair() {
-		return Rotation2d.fromDegrees(getEntry("ty"));
+	public Optional<Rotation2d> getVerticalOffsetFromCrosshair() {
+		if (!hasValidTargets()) return Optional.empty();
+		return Optional.of(
+			Rotation2d.fromDegrees(getEntry("ty"))
+		);
 	}
 
-	public double getTargetArea() {
-		return getEntry("ta");
+	public Optional<Double> getTargetArea() {
+		if (!hasValidTargets()) return Optional.empty();
+		return Optional.of( 
+			getEntry("ta")
+		);
 	}
 
-	public Rotation2d getSkew() {
+	public Optional<Rotation2d> getSkew() {
+		if (!hasValidTargets()) return Optional.empty();
 		double rawDegrees = getEntry("ts");
 		double adjustedDegrees;
 		if (Math.abs(rawDegrees) < 45) {
@@ -50,7 +57,9 @@ public class Limelight {
 		} else {
 			adjustedDegrees = -(90 + rawDegrees);
 		}
-		return Rotation2d.fromDegrees(adjustedDegrees);
+		return Optional.of(
+			Rotation2d.fromDegrees(adjustedDegrees)
+		);
 	}
 
 	public void setPipeline(int index) {
@@ -61,79 +70,76 @@ public class Limelight {
 		return table.getEntry(key).getDouble(0);
 	}
 
+	private double[] getEntryArray(String key) {
+		return table.getEntry(key).getDoubleArray(new double[6]);
+	}
+
 	private void setEntry(String key, Number value) {
 		table.getEntry(key).setNumber(value);
 	}
 
-	public Pose2d getRobotPoseToField() {
-		double[] raw = table.getEntry("botpose").getDoubleArray(new double[6]);
-		return new Pose2d(
-			raw[0],
-			raw[1],
-			Rotation2d.fromDegrees(raw[5])
-		);
+	public Optional<Pose2d> getRobotPoseToField() {
+		if (!hasValidTargets()) return Optional.empty();
+		double[] raw = getEntryArray("botpose");
+		return Optional.of(new Pose2d(
+			raw[0], raw[1], Rotation2d.fromDegrees(raw[5])
+		));
 	}
 
-	public Pose2d getRobotPoseToAlliance(Alliance alliance) {
+	public Optional<Pose2d> getRobotPoseToAlliance(Alliance alliance) {
+		if (!hasValidTargets()) return Optional.empty();
 		double[] raw = new double[6];
 		switch(alliance) {
 			case Red:
-				raw = table.getEntry("botpose_wpired").getDoubleArray(new double[6]);
+				raw = getEntryArray("botpose_wpired");
                 break;
 			case Blue:
-				raw = table.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+				raw = getEntryArray("botpose_wpiblue");
                 break;
 			default:
 				break;
 		}
-		return new Pose2d(raw[0], raw[1], Rotation2d.fromDegrees(raw[5]));
+		return Optional.of(new Pose2d(
+			raw[0], raw[1], Rotation2d.fromDegrees(raw[5])
+		));
 	}
 
-	public Pose2d getRobotPoseToTarget() {
-		double[] raw = table
-			.getEntry("botpose_targetspace")
-			.getDoubleArray(new double[6]);
-		return new Pose2d(
-			raw[0],
-			raw[1],
-			Rotation2d.fromDegrees(raw[5])
+	public Optional<Pose2d> getRobotPoseToTarget() {
+		if (!hasValidTargets()) return Optional.empty();
+		double[] raw = getEntryArray("botpose_targetspace");
+		return Optional.of(new Pose2d(
+			raw[0], raw[1], Rotation2d.fromDegrees(raw[5])
+		));
+	}
+
+	public Optional<Pose2d> getTargetPoseToCamera() {
+		if (!hasValidTargets()) return Optional.empty();
+		double[] raw = getEntryArray("targetpose_cameraspace");
+		return Optional.of(new Pose2d(
+			raw[0], raw[1], Rotation2d.fromDegrees(raw[5])
+		));
+	}
+
+	public Optional<Pose2d> getTargetPoseToRobot() {
+		if (!hasValidTargets()) return Optional.empty();
+		double[] raw = getEntryArray("targetpose_robotspace");
+		return Optional.of(new Pose2d(
+			raw[0], raw[1], Rotation2d.fromDegrees(raw[5])
+		));
+	}
+
+	public Optional<Pose2d> getCameraPoseToTarget() {
+		if (!hasValidTargets()) return Optional.empty();
+		double[] raw = getEntryArray("camerapose_targetspace");
+		return Optional.of(new Pose2d(
+			raw[0], raw[1], Rotation2d.fromDegrees(raw[5])
+		));
+	}
+
+	public Optional<Integer> getTargetTagId() {
+		if (!hasValidTargets()) return Optional.empty();
+		return Optional.of(
+			(int) getEntry("tid")
 		);
-	}
-
-	public Pose2d getTargetPoseToCamera() {
-		double[] raw = table
-			.getEntry("targetpose_cameraspace")
-			.getDoubleArray(new double[6]);
-		return new Pose2d(
-			raw[0],
-			raw[1],
-			Rotation2d.fromDegrees(raw[5])
-		);
-	}
-
-	public Pose2d getTargetPoseToRobot() {
-		double[] raw = table
-			.getEntry("targetpose_robotspace")
-			.getDoubleArray(new double[6]);
-		return new Pose2d(
-			raw[0],
-			raw[1],
-			Rotation2d.fromDegrees(raw[5])
-		);
-	}
-
-	public Pose2d getCameraPoseToTarget() {
-		double[] raw = table
-			.getEntry("camerapose_targetspace")
-			.getDoubleArray(new double[6]);
-		return new Pose2d(
-			raw[0],
-			raw[1],
-			Rotation2d.fromDegrees(raw[5])
-		);
-	}
-
-	public int getTargetTagId() {
-		return (int) table.getEntry("tid").getInteger(0);
 	}
 }

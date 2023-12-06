@@ -13,6 +13,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.NavX;
 import frc.robot.subsystems.vision.Vision;
@@ -65,13 +67,13 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 			kinematics,
 			gyro.getUnwrappedAngle(),
 			getModulePositions(),
-			vision.getRobotPose().orElse(new Pose2d())
+			vision.getRobotPose(new Pose2d())
 		);
 		poseEstimator = new SwerveDrivePoseEstimator(
 			kinematics,
 			gyro.getUnwrappedAngle(),
 			getModulePositions(),
-			vision.getRobotPose().orElse(new Pose2d())
+			vision.getRobotPose(new Pose2d())
 		);
 	}
 
@@ -89,7 +91,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		poseEstimator.update(gyroAngle, modulePositions);
 		if (vision.seesTag()) {
 			poseEstimator.addVisionMeasurement(
-                vision.getRobotPose().orElse(getEstimatorPose()),
+				vision.getRobotPose(getEstimatorPose()),
                 Timer.getFPGATimestamp()
             );
 		}
@@ -123,9 +125,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 					0, 
 					getRobotAngle()
 				).vxMetersPerSecond, 
-				vision.getGamePieceHorizontalOffset()
-                    .orElse(new Rotation2d())
-                    .getDegrees() / 10, // Arbitrary scaling factor
+				vision.getHorizontalOffset(new Rotation2d()).getDegrees() / 10,
 				calculateRotationalVelocityToTarget(aligningAngle)
 			)
 		);
