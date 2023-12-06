@@ -16,6 +16,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.NavX;
 import frc.robot.subsystems.vision.Vision;
@@ -162,6 +164,20 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 				2, // TODO: Change
 				relTagPose.getRotation()
 			)
+		);
+	}
+
+	public Command driveToTagCommand() {
+		return Commands.run(
+			() -> {
+				Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
+				driveRobotCentric(
+					holonomicDriveController.calculate(
+						new Pose2d(), relTagPose, 0, relTagPose.getRotation()
+					)
+				);
+			},
+			this
 		);
 	}
 

@@ -18,9 +18,9 @@ public class Vision extends SubsystemBase implements Loggable {
 	private Limelight gamePieceLimelight;
 
 	//TODO: Change these
-	private double GAMEPIECE_LIMELIGHT_HEIGHT_METERS = 0;
-	private double GAMEPIECE_HALF_HEIGHT_METERS = 0;
-	private Rotation2d GAMEPIECE_LIMELIGHT_ANGLE = Rotation2d.fromDegrees(0);
+	private double GAMEPIECE_LIMELIGHT_HEIGHT_METERS = 0.232;
+	private double GAMEPIECE_HALF_HEIGHT_METERS = 0.16;
+	private Rotation2d GAMEPIECE_LIMELIGHT_ANGLE = Rotation2d.fromDegrees(-12);
 
 	private Vision() {
 		aprilTagLimelight = new Limelight("limelight-hehehe");
