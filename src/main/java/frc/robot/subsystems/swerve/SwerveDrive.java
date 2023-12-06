@@ -1,6 +1,8 @@
 package frc.robot.subsystems.swerve;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,8 +13,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.NavX;
 import frc.robot.subsystems.vision.Vision;
@@ -30,6 +35,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	private SwerveDriveOdometry odometry;
 	private SwerveDrivePoseEstimator poseEstimator;
 	private PIDController anglePID;
+	private HolonomicDriveController holonomicDriveController;
 
 	private SwerveDrive() {
 		anglePID = new PIDController(4, 0, 0);
@@ -72,6 +78,13 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 			gyro.getUnwrappedAngle(),
 			getModulePositions(),
 			vision.getRobotPose(new Pose2d())
+		);
+		holonomicDriveController = new HolonomicDriveController(
+			new PIDController(1, 0, 0),
+			new PIDController(1, 0, 0),
+			new ProfiledPIDController(3, 0, 0,
+				new TrapezoidProfile.Constraints(2, 3)
+			)
 		);
 	}
 
@@ -140,6 +153,16 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		for (int i = 0; i < modules.length; i++) {
 			modules[i].drive(states[i]);
 		}
+	}
+
+	public void driveToAprilTag() {
+		Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
+		ChassisSpeeds adjustedSpeeds = holonomicDriveController.calculate(
+			new Pose2d(),
+			relTagPose,
+			2, // TODO: Change
+			relTagPose.getRotation()
+		);
 	}
 
 	public ChassisSpeeds getChassisSpeeds() {

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.vision.Vision;
 
 /**
  * Drive Command for teleop. Supports 3 modes <p>
@@ -88,6 +89,9 @@ public class TeleopDriveCommand extends CommandBase {
 					alignmentAngle
 				);
 				break;
+			case MoveToAprilTag:
+				swerve.driveToAprilTag();
+				break;
         }
 	}
 
@@ -125,6 +129,17 @@ public class TeleopDriveCommand extends CommandBase {
 		);
 	}
 
+	public Command toggleMoveToAprilTagCommand() {
+		return Commands.startEnd(
+			() -> {
+				driveMode = DriveMode.MoveToAprilTag;
+			}, 
+			() -> {
+				driveMode = DriveMode.MoveToAprilTag;
+			}
+		);
+	}
+
 	public Command setTargetAngleCommand(Rotation2d newTarget) {
 		return Commands.runOnce(
 			() -> targetAngle = newTarget
@@ -143,7 +158,8 @@ public class TeleopDriveCommand extends CommandBase {
 	public static enum DriveMode {
 		AngleCentric,
 		RobotCentric,
-		AlignToTarget
+		AlignToTarget,
+		MoveToAprilTag
 	}
 
 	public static enum DriveSens {
