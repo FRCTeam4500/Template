@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -45,7 +47,7 @@ public class RobotContainer {
 		Trigger cancelationButton = xbox.start();
 		Trigger moveToAprilTagButton = xbox.leftBumper();
 
-		moveToAprilTagButton.whileTrue(swerve.driveToTagCommand());
+		moveToAprilTagButton.whileTrue(swerve.driveToTagCommand(new Pose2d(1, 0.25, new Rotation2d())));
 		switchDriveModeButton.toggleOnTrue(swerveCommand.toggleRobotCentricCommand());
 		resetGyroButton.onTrue(swerveCommand.resetGyroCommand());
 		alignToTargetButton.whileTrue(swerveCommand.toggleAlignToAngleCommand());

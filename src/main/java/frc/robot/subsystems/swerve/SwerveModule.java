@@ -89,28 +89,29 @@ public class SwerveModule {
 	 * @param currentAngle The current module angle.
 	 */
 	private SwerveModuleState optimizeModuleState(SwerveModuleState desiredState, Rotation2d currentAngle) {
-		if (angleMotor.hasContinuousRotation()) {
-			return SwerveModuleState.optimize(desiredState, currentAngle);
-		}
-		double newTargetAngle = desiredState.angle.plus(
-			Rotation2d.fromDegrees(
-				MathUtil.inputModulus(
-					desiredState.angle.getDegrees() 
-					- currentAngle.getDegrees() + 180, 
-					0, 
-					360
-				)- 180
-			)
-		).getDegrees();
-		double targetVelocity = desiredState.speedMetersPerSecond;
-		double delta = newTargetAngle - currentAngle.getDegrees();
-		if (Math.abs(delta) > 90) {
-			targetVelocity *= -1;
-			newTargetAngle = newTargetAngle - Math.signum(delta) * 180;
-		}
-		return new SwerveModuleState(
-			targetVelocity, 
-			Rotation2d.fromDegrees(newTargetAngle)
-		);
+		// if (angleMotor.hasContinuousRotation()) {
+		// 	return SwerveModuleState.optimize(desiredState, currentAngle);
+		// }
+		// double newTargetAngle = desiredState.angle.plus(
+		// 	Rotation2d.fromDegrees(
+		// 		MathUtil.inputModulus(
+		// 			desiredState.angle.getDegrees() 
+		// 			- currentAngle.getDegrees() + 180, 
+		// 			0, 
+		// 			360
+		// 		)- 180
+		// 	)
+		// ).getDegrees();
+		// double targetVelocity = desiredState.speedMetersPerSecond;
+		// double delta = newTargetAngle - currentAngle.getDegrees();
+		// if (Math.abs(delta) > 90) {
+		// 	targetVelocity *= -1;
+		// 	newTargetAngle = newTargetAngle - Math.signum(delta) * 180;
+		// }
+		// return new SwerveModuleState(
+		// 	targetVelocity, 
+		// 	Rotation2d.fromDegrees(newTargetAngle)
+		// );
+        return SwerveModuleState.optimize(desiredState, currentAngle);
 	}
 }

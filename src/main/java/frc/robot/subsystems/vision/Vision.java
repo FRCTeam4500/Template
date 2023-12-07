@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
 import frc.robot.utilities.Loggable;
@@ -25,6 +26,9 @@ public class Vision extends SubsystemBase implements Loggable {
 	private Vision() {
 		aprilTagLimelight = new Limelight("limelight-hehehe");
 		gamePieceLimelight = new Limelight("limelight-haha");
+        Shuffleboard.getTab("Display").addDouble("Forward", () -> getRelativeTagPose(new Pose2d()).getX());
+        Shuffleboard.getTab("Display").addDouble("Sideways", () -> getRelativeTagPose(new Pose2d()).getY());
+        Shuffleboard.getTab("Display").addDouble("Rotation", () -> getRelativeTagPose(new Pose2d()).getRotation().getDegrees());
 	}
 
 	public static synchronized Vision getInstance() {
@@ -38,6 +42,7 @@ public class Vision extends SubsystemBase implements Loggable {
         table.put("Sees tag", seesTag());
         table.put("Sees gamepiece", seesGamePiece());
 		Logger.getInstance().recordOutput("Vision Odometry", getRobotPose(new Pose2d()));
+        Logger.getInstance().recordOutput("Relative Tag Pose", getRelativeTagPose(new Pose2d()));
 	}
 
 	@Override

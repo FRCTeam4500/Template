@@ -37,6 +37,14 @@ public class TeleopDriveCommand extends CommandBase {
 	public TeleopDriveCommand(CommandXboxController xboxController) {
 		swerve = SwerveDrive.getInstance();
 		controller = xboxController;
+        driveMode = DriveMode.AngleCentric;
+		targetAngle = swerve.getRobotAngle();
+		alignmentAngle = swerve.getRobotAngle();
+		forwardSens = SwerveConstants.MAX_FORWARD_SENSITIVITY;
+		sidewaysSens = SwerveConstants.MAX_SIDEWAYS_SENSITIVITY;
+		rotationalSens = SwerveConstants.MAX_ROTATIONAL_SENSITIVITY;
+        Shuffleboard.getTab("Display").addString("Drive Mode", () -> driveMode.name());
+		Shuffleboard.getTab("Display").addDouble("Target Angle Degrees ", () -> targetAngle.getDegrees());
 		addRequirements(swerve);
 	}
 
@@ -48,8 +56,6 @@ public class TeleopDriveCommand extends CommandBase {
 		forwardSens = SwerveConstants.MAX_FORWARD_SENSITIVITY;
 		sidewaysSens = SwerveConstants.MAX_SIDEWAYS_SENSITIVITY;
 		rotationalSens = SwerveConstants.MAX_ROTATIONAL_SENSITIVITY;
-		Shuffleboard.getTab("Display").addString("Drive Mode", () -> driveMode.name());
-		Shuffleboard.getTab("Display").addDouble("Target Angle Degrees ", () -> targetAngle.getDegrees());
     }
 
 	@Override

@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -82,10 +83,11 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		holonomicDriveController = new HolonomicDriveController(
 			new PIDController(1, 0, 0),
 			new PIDController(1, 0, 0),
-			new ProfiledPIDController(3, 0, 0,
+			new ProfiledPIDController(1, 0, 0,
 				new TrapezoidProfile.Constraints(2, 3)
 			)
 		);
+        Shuffleboard.getTab("Display").addBoolean("Gyro Connected", () -> gyro.getAHRS().isConnected());
 	}
 
     public static synchronized SwerveDrive getInstance() {
@@ -158,22 +160,27 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	public void driveToAprilTag() {
 		Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
 		driveRobotCentric(
-			holonomicDriveController.calculate(
-				new Pose2d(),
-				relTagPose,
-				2, // TODO: Change
-				relTagPose.getRotation()
-			)
+			// holonomicDriveController.calculate(
+			// 	new Pose2d(),
+			// 	relTagPose,
+			// 	0, // TODO: Change
+			// 	new Rotation2d()// relTagPose.getRotation()
+			// )
+            new ChassisSpeeds(
+                0.5-1,
+                0,
+                0
+            )
 		);
 	}
 
-	public Command driveToTagCommand() {
+	public Command driveToTagCommand(Pose2d targetPose) {
 		return Commands.run(
 			() -> {
 				Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
 				driveRobotCentric(
 					holonomicDriveController.calculate(
-						new Pose2d(), relTagPose, 0, relTagPose.getRotation()
+						targetPose, relTagPose, 0, new Rotation2d()
 					)
 				);
 			},
