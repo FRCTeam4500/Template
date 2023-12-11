@@ -1,7 +1,8 @@
 package frc.robot.subsystems.messaging;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.Loggable;
+import frc.robot.utilities.logging.Loggable;
+
 import org.littletonrobotics.junction.LogTable;
 
 public class MessagingSystem extends SubsystemBase implements Loggable {

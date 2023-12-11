@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.NavX;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.utilities.Loggable;
+import frc.robot.utilities.logging.Loggable;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
@@ -157,30 +157,16 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 		}
 	}
 
-	public void driveToAprilTag() {
-		Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
-		driveRobotCentric(
-			// holonomicDriveController.calculate(
-			// 	new Pose2d(),
-			// 	relTagPose,
-			// 	0, // TODO: Change
-			// 	new Rotation2d()// relTagPose.getRotation()
-			// )
-            new ChassisSpeeds(
-                0.5-1,
-                0,
-                0
-            )
-		);
-	}
-
 	public Command driveToTagCommand(Pose2d targetPose) {
 		return Commands.run(
 			() -> {
 				Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
 				driveRobotCentric(
 					holonomicDriveController.calculate(
-						targetPose, relTagPose, 0, new Rotation2d()
+						targetPose, 
+						relTagPose, 
+						0, 
+						new Rotation2d()
 					)
 				);
 			},
@@ -270,11 +256,14 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	}
 
 	private double calculateRotationalVelocityToTarget(Rotation2d targetRotation) {
+		double rotationalVelocity = anglePID.calculate(
+			getRobotAngle().getRadians(), 
+			targetRotation.getRadians()
+		);
 		if (anglePID.atSetpoint()) {
-			return 0;
-		} else {
-			return anglePID.calculate(getRobotAngle().getRadians(), targetRotation.getRadians());
+			rotationalVelocity = 0;
 		}
+		return rotationalVelocity;
 	}
 
 	/**

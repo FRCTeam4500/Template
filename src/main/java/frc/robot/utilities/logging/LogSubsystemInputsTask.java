@@ -1,4 +1,4 @@
-package frc.robot.utilities;
+package frc.robot.utilities.logging;
 
 import frc.robot.subsystems.messaging.MessagingSystem;
 import frc.robot.subsystems.swerve.SwerveDrive;

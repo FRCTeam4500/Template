@@ -2,7 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.utilities.LogSubsystemInputsTask;
+import frc.robot.utilities.logging.LogSubsystemInputsTask;
 
 import java.util.Timer;
 import org.littletonrobotics.junction.LoggedRobot;

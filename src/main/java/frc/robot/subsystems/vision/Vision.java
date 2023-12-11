@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
-import frc.robot.utilities.Loggable;
+import frc.robot.utilities.logging.Loggable;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
