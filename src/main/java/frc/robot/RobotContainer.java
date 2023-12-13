@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -24,6 +25,7 @@ public class RobotContainer {
 	private final int DRIVER_PORT = 2;
 
 	public RobotContainer() {
+        DriverStation.silenceJoystickConnectionWarning(true);
 		swerve = SwerveDrive.getInstance();
 		messaging = MessagingSystem.getInstance();
 		setupAuto();
