@@ -160,13 +160,18 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	public Command driveToTagCommand(Pose2d targetPose) {
 		return Commands.run(
 			() -> {
-				Pose2d relTagPose = vision.getRelativeTagPose(new Pose2d());
+				Pose2d poseDif = vision.getRelativeTagPose(new Pose2d()).relativeTo(targetPose);
 				driveRobotCentric(
-					holonomicDriveController.calculate(
-						targetPose, 
-						relTagPose, 
-						0, 
-						new Rotation2d()
+					// holonomicDriveController.calculate(
+					// 	targetPose, 
+					// 	relTagPose, 
+					// 	0, 
+					// 	new Rotation2d()
+					// )
+					new ChassisSpeeds(
+						poseDif.getX(),
+						poseDif.getY(),
+						poseDif.getRotation().getRadians() * 5
 					)
 				);
 			},
