@@ -100,7 +100,7 @@ public class Vision extends SubsystemBase implements Loggable {
 
     public Pose2d getRelativeTagPose(Pose2d defaultPose) {
         if (!seesTag()) return defaultPose;
-		return getRobotPose(new Pose2d(), Alliance.Blue)
+		return getRobotPose(new Pose2d(), DriverStation.getAlliance())
 			.relativeTo(getTagPose(getTagId(0)));
     }
 
