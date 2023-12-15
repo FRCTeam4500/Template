@@ -44,7 +44,6 @@ public class TeleopDriveCommand extends CommandBase {
 		sidewaysSens = SwerveConstants.MAX_SIDEWAYS_SENSITIVITY;
 		rotationalSens = SwerveConstants.MAX_ROTATIONAL_SENSITIVITY;
         Shuffleboard.getTab("Display").addString("Drive Mode", () -> driveMode.name());
-		Shuffleboard.getTab("Display").addDouble("Target Angle Degrees ", () -> targetAngle.getDegrees());
 		addRequirements(swerve);
 	}
 
@@ -111,12 +110,21 @@ public class TeleopDriveCommand extends CommandBase {
 	}
 
     public Command toggleRobotCentricCommand() {
-        return Commands.startEnd(
-            () -> driveMode = DriveMode.RobotCentric,
+        // return Commands.startEnd(
+        //     () -> driveMode = DriveMode.RobotCentric,
+        //     () -> {
+		// 		driveMode = DriveMode.AngleCentric;
+		// 		targetAngle = swerve.getRobotAngle();
+		// 	}
+        // );
+        return Commands.runOnce(
             () -> {
-				driveMode = DriveMode.AngleCentric;
-				targetAngle = swerve.getRobotAngle();
-			}
+                if (driveMode != DriveMode.AngleCentric) {
+                    driveMode = DriveMode.AngleCentric;
+                } else {
+                    driveMode = DriveMode.RobotCentric;
+                }
+            }
         );
     }
 

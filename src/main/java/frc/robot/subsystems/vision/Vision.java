@@ -5,9 +5,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
+import frc.robot.utilities.ExtendedMath;
 import frc.robot.utilities.logging.Loggable;
 
 import org.littletonrobotics.junction.LogTable;
@@ -26,9 +26,6 @@ public class Vision extends SubsystemBase implements Loggable {
 	private Vision() {
 		aprilTagLimelight = new Limelight("limelight-hehehe");
 		gamePieceLimelight = new Limelight("limelight-haha");
-        Shuffleboard.getTab("Display").addDouble("Forward", () -> getRelativeTagPose(new Pose2d()).getX());
-        Shuffleboard.getTab("Display").addDouble("Sideways", () -> getRelativeTagPose(new Pose2d()).getY());
-        Shuffleboard.getTab("Display").addDouble("Rotation", () -> getRelativeTagPose(new Pose2d()).getRotation().getDegrees());
 	}
 
 	public static synchronized Vision getInstance() {
@@ -100,8 +97,13 @@ public class Vision extends SubsystemBase implements Loggable {
 
     public Pose2d getRelativeTagPose(Pose2d defaultPose) {
         if (!seesTag()) return defaultPose;
-		return getRobotPose(new Pose2d(), DriverStation.getAlliance())
+		Pose2d backwardsPose = getRobotPose(new Pose2d(), Alliance.Blue)
 			.relativeTo(getTagPose(getTagId(0)));
+        return new Pose2d(
+            backwardsPose.getTranslation(), 
+            ExtendedMath.wrapRotation2d(backwardsPose.getRotation()
+                .plus(Rotation2d.fromDegrees(180)))
+        );
     }
 
 	public Rotation2d getHorizontalOffset(Rotation2d defaultRotation) {

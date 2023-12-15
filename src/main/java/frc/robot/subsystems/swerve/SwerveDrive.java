@@ -1,8 +1,6 @@
 package frc.robot.subsystems.swerve;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,7 +11,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -36,7 +33,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	private SwerveDriveOdometry odometry;
 	private SwerveDrivePoseEstimator poseEstimator;
 	private PIDController anglePID;
-	private HolonomicDriveController holonomicDriveController;
 
 	private SwerveDrive() {
 		anglePID = new PIDController(4, 0, 0);
@@ -79,13 +75,6 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 			gyro.getUnwrappedAngle(),
 			getModulePositions(),
 			vision.getRobotPose(new Pose2d())
-		);
-		holonomicDriveController = new HolonomicDriveController(
-			new PIDController(1, 0, 0),
-			new PIDController(1, 0, 0),
-			new ProfiledPIDController(1, 0, 0,
-				new TrapezoidProfile.Constraints(2, 3)
-			)
 		);
         Shuffleboard.getTab("Display").addBoolean("Gyro Connected", () -> gyro.getAHRS().isConnected());
 	}
@@ -162,16 +151,10 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 			() -> {
 				Pose2d poseDif = vision.getRelativeTagPose(targetPose).relativeTo(targetPose);
 				driveRobotCentric(
-					// holonomicDriveController.calculate(
-					// 	targetPose, 
-					// 	relTagPose, 
-					// 	0, 
-					// 	new Rotation2d()
-					// )
-					new ChassisSpeeds(
-						poseDif.getX() / 10,
-						poseDif.getY() / 10,
-						poseDif.getRotation().getRadians() / 10
+                    new ChassisSpeeds(
+						poseDif.getX() * 2,
+						poseDif.getY() * 2,
+						-poseDif.getRotation().getRadians() * 5
 					)
 				);
 			},
