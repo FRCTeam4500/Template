@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 public class LogSubsystemInputsTask extends TimerTask {
 	private LogInputs loggingHelper = LogInputs.getInstance();
 	private Loggable[] loggingTargets = {
+		// TODO: Add things to log here
 		SwerveDrive.getInstance(),
 		Vision.getInstance(),
 		MessagingSystem.getInstance()

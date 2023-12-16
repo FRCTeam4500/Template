@@ -83,8 +83,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	}
 
     public static synchronized SwerveDrive getInstance() {
-		if (instance == null)
-			instance = new SwerveDrive();
+		if (instance == null) instance = new SwerveDrive();
 		return instance;
 	}
 

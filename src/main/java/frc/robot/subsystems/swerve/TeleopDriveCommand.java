@@ -110,13 +110,6 @@ public class TeleopDriveCommand extends CommandBase {
 	}
 
     public Command toggleRobotCentricCommand() {
-        // return Commands.startEnd(
-        //     () -> driveMode = DriveMode.RobotCentric,
-        //     () -> {
-		// 		driveMode = DriveMode.AngleCentric;
-		// 		targetAngle = swerve.getRobotAngle();
-		// 	}
-        // );
         return Commands.runOnce(
             () -> {
                 if (driveMode != DriveMode.AngleCentric) {
