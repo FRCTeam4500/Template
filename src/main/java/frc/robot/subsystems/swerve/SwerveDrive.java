@@ -76,7 +76,10 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 			getModulePositions(),
 			vision.getRobotPose(new Pose2d())
 		);
-        Shuffleboard.getTab("Display").addBoolean("Gyro Connected", () -> gyro.getAHRS().isConnected());
+        Shuffleboard.getTab("Display").addBoolean(
+			"Gyro Connected", 
+			() -> gyro.getAHRS().isConnected()
+		);
 	}
 
     public static synchronized SwerveDrive getInstance() {
@@ -233,9 +236,18 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 			"Back Right Module Angle (Radians)",
 			modules[3].getModuleState().angle.getRadians()
 		);
-		Logger.getInstance().recordOutput("Swerve Odometry", getOdometryPose());
-		Logger.getInstance().recordOutput("Odometyry + Vision Pose Estimation", getEstimatorPose());
-		Logger.getInstance().recordOutput("Module States", getModuleStates());
+		Logger.getInstance().recordOutput(
+			"Swerve Odometry", 
+			getOdometryPose()
+		);
+		Logger.getInstance().recordOutput(
+			"Odometyry + Vision Pose Estimation",
+			getEstimatorPose()
+		);
+		Logger.getInstance().recordOutput(
+			"Module States", 
+			getModuleStates()
+		);
 	}
 
 	@Override
@@ -258,7 +270,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	 * Fixes situation where robot drifts in the direction it's rotating in if
 	 * turning and translating at the same time
 	 * 
-	 * @see https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964
+	 * @see <a href="https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964">Chief Delphi</a>
 	 */
 	private ChassisSpeeds discretize(
 		ChassisSpeeds originalChassisSpeeds

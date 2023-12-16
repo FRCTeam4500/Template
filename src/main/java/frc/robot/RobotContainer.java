@@ -35,7 +35,10 @@ public class RobotContainer {
 	public void setupAuto() {
 		autonChooser = new SendableChooser<Command>();
 		autonChooser.setDefaultOption("No Auto", null);
-		Shuffleboard.getTab("Display").add("Auto Route", autonChooser);
+		Shuffleboard.getTab("Display").add(
+			"Auto Route", 
+			autonChooser
+		);
 	}
 
 	public void setupDriveController() {
@@ -49,11 +52,15 @@ public class RobotContainer {
 		Trigger cancelationButton = xbox.start();
 		Trigger moveToAprilTagButton = xbox.leftBumper();
 
-		moveToAprilTagButton.whileTrue(swerve.driveToTagCommand(Vision.getInstance().getRelativeTagPose(new Pose2d())));
+		moveToAprilTagButton.whileTrue(swerve.driveToTagCommand(
+			Vision.getInstance().getRelativeTagPose(new Pose2d()))
+		);
         switchDriveModeButton.onTrue(swerveCommand.toggleRobotCentricCommand());
 		resetGyroButton.onTrue(swerveCommand.resetGyroCommand());
 		alignToTargetButton.whileTrue(swerveCommand.toggleAlignToAngleCommand());
-		cancelationButton.onTrue(Commands.runOnce(() -> CommandScheduler.getInstance().cancelAll()));
+		cancelationButton.onTrue(Commands.runOnce(
+			() -> CommandScheduler.getInstance().cancelAll())
+		);
 	}
 
 	public Command rumbleCommand(double timeSeconds) {
