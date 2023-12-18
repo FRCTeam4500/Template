@@ -26,8 +26,7 @@ public class MessagingSystem extends SubsystemBase implements Loggable {
 	}
 
 	public static synchronized MessagingSystem getInstance() {
-		if (instance == null)
-			instance = new MessagingSystem();
+		if (instance == null) instance = new MessagingSystem();
         return instance;
 	}
 

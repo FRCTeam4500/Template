@@ -33,25 +33,18 @@ public class ExtendedMath {
 		return Math.min(max, Math.max(min, output));
 	}
 
-	public static double clampAroundZero(double input, double max) {
-        return Math.abs(input) > Math.abs(max) ? Math.signum(input) * Math.abs(max) : input;
-    }
-
 	public static double dot(Translation2d a, Translation2d b) {
 		return a.getX() * b.getX() + a.getY() * b.getY();
 	}
 
-	public static double angleBetween(Translation2d a, Translation2d b) {
-		return Math.acos(dot(a, b) / (a.getNorm() * b.getNorm()));
+	public static Rotation2d angleBetween(Translation2d a, Translation2d b) {
+		return a.getAngle().minus(b.getAngle());
 	}
 
 	public static double scalarProjectionOf(Translation2d a, Translation2d b) {
 		var norm = b.getNorm();
-		if (norm == 0) {
-			return 0;
-		} else {
-			return dot(a, b) / norm;
-		}
+		if (norm == 0) return 0;
+		return dot(a, b) / norm;
 	}
 
 	/**
@@ -63,21 +56,14 @@ public class ExtendedMath {
 	}
 
 	public static double withHardDeadzone(double value, double deadzone) {
-		if (Math.abs(value) < deadzone) {
-			return 0;
-		} else {
-			return value;
-		}
+		if (Math.abs(value) < deadzone) return 0;
+		return value;
 	}
 
 	public static double withContinuousDeadzone(double input, double slope, double deadzone) {
-		if (input <= -deadzone) {
-			return (input + deadzone) * slope;
-		} else if (-deadzone < input && input < deadzone) {
-			return 0;
-		} else {
-			return (input - deadzone) * slope;
-		}
+		if (input <= -deadzone) return (input + deadzone) * slope;
+		if (-deadzone < input && input < deadzone) return 0;
+		return (input - deadzone) * slope;
 	}
 
 	public static double withContinuousDeadzone(double input, double deadzone) {
@@ -97,24 +83,18 @@ public class ExtendedMath {
 		return a - Math.floor(a / n) * n;
 	}
 
-	/**
-	 * Calculates the shortest radian to a given angle, assuming that all angles that are 2 pi away
-	 * from each other are equivalent.
-	 *
-	 * @param currentAngle the starting angle
-	 * @param targetAngle  the final angle
-	 * @return the smallest difference and direction between these two angles
-	 */
-	public static double getShortestRadianToTarget(double currentAngle, double targetAngle) {
-		double actualDifference = targetAngle - currentAngle;
-		double shortestDifference = customMod(actualDifference + Math.PI, 2 * Math.PI) - Math.PI;
-		return shortestDifference;
-	}
-
-	public static double distance(Translation2d start, Translation2d end) {
-		var x = end.getX() - start.getX();
-		var y = end.getY() - start.getY();
-		return Math.sqrt(x * x + y * y);
+	public static Rotation2d getOptimizedAngleDifference(
+		Rotation2d currentAngle,
+		Rotation2d targetAngle
+	) {
+		double wrappedCurrent = wrapRotation2d(currentAngle).getDegrees();
+		double wrappedTarget = wrapRotation2d(targetAngle).getDegrees();
+		double originalDifference = wrappedTarget - wrappedCurrent;
+		double alternateDiffernece = (360 - originalDifference) * -Math.signum(originalDifference);
+		if (Math.abs(originalDifference) < Math.abs(alternateDiffernece)) {
+			return Rotation2d.fromDegrees(originalDifference);
+		}
+		return Rotation2d.fromDegrees(alternateDiffernece);
 	}
 
 	/**
@@ -170,29 +150,17 @@ public class ExtendedMath {
 		return Math.acos(dotProduct);
 	}
 
-	/**
-	 * Checks to see if two positions are close enough to each other, given a certain threshold
-	 * <p> This is useful since in most cases, the robot's pose will not exactly match a target pose,
-	 * but rather get very close to it.
-	 * @param pose1 one of the positions
-	 * @param pose2 the other position
-	 * @param translationalThreshold how close the x and y components of the positions must be
-	 * @param rotationalThreshold how close the angles of the positions must be
-	 * @return whether the two positions are close enough to each other
-	 */
 	public static boolean isClose(
 		Pose2d pose1,
 		Pose2d pose2,
-		double translationalThreshold,
-		double rotationalThreshold
+		Pose2d threshold
 	) {
-		Pose2d differenceInPose = pose1.relativeTo(pose2);
-		return (
-			Math.abs(differenceInPose.getX()) <= translationalThreshold &&
-			Math.abs(differenceInPose.getY()) <= translationalThreshold &&
-			Math.abs(differenceInPose.getRotation().getRadians()) <=
-			rotationalThreshold
-		);
+		Pose2d poseDiff = pose1.relativeTo(pose2);
+		boolean xClose = Math.abs(poseDiff.getX()) < Math.abs(threshold.getX());
+		boolean yClose = Math.abs(poseDiff.getY()) < Math.abs(threshold.getY());
+		boolean thetaClose = Math.abs(poseDiff.getRotation().getDegrees()) <
+			Math.abs(threshold.getRotation().getDegrees());
+		return xClose && yClose && thetaClose;
 	}
 
 	public static double singedSquare(double input) {
