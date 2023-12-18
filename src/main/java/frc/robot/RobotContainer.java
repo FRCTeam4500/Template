@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -13,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.messaging.MessagingSystem;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.TeleopDriveCommand;
-import frc.robot.subsystems.vision.Vision;
 
 public class RobotContainer {
 	private CommandXboxController xbox;
@@ -49,7 +49,7 @@ public class RobotContainer {
 		Trigger cancelationButton = xbox.start();
 		Trigger moveToAprilTagButton = xbox.leftBumper();
 
-		moveToAprilTagButton.whileTrue(swerve.driveToTagCommand(Vision.getInstance().getRelativeTagPose(new Pose2d())));
+        moveToAprilTagButton.whileTrue(swerve.driveToTagCommand(new Pose2d(1, 0, new Rotation2d())));
         switchDriveModeButton.onTrue(swerveCommand.toggleRobotCentricCommand());
 		resetGyroButton.onTrue(swerveCommand.resetGyroCommand());
 		alignToTargetButton.whileTrue(swerveCommand.toggleAlignToAngleCommand());
