@@ -176,6 +176,15 @@ public class ExtendedMath {
 		return Rotation2d.fromRadians(MathUtil.angleModulus(rotationToWrap.getRadians()));
 	}
 
+	/**
+	 * @param desiredState the target state of the module
+	 * @param currentAngle the current angle of the module
+	 * @param continuousRotation whether the encoder of the angle motor of the module 
+	 * supports continous rotation
+	 * @see <a
+	 *      href=https://www.chiefdelphi.com/t/swerve-modules-flip-180-degrees-periodically-conditionally/393059/3
+	 *      >Chief Delphi Post Concerning The Issue</a>
+	 */
 	public static SwerveModuleState optimizeModuleState(
 		SwerveModuleState desiredState,
 		Rotation2d currentAngle,

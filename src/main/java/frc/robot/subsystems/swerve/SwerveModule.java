@@ -23,9 +23,10 @@ public class SwerveModule {
 	}
 
 	public void drive(SwerveModuleState initialTargetState) {
-		SwerveModuleState targetState = optimizeModuleState(
-			initialTargetState,
-			getModuleState().angle
+		SwerveModuleState targetState = ExtendedMath.optimizeModuleState(
+			initialTargetState, 
+			getModuleState().angle,
+			angleMotor.hasContinuousRotation()
 		);
 		setModuleVelocity(
 			targetState.speedMetersPerSecond * 
@@ -72,27 +73,6 @@ public class SwerveModule {
 		driveMotor.setAngularVelocity(
 			targetVelocityMetersPerSecond * 2 /
 			(SwerveConstants.DRIVE_RATIO * SwerveConstants.WHEEL_DIAMETER_METERS)
-		);
-	}
-
-    /**
-	 * Minimize the change in heading the desired swerve module state would require
-	 * by potentially reversing the direction the wheel spins. Customized from
-	 * WPILib's version to include placing in appropriate scope for CTRE onboard
-	 * control.
-	 * 
-	 * @see <a
-	 *      href=https://www.chiefdelphi.com/t/swerve-modules-flip-180-degrees-periodically-conditionally/393059/3
-	 *      >Chief Delphi Post Concerning The Issue</a>
-	 * 
-	 * @param desiredState The desired state.
-	 * @param currentAngle The current module angle.
-	 */
-	private SwerveModuleState optimizeModuleState(SwerveModuleState desiredState, Rotation2d currentAngle) {
-		return ExtendedMath.optimizeModuleState(
-			desiredState, 
-			currentAngle, 
-			angleMotor.hasContinuousRotation()
 		);
 	}
 }
