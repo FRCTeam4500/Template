@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /**
  * This is a simple container for math methods which are useful
@@ -173,5 +174,31 @@ public class ExtendedMath {
 
 	public static Rotation2d wrapRotation2d(Rotation2d rotationToWrap) {
 		return Rotation2d.fromRadians(MathUtil.angleModulus(rotationToWrap.getRadians()));
+	}
+
+	public static SwerveModuleState optimizeModuleState(
+		SwerveModuleState desiredState,
+		Rotation2d currentAngle,
+		boolean continuousRotation
+	) {
+		if (continuousRotation) {
+			return SwerveModuleState.optimize(desiredState, currentAngle);
+		}
+		double originalAngle = currentAngle.getDegrees();
+		double delta = MathUtil.inputModulus(
+			desiredState.angle.getDegrees() - originalAngle + 180, 0, 360
+		) - 180;
+		if (Math.abs(delta) > 90) {
+			return new SwerveModuleState(
+				-desiredState.speedMetersPerSecond,
+				Rotation2d.fromDegrees(
+					originalAngle + delta - Math.signum(delta) * 180
+				)
+			);
+		}
+		return new SwerveModuleState(
+			desiredState.speedMetersPerSecond,
+			Rotation2d.fromDegrees(originalAngle + delta)
+		);
 	}
 }

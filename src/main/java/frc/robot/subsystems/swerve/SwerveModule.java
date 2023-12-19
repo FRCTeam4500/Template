@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.hardware.EncodedMotorController;
+import frc.robot.utilities.ExtendedMath;
 
 public class SwerveModule {
 	private EncodedMotorController driveMotor;
@@ -88,29 +89,10 @@ public class SwerveModule {
 	 * @param currentAngle The current module angle.
 	 */
 	private SwerveModuleState optimizeModuleState(SwerveModuleState desiredState, Rotation2d currentAngle) {
-		// if (angleMotor.hasContinuousRotation()) {
-		// 	return SwerveModuleState.optimize(desiredState, currentAngle);
-		// }
-		// double newTargetAngle = desiredState.angle.plus(
-		// 	Rotation2d.fromDegrees(
-		// 		MathUtil.inputModulus(
-		// 			desiredState.angle.getDegrees() 
-		// 			- currentAngle.getDegrees() + 180, 
-		// 			0, 
-		// 			360
-		// 		)- 180
-		// 	)
-		// ).getDegrees();
-		// double targetVelocity = desiredState.speedMetersPerSecond;
-		// double delta = newTargetAngle - currentAngle.getDegrees();
-		// if (Math.abs(delta) > 90) {
-		// 	targetVelocity *= -1;
-		// 	newTargetAngle = newTargetAngle - Math.signum(delta) * 180;
-		// }
-		// return new SwerveModuleState(
-		// 	targetVelocity, 
-		// 	Rotation2d.fromDegrees(newTargetAngle)
-		// );
-        return SwerveModuleState.optimize(desiredState, currentAngle);
+		return ExtendedMath.optimizeModuleState(
+			desiredState, 
+			currentAngle, 
+			angleMotor.hasContinuousRotation()
+		);
 	}
 }
