@@ -144,7 +144,7 @@ public class TeleopDriveCommand extends CommandBase {
         return Commands.runOnce(
             () -> {
                 targetAngle = new Rotation2d();
-                swerve.resetRobotAngle(new Rotation2d());
+                swerve.zeroRobotAngle();
             }
         );    
     }
