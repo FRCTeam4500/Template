@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-public class MessagingSystem extends SubsystemBase implements LoggableInputs {
-	private static MessagingSystem instance;
+public class Messaging extends SubsystemBase implements LoggableInputs {
+	private static Messaging instance;
 	private StringBuilder messages;
 	private boolean isEnabled;
 
-	private MessagingSystem() {
+	private Messaging() {
 		messages = new StringBuilder("MESSAGES APPEAR BELOW");
         isEnabled = false;
 	}
@@ -25,8 +25,8 @@ public class MessagingSystem extends SubsystemBase implements LoggableInputs {
 		isEnabled = enable;
 	}
 
-	public static synchronized MessagingSystem getInstance() {
-		if (instance == null) instance = new MessagingSystem();
+	public static synchronized Messaging getInstance() {
+		if (instance == null) instance = new Messaging();
         return instance;
 	}
 

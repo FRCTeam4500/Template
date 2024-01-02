@@ -18,7 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.NavX;
-import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.AprilTagVision;
+import frc.robot.subsystems.vision.GamePieceVision;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
@@ -27,7 +28,8 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 	private static SwerveDrive instance;
 	private NavX gyro;
-	private Vision vision;
+	private AprilTagVision tagVision;
+	private GamePieceVision pieceVision;
 	private SwerveModule[] modules;
 	private SwerveDriveKinematics kinematics;
 	private SwerveDriveOdometry odometry;
@@ -62,19 +64,20 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 			),
 		};
 		gyro = new NavX(I2C.Port.kMXP);
-		vision = Vision.getInstance();
+		tagVision = AprilTagVision.getInstance();
+		pieceVision = GamePieceVision.getInstance();
 		kinematics = new SwerveDriveKinematics(getModuleTranslations());
 		odometry = new SwerveDriveOdometry(
 			kinematics,
 			gyro.getUnwrappedAngle(),
 			getModulePositions(),
-			vision.getRobotPose(new Pose2d())
+			tagVision.getRobotPose(new Pose2d())
 		);
 		poseEstimator = new SwerveDrivePoseEstimator(
 			kinematics,
 			gyro.getUnwrappedAngle(),
 			getModulePositions(),
-			vision.getRobotPose(new Pose2d())
+			tagVision.getRobotPose(new Pose2d())
 		);
         Shuffleboard.getTab("Display").addBoolean(
 			"Gyro Connected", 
@@ -93,9 +96,9 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 		SwerveModulePosition[] modulePositions = getModulePositions();
 		odometry.update(gyroAngle, modulePositions);
 		poseEstimator.update(gyroAngle, modulePositions);
-		if (vision.seesTag()) {
+		if (tagVision.seesTag()) {
 			poseEstimator.addVisionMeasurement(
-				vision.getRobotPose(getEstimatorPose()),
+				tagVision.getRobotPose(getEstimatorPose()),
                 Timer.getFPGATimestamp()
             );
 		}
@@ -129,7 +132,7 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 					0, 
 					getRobotAngle()
 				).vxMetersPerSecond, 
-				vision.getHorizontalOffset(new Rotation2d()).getDegrees() / 10,
+				pieceVision.getHorizontalOffset(new Rotation2d()).getDegrees() / 10,
 				calculateRotationalVelocityToTarget(aligningAngle)
 			)
 		);
@@ -151,7 +154,7 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 	public Command driveToTagCommand(Pose2d targetPose) {
 		return Commands.run(
 			() -> {
-				Pose2d poseDif = vision.getRelativeTagPose(targetPose).relativeTo(targetPose);
+				Pose2d poseDif = tagVision.getRelativeTagPose(targetPose).relativeTo(targetPose);
 				driveRobotCentric(
                     new ChassisSpeeds(
 						poseDif.getX() * 2,

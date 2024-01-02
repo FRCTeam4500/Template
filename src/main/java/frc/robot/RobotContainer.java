@@ -11,14 +11,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.messaging.MessagingSystem;
+import frc.robot.subsystems.messaging.Messaging;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.TeleopDriveCommand;
 
 public class RobotContainer {
 	private CommandXboxController xbox;
 	private SwerveDrive swerve;
-	private MessagingSystem messaging;
+	private Messaging messaging;
 	private Command autoCommand;
 	private SendableChooser<Command> autonChooser;
 
@@ -27,7 +27,7 @@ public class RobotContainer {
 	public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
 		swerve = SwerveDrive.getInstance();
-		messaging = MessagingSystem.getInstance();
+		messaging = Messaging.getInstance();
 		setupAuto();
 		setupDriveController();
 	}

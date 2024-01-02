@@ -1,5 +1,10 @@
 package frc.robot.subsystems.vision;
 
+
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -9,86 +14,33 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
 import frc.robot.utilities.ExtendedMath;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
+public class AprilTagVision extends SubsystemBase implements LoggableInputs {
+    private static AprilTagVision instance;
+    public static synchronized AprilTagVision getInstance() {
+        if (instance == null) instance = new AprilTagVision();
+        return instance;
+    }
 
-public class Vision extends SubsystemBase implements LoggableInputs {
-	private static Vision instance;
-	private Limelight aprilTagLimelight;
-	private Limelight gamePieceLimelight;
+    private Limelight limelight;
 
-	//TODO: Change these
-	private double GAMEPIECE_LIMELIGHT_HEIGHT_METERS = 0.232;
-	private double GAMEPIECE_HALF_HEIGHT_METERS = 0.16;
-	private Rotation2d GAMEPIECE_LIMELIGHT_ANGLE = Rotation2d.fromDegrees(-12);
+    public AprilTagVision() {
+        limelight = new Limelight("limelight-hehehe");
+    }
 
-	private Vision() {
-		aprilTagLimelight = new Limelight("limelight-hehehe");
-		gamePieceLimelight = new Limelight("limelight-haha");
-	}
+    public boolean seesTag() {
+        return limelight.hasValidTargets();
+    }
 
-	public static synchronized Vision getInstance() {
-		if (instance == null) instance = new Vision();
-		return instance;
-	}
+    public int getTagId(int defaultId) {
+        return limelight.getTargetTagId().orElse(defaultId);
+    }
 
-	@Override
-	public void toLog(LogTable table) {
-		table.put("Tag ID", getTagId(0));
-        table.put("Sees tag", seesTag());
-        table.put("Sees gamepiece", seesGamePiece());
-		Logger.getInstance().recordOutput("Vision Odometry", getRobotPose(new Pose2d()));
-        Logger.getInstance().recordOutput("Relative Tag Pose", getRelativeTagPose(new Pose2d()));
-	}
-
-	@Override
-	public void fromLog(LogTable table) {}
-
-	public Limelight getAprilTageLimelight() {
-		return aprilTagLimelight;
-	}
-
-	public Limelight getGamePieceLimelight() {
-		return gamePieceLimelight;
-	}
-
-	public boolean seesTag() {
-		return aprilTagLimelight.hasValidTargets();
-	}
-
-	public boolean seesGamePiece() {
-		return gamePieceLimelight.hasValidTargets();
-	}
-
-	public Translation2d getTranslation(Translation2d defaultTranslation) {
-		if (!seesGamePiece()) return defaultTranslation;
-		double forwardDistance = 
-			(GAMEPIECE_LIMELIGHT_HEIGHT_METERS - GAMEPIECE_HALF_HEIGHT_METERS) / 
-			Math.tan(
-				GAMEPIECE_LIMELIGHT_ANGLE.plus(
-					getVerticalOffset(new Rotation2d())
-				).getRadians()
-			);
-		return new Translation2d(
-			forwardDistance,
-			forwardDistance * Math.tan(
-				getVerticalOffset(new Rotation2d())
-				.getRadians()
-			)
-		);
-	}
-
-	public int getTagId(int defaultID) {
-		return aprilTagLimelight.getTargetTagId().orElse(defaultID);
-	}
-
-	public Pose2d getRobotPose(Pose2d defaultPose) {
+    public Pose2d getRobotPose(Pose2d defaultPose) {
 		return getRobotPose(defaultPose, DriverStation.getAlliance());
 	}
 
 	public Pose2d getRobotPose(Pose2d defaultPose, Alliance poseOrigin) {
-		return aprilTagLimelight
+		return limelight
 			.getRobotPoseToAlliance(poseOrigin)
 			.orElse(defaultPose);
 	}
@@ -103,31 +55,7 @@ public class Vision extends SubsystemBase implements LoggableInputs {
                 .plus(Rotation2d.fromDegrees(180)))
         );
     }
-
-	public Rotation2d getHorizontalOffset(Rotation2d defaultRotation) {
-		return gamePieceLimelight
-			.getHorizontalOffsetFromCrosshair()
-			.orElse(defaultRotation);
-	}
-
-	public Rotation2d getVerticalOffset(Rotation2d defaultRotation) {
-		return gamePieceLimelight
-			.getVerticalOffsetFromCrosshair()
-			.orElse(defaultRotation);
-	}
-
-	public double getTakenArea(double defaultArea) {
-		return gamePieceLimelight
-			.getTargetArea()
-			.orElse(defaultArea);
-	}
-
-	public Rotation2d getSkew(Rotation2d defaultSkew) {
-		return gamePieceLimelight
-			.getSkew()
-			.orElse(defaultSkew);
-	}
-
+    
     private Pose2d getTagPose(int tagId) {
         Rotation2d tagRotation = Rotation2d.fromDegrees(tagId > 4 ? 0 : 180);
         Translation2d tagTranslation = new Translation2d();
@@ -188,4 +116,21 @@ public class Vision extends SubsystemBase implements LoggableInputs {
         }
         return new Pose2d(tagTranslation, tagRotation);  
     }
+
+    @Override
+    public void toLog(LogTable table) {
+        table.put("Tag ID", getTagId(0));
+        table.put("Sees tag", seesTag());
+        Logger.getInstance().recordOutput(
+            "Robot Pose", 
+            getRobotPose(new Pose2d())
+        );
+        Logger.getInstance().recordOutput(
+            "Relative Tag Pose",
+            getRelativeTagPose(new Pose2d())
+        );
+    }
+
+    @Override
+    public void fromLog(LogTable table) {}
 }
