@@ -42,7 +42,7 @@ public class NavX {
 
 	/** Interval: [-pi, pi] */
 	public Rotation2d getOffsetedAngle() {
-		return ExtendedMath.wrapRotation2d(getAngle().minus(getGyroZero()));
+		return ExtendedMath.wrapRotation2d(getAngle().minus(getZero()));
 	}
 
 	/** Interval: [-pi, pi] */
@@ -61,18 +61,18 @@ public class NavX {
 	}
 
 	/** Interval: [-pi, pi] */
-	public Rotation2d getGyroZero() {
+	public Rotation2d getZero() {
 		return gyroZero;
 	}
 
-	public void zeroGyro() {
+	public void zero() {
 		gyroZero = getAngle();
 	}
 
 	/** @param offset The new angle given by {@link frc.robot.hardware.NavX#getOffsetedAngle() 
 	 * getOffsetedAngle()} for the current angle
 	 */
-	public void zeroGyroWithOffset(Rotation2d offset) {
+	public void zeroWithOffset(Rotation2d offset) {
 		gyroZero = ExtendedMath.wrapRotation2d(getAngle().minus(offset));
 	}
 }

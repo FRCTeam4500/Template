@@ -1,11 +1,11 @@
 package frc.robot.subsystems.messaging;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.logging.Loggable;
 
 import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-public class MessagingSystem extends SubsystemBase implements Loggable {
+public class MessagingSystem extends SubsystemBase implements LoggableInputs {
 	private static MessagingSystem instance;
 	private StringBuilder messages;
 	private boolean isEnabled;
@@ -31,12 +31,10 @@ public class MessagingSystem extends SubsystemBase implements Loggable {
 	}
 
 	@Override
-	public void logData(LogTable table) {
+	public void toLog(LogTable table) {
 		table.put("Message", messages.toString());
 	}
 
 	@Override
-	public String getTableName() {
-		return "Messaging System";
-	}
+	public void fromLog(LogTable table) {}
 }

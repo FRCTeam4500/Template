@@ -8,12 +8,12 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Limelight;
 import frc.robot.utilities.ExtendedMath;
-import frc.robot.utilities.logging.Loggable;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-public class Vision extends SubsystemBase implements Loggable {
+public class Vision extends SubsystemBase implements LoggableInputs {
 	private static Vision instance;
 	private Limelight aprilTagLimelight;
 	private Limelight gamePieceLimelight;
@@ -34,7 +34,7 @@ public class Vision extends SubsystemBase implements Loggable {
 	}
 
 	@Override
-	public void logData(LogTable table) {
+	public void toLog(LogTable table) {
 		table.put("Tag ID", getTagId(0));
         table.put("Sees tag", seesTag());
         table.put("Sees gamepiece", seesGamePiece());
@@ -43,9 +43,7 @@ public class Vision extends SubsystemBase implements Loggable {
 	}
 
 	@Override
-	public String getTableName() {
-		return "Vision";
-	}
+	public void fromLog(LogTable table) {}
 
 	public Limelight getAprilTageLimelight() {
 		return aprilTagLimelight;

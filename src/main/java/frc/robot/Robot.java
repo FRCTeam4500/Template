@@ -2,9 +2,13 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.utilities.logging.LogSubsystemInputsTask;
+import frc.robot.subsystems.messaging.MessagingSystem;
+import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.subsystems.vision.Vision;
 
 import java.util.Timer;
+import java.util.TimerTask;
+
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedPowerDistribution;
@@ -42,7 +46,18 @@ public class Robot extends LoggedRobot {
 
 		logger.start();
 		robotContainer = new RobotContainer();
-		timer.schedule(new LogSubsystemInputsTask(), 10, 20);
+		timer.schedule(
+			new TimerTask() {
+				public void run() {
+					// TODO: Change these!
+					logger.processInputs("Swerve", SwerveDrive.getInstance());
+					logger.processInputs("Vision", Vision.getInstance());
+					logger.processInputs("Messaging", MessagingSystem.getInstance());
+				}
+			}, 
+			10, 
+			20
+		);
 	}
 
 	@Override

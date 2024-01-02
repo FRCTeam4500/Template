@@ -19,12 +19,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.NavX;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.utilities.logging.Loggable;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-public class SwerveDrive extends SubsystemBase implements Loggable {
+public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 	private static SwerveDrive instance;
 	private NavX gyro;
 	private Vision vision;
@@ -194,15 +194,15 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	}
 
 	public void zeroRobotAngle() {
-		gyro.zeroGyro();
+		gyro.zero();
 	}
 
 	public void resetRobotAngle(Rotation2d offsetAngle) {
-		gyro.zeroGyroWithOffset(offsetAngle);
+		gyro.zeroWithOffset(offsetAngle);
 	}
 
 	@Override
-	public void logData(LogTable table) {
+	public void toLog(LogTable table) {
 		table.put(
 			"Front Left Module Velocity (M/S)",
 			modules[0].getModuleState().speedMetersPerSecond
@@ -250,9 +250,7 @@ public class SwerveDrive extends SubsystemBase implements Loggable {
 	}
 
 	@Override
-	public String getTableName() {
-		return "Swerve";
-	}
+	public void fromLog(LogTable table) {}
 
 	private double calculateRotationalVelocityToTarget(Rotation2d targetRotation) {
 		double rotationalVelocity = anglePID.calculate(
