@@ -9,9 +9,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.autonomous.TestAuto;
 import frc.robot.subsystems.messaging.Messaging;
+import frc.robot.subsystems.swerve.MoveRelativeCommand;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.swerve.TeleopDriveCommand;
 
@@ -69,13 +72,14 @@ public class RobotContainer {
 	}
 
 	public void autonomousInit() {
-		messaging.setMessagingState(true);
-		messaging.addMessage("Auto Started");
-		autoCommand = autonChooser.getSelected();
+		// messaging.setMessagingState(true);
+		// messaging.addMessage("Auto Started");
+		// autoCommand = autonChooser.getSelected();
+		autoCommand = new TestAuto();
 		if (autoCommand != null) {
 			autoCommand.schedule();
 		} else {
-			messaging.addMessage("No Auto Command Selected");
+			// messaging.addMessage("No Auto Command Selected");
 		}
 	}
 
