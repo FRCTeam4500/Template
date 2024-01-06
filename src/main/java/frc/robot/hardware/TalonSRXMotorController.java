@@ -26,12 +26,12 @@ public class TalonSRXMotorController extends TalonSRX implements EncodedMotorCon
     }
 
     @Override
-    public void setVelocity(Rotation2d targetAngularVelocity) {
+    public void setAngularVelocity(Rotation2d targetAngularVelocity) {
         set(ControlMode.Velocity, targetAngularVelocity.getRadians() * TICKS_PER_RADIAN / 10.0);
     }
 
     @Override
-    public Rotation2d getVelocity() {
+    public Rotation2d getAngularVelocity() {
         return new Rotation2d(getSelectedSensorVelocity() / TICKS_PER_RADIAN * 10);
     }
 

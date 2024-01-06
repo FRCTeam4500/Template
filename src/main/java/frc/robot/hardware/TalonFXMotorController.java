@@ -31,12 +31,12 @@ public class TalonFXMotorController extends TalonFX implements EncodedMotorContr
     }
 
     @Override
-    public void setVelocity(Rotation2d velocity) {
+    public void setAngularVelocity(Rotation2d velocity) {
         set(ControlMode.Velocity, velocity.getRadians() * TICKS_PER_RADIAN / 10.0);
     }
 
     @Override
-    public Rotation2d getVelocity() {
+    public Rotation2d getAngularVelocity() {
         return Rotation2d.fromRadians(getSelectedSensorVelocity() / TICKS_PER_RADIAN * 10);
     }
 

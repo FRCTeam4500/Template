@@ -6,9 +6,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public interface EncodedMotorController {
 	/** @param velocity Angular velocity per second */
-	public void setVelocity(Rotation2d velocity);
+	public void setAngularVelocity(Rotation2d velocity);
 	/** @return angular velocity per second */
-	public Rotation2d getVelocity();
+	public Rotation2d getAngularVelocity();
 	/** @param angle Angle*/
 	public void setAngle(Rotation2d angle);
 	/** @return angle*/
