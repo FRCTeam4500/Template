@@ -1,8 +1,8 @@
 package frc.robot.hardware;
 
-import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.util.PIDConstants;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.math.util.Units;
 
@@ -59,7 +59,7 @@ public class SparkMaxMotorController extends CANSparkMax implements EncodedMotor
 
 	@Override
 	public EncodedMotorController setPID(PIDConstants pid) {
-		SparkMaxPIDController controller = getPIDController();
+		SparkPIDController controller = getPIDController();
 		controller.setP(pid.kP);
 		controller.setI(pid.kI);
 		controller.setD(pid.kD);
@@ -80,14 +80,14 @@ public class SparkMaxMotorController extends CANSparkMax implements EncodedMotor
 
 	@Override
 	public EncodedMotorController setMinOutput(double minOutput) {
-		SparkMaxPIDController controller = getPIDController();
+		SparkPIDController controller = getPIDController();
 		controller.setOutputRange(minOutput, controller.getOutputMax());
 		return this;
 	}
 
 	@Override
 	public EncodedMotorController setMaxOutput(double maxOutput) {
-		SparkMaxPIDController controller = getPIDController();
+		SparkPIDController controller = getPIDController();
 		controller.setOutputRange(controller.getOutputMin(), maxOutput);
 		return this;
 	}

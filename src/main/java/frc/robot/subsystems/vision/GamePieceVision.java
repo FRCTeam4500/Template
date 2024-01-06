@@ -63,7 +63,7 @@ public class GamePieceVision extends SubsystemBase implements LoggableInputs {
     @Override
     public void toLog(LogTable table) {
         table.put("Sees Piece", seesPiece());
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
             "Piece Translation", 
             new Pose2d(getTranslation(new Translation2d()), new Rotation2d())
         );

@@ -36,7 +36,7 @@ public class AprilTagVision extends SubsystemBase implements LoggableInputs {
     }
 
     public Pose2d getRobotPose(Pose2d defaultPose) {
-		return getRobotPose(defaultPose, DriverStation.getAlliance());
+		return getRobotPose(defaultPose, DriverStation.getAlliance().orElse(Alliance.Blue));
 	}
 
 	public Pose2d getRobotPose(Pose2d defaultPose, Alliance poseOrigin) {
@@ -121,11 +121,11 @@ public class AprilTagVision extends SubsystemBase implements LoggableInputs {
     public void toLog(LogTable table) {
         table.put("Tag ID", getTagId(0));
         table.put("Sees tag", seesTag());
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
             "Robot Pose", 
             getRobotPose(new Pose2d())
         );
-        Logger.getInstance().recordOutput(
+        Logger.recordOutput(
             "Relative Tag Pose",
             getRelativeTagPose(new Pose2d())
         );

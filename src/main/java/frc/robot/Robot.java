@@ -22,39 +22,38 @@ public class Robot extends LoggedRobot {
 
 	@Override
 	public void robotInit() {
-		Logger logger = Logger.getInstance();
 		timer = new Timer();
 
-		logger.recordMetadata("ProjectName", BuildInfo.MAVEN_NAME);
-		logger.recordMetadata("BuildDate", BuildInfo.BUILD_DATE);
-		logger.recordMetadata("GitSHA", BuildInfo.GIT_SHA);
-		logger.recordMetadata("GitDate", BuildInfo.GIT_DATE);
-		logger.recordMetadata("GitBranch", BuildInfo.GIT_BRANCH);
+		Logger.recordMetadata("ProjectName", BuildInfo.MAVEN_NAME);
+		Logger.recordMetadata("BuildDate", BuildInfo.BUILD_DATE);
+		Logger.recordMetadata("GitSHA", BuildInfo.GIT_SHA);
+		Logger.recordMetadata("GitDate", BuildInfo.GIT_DATE);
+		Logger.recordMetadata("GitBranch", BuildInfo.GIT_BRANCH);
 		switch (BuildInfo.DIRTY) {
 			case 0:
-				logger.recordMetadata("GitDirty", "All changes committed");
+				Logger.recordMetadata("GitDirty", "All changes committed");
 				break;
 			case 1:
-				logger.recordMetadata("GitDirty", "Uncomitted changes");
+				Logger.recordMetadata("GitDirty", "Uncomitted changes");
 				break;
 			default:
-				logger.recordMetadata("GitDirty", "Unknown");
+				Logger.recordMetadata("GitDirty", "Unknown");
 				break;
 		}
-		logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
-		logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+		Logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
+		Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
 		LoggedPowerDistribution.getInstance(1, ModuleType.kRev); // Enables power distribution logging
 
-		logger.start();
+		Logger.start();
 		robotContainer = new RobotContainer();
 		timer.schedule(
 			new TimerTask() {
 				public void run() {
 					// TODO: Change these!
-					logger.processInputs("Swerve", SwerveDrive.getInstance());
-					logger.processInputs("Tag Vision", AprilTagVision.getInstance());
-					logger.processInputs("Piece Vision", GamePieceVision.getInstance());
-					logger.processInputs("Messaging", Messaging.getInstance());
+					Logger.processInputs("Swerve", SwerveDrive.getInstance());
+					Logger.processInputs("Tag Vision", AprilTagVision.getInstance());
+					Logger.processInputs("Piece Vision", GamePieceVision.getInstance());
+					Logger.processInputs("Messaging", Messaging.getInstance());
 				}
 			}, 
 			10, 

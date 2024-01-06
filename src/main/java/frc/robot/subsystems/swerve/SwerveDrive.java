@@ -238,15 +238,15 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 			"Back Right Module Angle (Radians)",
 			modules[3].getModuleState().angle.getRadians()
 		);
-		Logger.getInstance().recordOutput(
+		Logger.recordOutput(
 			"Swerve Odometry", 
 			getOdometryPose()
 		);
-		Logger.getInstance().recordOutput(
+		Logger.recordOutput(
 			"Odometyry + Vision Pose Estimation",
 			getEstimatorPose()
 		);
-		Logger.getInstance().recordOutput(
+		Logger.recordOutput(
 			"Module States", 
 			getModuleStates()
 		);

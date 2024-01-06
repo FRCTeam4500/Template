@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -21,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  * 
  * <strong>Robot-Centric</strong>: Moves relative to robot.
  */
-public class TeleopDriveCommand extends CommandBase {
+public class TeleopDriveCommand extends Command {
 	private SwerveDrive swerve;
 	private CommandXboxController controller;
 	private DriveMode driveMode;
