@@ -38,21 +38,21 @@ public class SwerveModule {
 
 	public SwerveModuleState getModuleState() {
 		return new SwerveModuleState(
-			driveMotor.getAngularVelocity() *
+			driveMotor.getVelocity().getRadians() *
 			SwerveConstants.DRIVE_RATIO *
 			SwerveConstants.WHEEL_DIAMETER_METERS /
 			2,
-			new Rotation2d(angleMotor.getAngleRadians() * SwerveConstants.ANGLE_RATIO)
+			new Rotation2d(angleMotor.getAngle().getRadians() * SwerveConstants.ANGLE_RATIO)
 		);
 	}
 
 	public double getAngularVelocity() {
-		return angleMotor.getAngularVelocity() * SwerveConstants.ANGLE_RATIO;
+		return angleMotor.getVelocity().getRadians() * SwerveConstants.ANGLE_RATIO;
 	}
 
 	public SwerveModulePosition getModulePosition() {
 		return new SwerveModulePosition(
-			driveMotor.getAngleRadians() /
+			driveMotor.getAngle().getRadians() /
 			(2 * Math.PI) * 
 			SwerveConstants.DRIVE_RATIO *
 			SwerveConstants.WHEEL_DIAMETER_METERS *
@@ -66,13 +66,13 @@ public class SwerveModule {
 	}
 
 	public void setModuleAngle(double targetAngleRadians) {
-		angleMotor.setAngle(targetAngleRadians / SwerveConstants.ANGLE_RATIO);
+		angleMotor.setAngle(new Rotation2d(targetAngleRadians / SwerveConstants.ANGLE_RATIO));
 	}
 
 	public void setModuleVelocity(double targetVelocityMetersPerSecond) {
-		driveMotor.setAngularVelocity(
-			targetVelocityMetersPerSecond * 2 /
-			(SwerveConstants.DRIVE_RATIO * SwerveConstants.WHEEL_DIAMETER_METERS)
+		driveMotor.setVelocity(
+			new Rotation2d(targetVelocityMetersPerSecond * 2 /
+			(SwerveConstants.DRIVE_RATIO * SwerveConstants.WHEEL_DIAMETER_METERS))
 		);
 	}
 }

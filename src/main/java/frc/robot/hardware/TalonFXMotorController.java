@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.pathplanner.lib.util.PIDConstants;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public class TalonFXMotorController extends TalonFX implements EncodedMotorController {
     private double TICKS_PER_RADIAN = 2048 / Math.PI / 2;
 
@@ -19,33 +21,33 @@ public class TalonFXMotorController extends TalonFX implements EncodedMotorContr
     }
 
     @Override
-    public void setOutput(double targetPercentOutput) {
-        set(ControlMode.PercentOutput, targetPercentOutput);
+    public void setOutput(double output) {
+        set(ControlMode.PercentOutput, output);
     }
 
     @Override
-    public double getPercentOutput() {
+    public double getOutput() {
         return getMotorOutputPercent();
     }
 
     @Override
-    public void setAngularVelocity(double targetAngularVelocity) {
-        set(ControlMode.Velocity, targetAngularVelocity * TICKS_PER_RADIAN / 10.0);
+    public void setVelocity(Rotation2d velocity) {
+        set(ControlMode.Velocity, velocity.getRadians() * TICKS_PER_RADIAN / 10.0);
     }
 
     @Override
-    public double getAngularVelocity() {
-        return getSelectedSensorVelocity() / TICKS_PER_RADIAN * 10;
+    public Rotation2d getVelocity() {
+        return Rotation2d.fromRadians(getSelectedSensorVelocity() / TICKS_PER_RADIAN * 10);
     }
 
     @Override
-    public void setAngle(double targetAngle) {
-        set(ControlMode.MotionMagic, targetAngle * TICKS_PER_RADIAN);
+    public void setAngle(Rotation2d angle) {
+        set(ControlMode.MotionMagic, angle.getRadians() * TICKS_PER_RADIAN);
     }
 
     @Override
-    public double getAngleRadians() {
-        return getSelectedSensorPosition() / TICKS_PER_RADIAN;
+    public Rotation2d getAngle() {
+        return Rotation2d.fromRadians(getSelectedSensorPosition() / TICKS_PER_RADIAN);
     }
 
     @Override
@@ -54,7 +56,7 @@ public class TalonFXMotorController extends TalonFX implements EncodedMotorContr
     }
 
     @Override
-    public EncodedMotorController setCurrentLimit(int currentLimit) {
+    public TalonFXMotorController configCurrentLimit(int currentLimit) {
         configSupplyCurrentLimit(
             new SupplyCurrentLimitConfiguration(
                 true, 
@@ -68,7 +70,7 @@ public class TalonFXMotorController extends TalonFX implements EncodedMotorContr
     }
 
     @Override
-    public EncodedMotorController setPID(PIDConstants pid) {
+    public TalonFXMotorController configPID(PIDConstants pid) {
         config_kP(0, pid.kP);
         config_kI(0, pid.kI);
         config_kD(0, pid.kD);
@@ -76,50 +78,44 @@ public class TalonFXMotorController extends TalonFX implements EncodedMotorContr
     }
 
     @Override
-    public EncodedMotorController setMinAngle(double minPosition) {
+    public TalonFXMotorController configMinAngle(Rotation2d min) {
         configReverseSoftLimitEnable(true);
-        configReverseSoftLimitThreshold(minPosition * TICKS_PER_RADIAN);
+        configReverseSoftLimitThreshold(min.getRadians() * TICKS_PER_RADIAN);
         return this;
     }
 
     @Override
-    public EncodedMotorController setMaxAngle(double maxPosition) {
+    public TalonFXMotorController configMaxAngle(Rotation2d max) {
         configForwardSoftLimitEnable(true);
-        configForwardSoftLimitThreshold(maxPosition * TICKS_PER_RADIAN);
+        configForwardSoftLimitThreshold(max.getRadians() * TICKS_PER_RADIAN);
         return this;
     }
 
     @Override
-    public EncodedMotorController setMinOutput(double minOutput) {
+    public TalonFXMotorController configMinOutput(double minOutput) {
         configPeakOutputReverse(minOutput);
        return this;
     }
 
     @Override
-    public EncodedMotorController setMaxOutput(double maxOutput) {
+    public TalonFXMotorController configMaxOutput(double maxOutput) {
         configPeakOutputForward(maxOutput);
         return this;
     }
     
     @Override
-    public EncodedMotorController setInversion(boolean shouldInvert) {
+    public TalonFXMotorController configInverted(boolean shouldInvert) {
         setInverted(shouldInvert);
         return this;
     }
 
     @Override
-    public EncodedMotorController setBrakeOnIdle(boolean shouldBreak) {
+    public TalonFXMotorController configBrakeOnIdle(boolean shouldBreak) {
         setNeutralMode(
             shouldBreak
             ? NeutralMode.Brake
             : NeutralMode.Coast
         );
-        return this;
-    }
-
-    @Override
-    public EncodedMotorController setAngleTolerance(double tolerance) {
-        configAllowableClosedloopError(0, tolerance * TICKS_PER_RADIAN);
         return this;
     }
 }
