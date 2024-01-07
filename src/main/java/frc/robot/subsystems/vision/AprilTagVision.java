@@ -7,7 +7,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,66 +56,46 @@ public class AprilTagVision extends SubsystemBase implements LoggableInputs {
     }
     
     private Pose2d getTagPose(int tagId) {
-        Rotation2d tagRotation = Rotation2d.fromDegrees(tagId > 4 ? 0 : 180);
-        Translation2d tagTranslation = new Translation2d();
-        double longOffset = 16.4846 / 2;
-        double shortOffset = 8.1026 / 2;
+        // Positions gotten from https://firstfrc.blob.core.windows.net/frc2024/FieldAssets/2024LayoutMarkingDiagram.pdf
+        // but with flipped rotations, and in meters
         switch (tagId) {
-            case 1:
-                tagTranslation = new Translation2d(
-                    7.24310 + longOffset,
-                    -2.93659 + shortOffset
-                );
-                break;
-            case 2:
-                tagTranslation = new Translation2d(
-                    7.24310 + longOffset,
-                    -1.26019 + shortOffset
-                );
-                break;
-            case 3:
-                tagTranslation = new Translation2d(
-                    7.24310 + longOffset,
-                    0.41621 + shortOffset
-                );
-                break;
-            case 4:
-                tagTranslation = new Translation2d(
-                    7.90832 + longOffset,
-                    2.74161 + shortOffset
-                );
-                break;
-            case 5:
-                tagTranslation = new Translation2d(
-                    -7.90832 + longOffset,
-                    2.74161 + shortOffset
-                );
-                break;
-            case 6:
-                tagTranslation = new Translation2d(
-                    -7.24310 + longOffset,
-                    0.41621 + shortOffset
-                );
-                break;
-            case 7:
-                tagTranslation = new Translation2d(
-                    -7.24310 + longOffset,
-                    -1.26019 + shortOffset
-                );
-                break;
-            case 8:
-                tagTranslation = new Translation2d(
-                    -7.24310 + longOffset,
-                    -1.26019 + shortOffset
-                );
-                break;
             default:
-                tagTranslation = new Translation2d();
-                break;
+                return new Pose2d();
+            case 1:
+                return new Pose2d(15.079472, 0.245872, Rotation2d.fromDegrees(300));
+            case 2:
+                return new Pose2d(16.185134, 0.883666, Rotation2d.fromDegrees(300));
+            case 3:
+                return new Pose2d(16.679342, 4.982718, Rotation2d.fromDegrees(0));
+            case 4:
+                return new Pose2d(16.679342, 5.547868, Rotation2d.fromDegrees(0));
+            case 5:
+                return new Pose2d(14.700758, 8.2042, Rotation2d.fromDegrees(90));
+            case 6:
+                return new Pose2d(1.8415, 8.2042, Rotation2d.fromDegrees(90));
+            case 7:
+                return new Pose2d(-0.0381, 5.547868, Rotation2d.fromDegrees(180));
+            case 8:
+                return new Pose2d(-0.0381, 4.982718, Rotation2d.fromDegrees(180));
+            case 9:
+                return new Pose2d(0.356108, 0.883666, Rotation2d.fromDegrees(240));
+            case 10:
+                return new Pose2d(1.461516, 0.245872, Rotation2d.fromDegrees(240));
+            case 11:
+                return new Pose2d(11.904726, 3.713226, Rotation2d.fromDegrees(120)); 
+            case 12:
+                return new Pose2d(11.904726, 4.49834, Rotation2d.fromDegrees(240));
+            case 13:
+                return new Pose2d(11.220196, 4.105148, Rotation2d.fromDegrees(0));
+            case 14:
+                return new Pose2d(5.320792, 4.105148, Rotation2d.fromDegrees(180));
+            case 15:
+                return new Pose2d(4.641342, 4.49834, Rotation2d.fromDegrees(300));
+            case 16:
+                return new Pose2d(4.641342, 3.713226, Rotation2d.fromDegrees(60)); 
         }
-        return new Pose2d(tagTranslation, tagRotation);  
     }
-
+    
     @Override
     public void toLog(LogTable table) {
         table.put("Tag ID", getTagId(0));
