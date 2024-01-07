@@ -21,6 +21,14 @@ public class SwerveConstants {
     public static final double MAX_FORWARD_SENSITIVITY = 4;
     public static final double MAX_SIDEWAYS_SENSITIVITY = 4;
     public static final double MAX_ROTATIONAL_SENSITIVITY = 3.5;
+    public static final double MIN_SENSITIVITY = 0.2;
+
+    /* Drive Modes */
+    public static enum DriveMode{
+        AngleCentric,
+        RobotCentric,
+        AlignToTarget
+    }
 
     public static final EncodedMotorController FRONT_LEFT_DRIVE_MOTOR = 
         new TalonFXMotorController(CANConstants.SWERVE_FRONT_LEFT_DRIVE_ID)

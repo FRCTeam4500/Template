@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.messaging.Messaging;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.subsystems.swerve.TeleopDriveCommand;
 
 public class RobotContainer {
 	private CommandXboxController xbox;
@@ -43,8 +42,7 @@ public class RobotContainer {
 
 	public void setupDriveController() {
 		xbox = new CommandXboxController(DRIVER_PORT);
-		TeleopDriveCommand swerveCommand = new TeleopDriveCommand(xbox);
-		swerve.setDefaultCommand(swerveCommand);
+		swerve.setDefaultCommand(swerve.teleopDriveCommand(xbox));
 
 		Trigger switchDriveModeButton = xbox.x();
 		Trigger resetGyroButton = xbox.a();
@@ -53,9 +51,9 @@ public class RobotContainer {
 		Trigger moveToAprilTagButton = xbox.leftBumper();
 
         moveToAprilTagButton.whileTrue(swerve.driveToTagCommand(new Pose2d(1, 0, new Rotation2d())));
-        switchDriveModeButton.onTrue(swerveCommand.toggleRobotCentricCommand());
-		resetGyroButton.onTrue(swerveCommand.resetGyroCommand());
-		alignToTargetButton.whileTrue(swerveCommand.toggleAlignToAngleCommand());
+        switchDriveModeButton.onTrue(swerve.toggleRobotCentricCommand());
+		resetGyroButton.onTrue(swerve.resetGyroCommand());
+		alignToTargetButton.whileTrue(swerve.toggleAlignToTargetCommand());
 		cancelationButton.onTrue(Commands.runOnce(
 			() -> CommandScheduler.getInstance().cancelAll())
 		);
