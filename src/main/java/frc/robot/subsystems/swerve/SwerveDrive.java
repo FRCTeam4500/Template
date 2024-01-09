@@ -14,8 +14,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.hardware.NavX;
@@ -246,22 +244,6 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 		for (int i = 0; i < modules.length; i++) {
 			modules[i].drive(states[i]);
 		}
-	}
-
-	public Command driveToTagCommand(Pose2d targetPose) {
-		return Commands.run(
-			() -> {
-				Pose2d poseDif = tagVision.getRelativeTagPose(targetPose).relativeTo(targetPose);
-				driveRobotCentric(
-                    new ChassisSpeeds(
-						poseDif.getX() * 2,
-						poseDif.getY() * 2,
-						-poseDif.getRotation().getRadians() * 5
-					)
-				);
-			},
-			this
-		);
 	}
 
 	public ChassisSpeeds getChassisSpeeds() {
