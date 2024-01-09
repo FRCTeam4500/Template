@@ -6,6 +6,7 @@ import frc.robot.subsystems.messaging.Messaging;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.vision.AprilTagVision;
 import frc.robot.subsystems.vision.GamePieceVision;
+import frc.robot.utilities.LoggedTunableNumber;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,6 +61,7 @@ public class Robot extends LoggedRobot {
 			10, 
 			20
 		);
+		
 	}
 
 	@Override

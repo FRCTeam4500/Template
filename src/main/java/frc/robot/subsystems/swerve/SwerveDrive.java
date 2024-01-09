@@ -35,6 +35,7 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 	private SwerveDriveOdometry odometry;
 	private SwerveDrivePoseEstimator poseEstimator;
 	private PIDController anglePID;
+	private ChassisSpeeds currentSpeeds;
 
 	private SwerveDrive() {
 		anglePID = new PIDController(4, 0, 0);

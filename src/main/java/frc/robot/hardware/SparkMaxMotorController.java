@@ -1,6 +1,6 @@
 package frc.robot.hardware;
 
-import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.util.PIDConstants;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxPIDController;
 

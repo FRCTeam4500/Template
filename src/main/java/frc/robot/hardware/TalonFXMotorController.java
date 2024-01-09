@@ -4,7 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.util.PIDConstants;
 
 public class TalonFXMotorController extends TalonFX implements EncodedMotorController {
     private double TICKS_PER_RADIAN = 2048 / Math.PI / 2;

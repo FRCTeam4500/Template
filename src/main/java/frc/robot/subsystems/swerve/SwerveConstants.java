@@ -1,6 +1,6 @@
 package frc.robot.subsystems.swerve;
 
-import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.util.PIDConstants;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.CANConstants;

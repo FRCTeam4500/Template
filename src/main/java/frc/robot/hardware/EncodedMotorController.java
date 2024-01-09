@@ -1,6 +1,6 @@
 package frc.robot.hardware;
 
-import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.util.PIDConstants;
 
 public interface EncodedMotorController {
 	public void setAngularVelocity(double targetAngularVelocity);
