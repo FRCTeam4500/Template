@@ -11,12 +11,13 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.messaging.Messaging;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import frc.robot.subsystems.swerve.TeleopDriveCommand;
 
 public class RobotContainer {
 	private CommandXboxController xbox;
+    private Superstructure structure;
 	private SwerveDrive swerve;
 	private Messaging messaging;
 	private Command autoCommand;
@@ -26,6 +27,7 @@ public class RobotContainer {
 
 	public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
+        structure = Superstructure.getInstance();
 		swerve = SwerveDrive.getInstance();
 		messaging = Messaging.getInstance();
 		setupAuto();
@@ -43,8 +45,7 @@ public class RobotContainer {
 
 	public void setupDriveController() {
 		xbox = new CommandXboxController(DRIVER_PORT);
-		TeleopDriveCommand swerveCommand = new TeleopDriveCommand(xbox);
-		swerve.setDefaultCommand(swerveCommand);
+		swerve.setDefaultCommand(structure.angleCentricDriveCommand(xbox));
 
 		Trigger switchDriveModeButton = xbox.x();
 		Trigger resetGyroButton = xbox.a();
@@ -52,10 +53,10 @@ public class RobotContainer {
 		Trigger cancelationButton = xbox.start();
 		Trigger moveToAprilTagButton = xbox.leftBumper();
 
-        moveToAprilTagButton.whileTrue(swerve.driveToTagCommand(new Pose2d(1, 0, new Rotation2d())));
-        switchDriveModeButton.onTrue(swerveCommand.toggleRobotCentricCommand());
-		resetGyroButton.onTrue(swerveCommand.resetGyroCommand());
-		alignToTargetButton.whileTrue(swerveCommand.toggleAlignToAngleCommand());
+        moveToAprilTagButton.whileTrue(structure.driveToTagCommand(new Pose2d(1, 0.25, new Rotation2d())));
+        switchDriveModeButton.toggleOnTrue(structure.robotCentricDriveCommand(xbox));
+		resetGyroButton.onTrue(structure.resetGyroCommand());
+		alignToTargetButton.whileTrue(structure.alignToTargetDriveCommand(xbox));
 		cancelationButton.onTrue(Commands.runOnce(
 			() -> CommandScheduler.getInstance().cancelAll())
 		);
