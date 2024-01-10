@@ -7,10 +7,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.messaging.Messaging;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.vision.AprilTagVision;
-import frc.robot.subsystems.vision.GamePieceVision;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
 public class Superstructure {
@@ -21,18 +19,14 @@ public class Superstructure {
     }
 
     private SwerveDrive swerve;
-    private Messaging messaging;
     private AprilTagVision tagVision;
-    private GamePieceVision pieceVision;
 
     private Rotation2d targetAngle;
     private DriveMode driveMode;
 
     public Superstructure() {
         swerve = SwerveDrive.getInstance();
-        messaging = Messaging.getInstance();
         tagVision = AprilTagVision.getInstance();
-        pieceVision = GamePieceVision.getInstance();
         targetAngle = swerve.getRobotAngle();
         driveMode = DriveMode.AngleCentric;
 
