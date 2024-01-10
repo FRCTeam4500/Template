@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.CANConstants;
 import frc.robot.hardware.EncodedMotorController;
 import frc.robot.hardware.TalonFXMotorController;
+import frc.robot.subsystems.Superstructure.Sens;
 
 public class SwerveConstants {
     // TODO: Change these!
@@ -18,10 +19,7 @@ public class SwerveConstants {
     public static final double WHEEL_DIAMETER_METERS = 0.0762;
 
     /* Sensitivities */
-    public static final double MAX_FORWARD_SENSITIVITY = 4;
-    public static final double MAX_SIDEWAYS_SENSITIVITY = 4;
-    public static final double MAX_ROTATIONAL_SENSITIVITY = 3.5;
-    public static final double MIN_SENSITIVITY = 0.2;
+    public static final Sens SENS = new Sens(4, 4, 3.5, 0.2);
 
     /* Drive Modes */
     public static enum DriveMode{
