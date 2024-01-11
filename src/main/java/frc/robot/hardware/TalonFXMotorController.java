@@ -24,6 +24,17 @@ public class TalonFXMotorController extends TalonFX implements EncodedMotorContr
         vVoltage = new VelocityVoltage(0).withSlot(1).withEnableFOC(false);
     }
 
+    public TalonFXMotorController(
+        int deviceID,
+        TalonFXConfiguration config
+    ) {
+        super(deviceID);
+        this.config = config;
+        mVoltage = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(false);
+        vVoltage = new VelocityVoltage(0).withSlot(1).withEnableFOC(false);
+        refreshConfig();
+    }
+
     @Override
     public void setAngularVelocity(Rotation2d velocity) {
         setControl(vVoltage.withVelocity(velocity.getRotations()));
@@ -162,7 +173,7 @@ public class TalonFXMotorController extends TalonFX implements EncodedMotorContr
     private boolean refreshConfig() {
         StatusCode status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; i++) {
-            status = getConfigurator().refresh(config);
+            status = getConfigurator().apply(config);
             if (status.isOK()) break;
         }
         return status.isOK();
