@@ -65,11 +65,16 @@ public class TalonSRXMotorController extends TalonSRX implements EncodedMotorCon
     }
 
     @Override
-    public TalonSRXMotorController configPID(PIDConstants pid) {
+    public TalonSRXMotorController configAnglePID(PIDConstants pid) {
         config_kP(0, pid.kP);
         config_kI(0, pid.kI);
         config_kD(0, pid.kD);
         return this;
+    }
+
+    @Override
+    public EncodedMotorController configVelocityPID(PIDConstants pid) {
+        return configAnglePID(pid);
     }
 
     @Override

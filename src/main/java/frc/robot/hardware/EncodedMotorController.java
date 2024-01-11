@@ -21,8 +21,10 @@ public interface EncodedMotorController {
 	public boolean hasContinuousRotation();
 	/** @param limitAmps The new current limit in amps */
 	public EncodedMotorController configCurrentLimit(int limtAmps);
-	/** @param pid The new PID contstant */
-	public EncodedMotorController configPID(PIDConstants pid);
+	/** @param pid The new PID gains */
+	public EncodedMotorController configAnglePID(PIDConstants pid);
+	/** @param pid The new PID gains */
+	public EncodedMotorController configVelocityPID(PIDConstants pid);
 	/** @param min The minimum angle of the motor */
 	public EncodedMotorController configMinAngle(Rotation2d min);
 	/** @param max The maximum angle of the motor */

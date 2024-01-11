@@ -58,12 +58,17 @@ public class SparkMaxMotorController extends CANSparkMax implements EncodedMotor
 	}
 
 	@Override
-	public SparkMaxMotorController configPID(PIDConstants pid) {
+	public SparkMaxMotorController configAnglePID(PIDConstants pid) {
 		SparkPIDController controller = getPIDController();
 		controller.setP(pid.kP);
 		controller.setI(pid.kI);
 		controller.setD(pid.kD);
 		return this;
+	}
+
+	@Override
+	public EncodedMotorController configVelocityPID(PIDConstants pid) {
+		return configAnglePID(pid);
 	}
 
 	@Override
