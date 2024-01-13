@@ -8,13 +8,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pickup First Piece"
+            "pathName": "Woofer to Left1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Shoot First Piece"
+            "pathName": "Left1 to Woofer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Woofer to Left2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left2 to Woofer"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Woofer to Left3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left3 to Woofer"
           }
         }
       ]
