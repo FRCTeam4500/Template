@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -37,6 +39,7 @@ public class RobotContainer {
 	public void setupAuto() {
 		autonChooser = new SendableChooser<Command>();
 		autonChooser.setDefaultOption("No Auto", null);
+		autonChooser.addOption("Test Auto", new PathPlannerAuto("Blue 4 from 3"));
 		Shuffleboard.getTab("Display").add(
 			"Auto Route", 
 			autonChooser

@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -10,6 +12,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.vision.AprilTagVision;
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
+
+import java.util.Optional;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 public class Superstructure {
     private static Superstructure instance;
@@ -30,7 +39,33 @@ public class Superstructure {
         targetAngle = swerve.getRobotAngle();
         driveMode = DriveMode.AngleCentric;
 
+        configurePathPlanner();
+
         Shuffleboard.getTab("Display").addString("Drive Mode", () -> driveMode.toString());
+    }
+
+    public void configurePathPlanner() {
+        AutoBuilder.configureHolonomic(
+            swerve::getOdometryPose, 
+            swerve::resetPose, 
+            swerve::getChassisSpeeds, 
+            swerve::driveRobotCentric, 
+            new HolonomicPathFollowerConfig(
+                new PIDConstants(5.0),
+                new PIDConstants(5.0),
+                MAX_LINEAR_SPEED_MPS,
+                0.39878808909,
+                new ReplanningConfig()
+            ), 
+            () -> {
+                Optional<Alliance> alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            }, 
+            swerve
+        );
     }
 
     public Command angleCentricDriveCommand(CommandXboxController xbox) {
