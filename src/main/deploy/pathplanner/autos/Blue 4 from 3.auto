@@ -18,6 +18,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Drive To Piece"
+          }
+        },
+        {
           "type": "wait",
           "data": {
             "waitTime": 1.5
@@ -30,9 +36,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Drive To Piece"
+          }
+        },
+        {
           "type": "wait",
           "data": {
             "waitTime": 1.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Piece1 to Center"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Drive To Piece"
           }
         }
       ]

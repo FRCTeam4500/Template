@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,7 +38,7 @@ public class RobotContainer {
 	}
 
 	public void setupAuto() {
-		autonChooser = new SendableChooser<Command>();
+		autonChooser = AutoBuilder.buildAutoChooser();
 		autonChooser.setDefaultOption("No Auto", null);
 		autonChooser.addOption("Test Auto", new PathPlannerAuto("Blue 4 from 3"));
 		Shuffleboard.getTab("Display").add(
@@ -59,7 +60,7 @@ public class RobotContainer {
         moveToAprilTagButton.whileTrue(structure.driveToTagCommand(new Pose2d(1, 0.25, new Rotation2d())));
         switchDriveModeButton.toggleOnTrue(structure.robotCentricDriveCommand(xbox));
 		resetGyroButton.onTrue(structure.resetGyroCommand());
-		alignToTargetButton.whileTrue(structure.alignToTargetDriveCommand(xbox));
+		alignToTargetButton.whileTrue(structure.driveToPieceCommand());
 		cancelationButton.onTrue(Commands.runOnce(
 			() -> CommandScheduler.getInstance().cancelAll())
 		);

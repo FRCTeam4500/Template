@@ -11,11 +11,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.subsystems.vision.AprilTagVision;
+import frc.robot.subsystems.vision.GamePieceVision;
+import frc.robot.utilities.ExtendedMath;
+
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
 import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -29,6 +35,7 @@ public class Superstructure {
 
     private SwerveDrive swerve;
     private AprilTagVision tagVision;
+    private GamePieceVision pieceVision;
 
     private Rotation2d targetAngle;
     private DriveMode driveMode;
@@ -36,6 +43,7 @@ public class Superstructure {
     public Superstructure() {
         swerve = SwerveDrive.getInstance();
         tagVision = AprilTagVision.getInstance();
+        pieceVision = GamePieceVision.getInstance();
         targetAngle = swerve.getRobotAngle();
         driveMode = DriveMode.AngleCentric;
 
@@ -66,6 +74,7 @@ public class Superstructure {
             }, 
             swerve
         );
+        NamedCommands.registerCommand("Drive To Piece", driveToPieceCommand().withTimeout(1.5));
     }
 
     public Command angleCentricDriveCommand(CommandXboxController xbox) {
@@ -141,6 +150,23 @@ public class Superstructure {
 				);
 			}, swerve
 		);
+    }
+
+    public Command driveToPieceCommand() {
+        return Commands.run(
+            () -> {
+                if (!pieceVision.seesPiece()) {
+                    swerve.driveRobotCentric(new ChassisSpeeds());
+                } else {
+                    Rotation2d diff = pieceVision.getHorizontalOffset(new Rotation2d());
+                    double area = pieceVision.getTakenArea(40);
+                    swerve.driveRobotCentric(new ChassisSpeeds(
+                        ExtendedMath.clamp(0, 1, 20 - area),
+                        5 * diff.getRadians(), 
+                        0
+                    ));
+                }
+            }, swerve);
     }
 
     public Command resetGyroCommand() {
