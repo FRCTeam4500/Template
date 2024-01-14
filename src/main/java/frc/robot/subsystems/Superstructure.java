@@ -16,8 +16,6 @@ import frc.robot.utilities.ExtendedMath;
 
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
-import java.util.Optional;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -63,13 +61,7 @@ public class Superstructure {
                 0.39878808909,
                 new ReplanningConfig()
             ), 
-            () -> {
-                Optional<Alliance> alliance = DriverStation.getAlliance();
-                if (alliance.isPresent()) {
-                    return alliance.get() == DriverStation.Alliance.Red;
-                }
-                return false;
-            }, 
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, 
             swerve
         );
         NamedCommands.registerCommand("Drive To Piece", driveToPieceCommand().withTimeout(1.5));

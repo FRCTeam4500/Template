@@ -39,8 +39,6 @@ public class RobotContainer {
 
 	public void setupAuto() {
 		autonChooser = AutoBuilder.buildAutoChooser();
-		autonChooser.setDefaultOption("No Auto", null);
-		autonChooser.addOption("Test Auto", new PathPlannerAuto("Blue 4 from 3"));
 		Shuffleboard.getTab("Display").add(
 			"Auto Route", 
 			autonChooser

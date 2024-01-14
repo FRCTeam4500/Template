@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -335,6 +336,14 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 
 	@Override
 	public void fromLog(LogTable table) {}
+
+	@Override
+	public void initSendable(SendableBuilder builder) {
+		builder.addDoubleProperty("Offset Robot Angle (deg)", () -> gyro.getOffsetedAngle().getDegrees(), null);
+		builder.addDoubleProperty("Forward Velocity (m/s)", () -> getChassisSpeeds().vxMetersPerSecond, null);
+		builder.addDoubleProperty("Sideways Velocity (m/s)", () -> getChassisSpeeds().vyMetersPerSecond, null);
+		builder.addDoubleProperty("Rotational Velocity (rad/s)", () -> getChassisSpeeds().omegaRadiansPerSecond, null);
+	}
 
 	private double calculateRotationalVelocityToTarget(Rotation2d targetRotation) {
 		double rotationalVelocity = anglePID.calculate(
