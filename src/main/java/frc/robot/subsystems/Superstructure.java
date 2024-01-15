@@ -31,6 +31,7 @@ public class Superstructure {
         driveMode = DriveMode.AngleCentric;
         configurePathPlanner();
 
+        Shuffleboard.getTab("Display").add(swerve);
         Shuffleboard.getTab("Display").addString("Drive Mode", () -> driveMode.toString());
     }
 

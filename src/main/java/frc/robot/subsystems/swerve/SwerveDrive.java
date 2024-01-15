@@ -241,9 +241,9 @@ public class SwerveDrive extends SubsystemBase implements LoggableInputs {
 	@Override
 	public void initSendable(SendableBuilder builder) {
 		builder.addDoubleProperty("Offset Robot Angle (deg)", () -> gyro.getOffsetedAngle().getDegrees(), null);
-		builder.addDoubleProperty("Forward Velocity (m/s)", () -> getChassisSpeeds().vxMetersPerSecond, null);
-		builder.addDoubleProperty("Sideways Velocity (m/s)", () -> getChassisSpeeds().vyMetersPerSecond, null);
-		builder.addDoubleProperty("Rotational Velocity (rad/s)", () -> getChassisSpeeds().omegaRadiansPerSecond, null);
+		builder.addDoubleProperty("Forward Velocity (mps)", () -> getChassisSpeeds().vxMetersPerSecond, null);
+		builder.addDoubleProperty("Sideways Velocity (mps)", () -> getChassisSpeeds().vyMetersPerSecond, null);
+		builder.addDoubleProperty("Rotational Velocity (radps)", () -> getChassisSpeeds().omegaRadiansPerSecond, null);
 	}
 
 	private double calculateRotationalVelocityToTarget(Rotation2d targetRotation) {
