@@ -57,7 +57,7 @@ public class RobotContainer {
         moveToAprilTagButton.whileTrue(structure.driveToTag(new Pose2d(1, 0.25, new Rotation2d())));
         switchDriveModeButton.toggleOnTrue(structure.robotCentricDrive(xbox));
 		resetGyroButton.onTrue(structure.resetGyro());
-		alignToTargetButton.whileTrue(structure.driveToPiece());
+		alignToTargetButton.whileTrue(structure.driveToTag(new Pose2d(1, 0, new Rotation2d())));
 		cancelationButton.onTrue(Commands.runOnce(
 			() -> CommandScheduler.getInstance().cancelAll())
 		);
