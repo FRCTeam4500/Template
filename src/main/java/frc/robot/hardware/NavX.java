@@ -16,12 +16,7 @@ import frc.robot.utilities.ExtendedMath;
 public class NavX {
 	private AHRS ahrs;
 	private Rotation2d gyroZero;
-
-	public NavX(edu.wpi.first.wpilibj.I2C.Port kmxp) {
-		ahrs = new AHRS(kmxp);
-		gyroZero = new Rotation2d();
-	}
-
+	
 	public NavX(Port kmxp) {
 		ahrs = new AHRS(kmxp);
 		gyroZero = new Rotation2d();
@@ -72,7 +67,7 @@ public class NavX {
 	/** @param offset The new angle given by {@link frc.robot.hardware.NavX#getOffsetedAngle() 
 	 * getOffsetedAngle()} for the current angle
 	 */
-	public void zeroWithOffset(Rotation2d offset) {
+	public void setAngle(Rotation2d offset) {
 		gyroZero = ExtendedMath.wrapRotation2d(getAngle().minus(offset));
 	}
 }
