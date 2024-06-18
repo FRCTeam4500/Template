@@ -100,7 +100,11 @@ public class EZLogger {
         private NetworkTable table;
         private String name;
         public LogAccess(String name) {
-            table = NetworkTableInstance.getDefault().getTable("EZLogger").getSubTable(name);
+            if (name.equals("")) {
+                table = NetworkTableInstance.getDefault().getTable("EZLogger");
+            } else {
+                table = NetworkTableInstance.getDefault().getTable("EZLogger").getSubTable(name);
+            }
             this.name = name;
         }
 

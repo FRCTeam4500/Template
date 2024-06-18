@@ -129,7 +129,6 @@ public class SwerveIO extends SubsystemBase implements Loggable {
                 .orElse(Alliance.Blue) == Alliance.Blue ? 
                 new Rotation2d() : Rotation2d.fromDegrees(180);
             base.setAngle(targetAngle);
-            System.out.println(getState().pose().getRotation());
         });
     }
 

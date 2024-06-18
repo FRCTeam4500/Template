@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,6 +21,7 @@ public class RobotContainer {
     private CommandXboxController xbox;
     private SwerveIO swerve;
     public RobotContainer() {
+        DriverStation.silenceJoystickConnectionWarning(true);
         xbox = new CommandXboxController(2);
         swerve = SwerveIO.getInstance();
         swerve.setDefaultCommand(swerve.angleCentric(
@@ -43,6 +46,8 @@ public class RobotContainer {
 
     private void configureAuto() {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser();
+        EZLogger.put("Hi", (Loggable) swerve);
+        EZLogger.put("Hi 2", (Sendable) swerve);
         EZLogger.put("Auto Chooser", chooser);
         RobotModeTriggers.autonomous().whileTrue(Commands.deferredProxy(chooser::getSelected));
     }
