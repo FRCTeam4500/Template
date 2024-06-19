@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
+import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
@@ -99,6 +100,7 @@ public class EZLogger {
     public static class LogAccess {
         private NetworkTable table;
         private String name;
+        private HashMap<String, GenericPublisher> pubs;
         public LogAccess(String name) {
             if (name.equals("")) {
                 table = NetworkTableInstance.getDefault().getTable("EZLogger");
@@ -106,6 +108,7 @@ public class EZLogger {
                 table = NetworkTableInstance.getDefault().getTable("EZLogger").getSubTable(name);
             }
             this.name = name;
+            pubs = new HashMap<>();
         }
 
         public void put(String key, Number value) {
@@ -144,9 +147,12 @@ public class EZLogger {
             byte[] array = new byte[bytes.position()];
             bytes.position(0);
             bytes.get(array); 
-            var publisher = table.getTopic(key).genericPublish(struct.getTypeString(), PubSubOption.sendAll(true));
-            publisher.setRaw(array);
-            publisher.close();
+            GenericPublisher pub = pubs.get(key);
+            if (pub == null) {
+                pub = table.getTopic(key).genericPublish(struct.getTypeString(), PubSubOption.sendAll(true));
+                pubs.put(key, pub);
+            }
+            pub.setRaw(array);
         }
         
         @SuppressWarnings("unchecked")
@@ -158,9 +164,12 @@ public class EZLogger {
             byte[] array = new byte[bytes.position()];
             bytes.position(0);
             bytes.get(array); 
-            var publisher = table.getTopic(key).genericPublish(struct.getTypeString() + "[]", PubSubOption.sendAll(true));
-            publisher.setRaw(array);
-            publisher.close();
+            GenericPublisher pub = pubs.get(key);
+            if (pub == null) {
+                pub = table.getTopic(key).genericPublish(struct.getTypeString() + "[]", PubSubOption.sendAll(true));
+                pubs.put(key, pub);
+            }
+            pub.setRaw(array);
         }
     }
 }
