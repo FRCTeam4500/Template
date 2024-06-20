@@ -18,44 +18,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 public class EZLogger {
     private static HashMap<String, Sendable> sendables = new HashMap<>();
     private static HashMap<String, Struct<?>> registeredSchema = new HashMap<>();
-    private static HashMap<String, Number> innerNumbers = new HashMap<>();
-    private static HashMap<String, Boolean> innerBooleans = new HashMap<>();
-    private static HashMap<String, String> innerStrings = new HashMap<>();
-    private static HashMap<String, Sendable> innerSendables = new HashMap<>();
-    private static HashMap<String, StructSerializable>  innerSerializables = new HashMap<>();
-    private static HashMap<String, StructSerializable[]> innerSerializablesArray = new HashMap<>();
     private static HashMap<LogAccess, Loggable> loggables = new HashMap<>();
     private static LogAccess innerAccess = new LogAccess("");
-    private static Loggable innerLoggable = new Loggable() {
-        public void log(LogAccess table) {
-            for (String key : innerNumbers.keySet()) {
-                table.put(key, innerNumbers.get(key));
-            }
-            for (String key : innerBooleans.keySet()) {
-                table.put(key, innerBooleans.get(key));
-            }
-            for (String key : innerStrings.keySet()) {
-                table.put(key, innerStrings.get(key));
-            }
-            for (String key : innerSendables.keySet()) {
-                table.put(key, innerSendables.get(key));
-            }
-            for (String key: innerSendables.keySet()) {
-                table.put(key, innerSendables.get(key));
-            }
-            for (String key : innerSerializablesArray.keySet()) {
-                table.put(key, innerSerializablesArray.get(key));
-            }
-        }
-    };
-
-    static {
-        loggables.put(innerAccess, innerLoggable);
-    }
 
     public static void periodic() {
         for (LogAccess key : loggables.keySet()) {
             loggables.get(key).log(key);
+        }
+        for (Sendable sendable : sendables.values()) {
+            SendableRegistry.update(sendable);
         }
     }
 
@@ -64,19 +35,17 @@ public class EZLogger {
     }
 
     public static void put(String key, Sendable value) {
-        innerSendables.put(key, value);
+        innerAccess.put(key, value);
     }
 
     public static <T extends StructSerializable> void put(String key, T value) {
-        innerSerializables.put(key, value);
+        innerAccess.put(key, value);
     }
     
     @SuppressWarnings("unchecked")
     public static <T extends StructSerializable> void put(String key, T... value) {
-        innerSerializablesArray.put(key, value);
+        innerAccess.put(key, value);
     }
-
-
     public static interface Loggable {
         public void log(LogAccess table);
     }
