@@ -24,7 +24,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 public class SwerveIO extends SubsystemBase implements Loggable {
@@ -99,21 +98,16 @@ public class SwerveIO extends SubsystemBase implements Loggable {
     }
 
     public Command angleCentric(
-        CommandXboxController xbox,
-        BooleanSupplier faceForward,
-        BooleanSupplier faceBackwards,
-        BooleanSupplier faceBlueRight,
-        BooleanSupplier faceBlueLeft
+        CommandXboxController xbox
     ) {
         return fieldCentric(
             xbox, 
             speeds -> { 
-                targetAngle = calculateTargetAngle(
-                    xbox,
-                    faceForward,
-                    faceBackwards,
-                    faceBlueRight,
-                    faceBlueLeft
+                targetAngle = Rotation2d.fromDegrees(
+                    targetAngle.getDegrees() -
+                    xbox.getRightX() * 
+                    Math.max(MIN_COEFFICIENT, 1 - xbox.getLeftTriggerAxis()) *
+                    MAX_ROTATIONAL_SPEED
                 );
                 return new ChassisSpeeds(
                     speeds.vxMetersPerSecond, 
@@ -121,6 +115,10 @@ public class SwerveIO extends SubsystemBase implements Loggable {
                     calculateRotationalVelocityToTarget(targetAngle)
                 );
         }).beforeStarting(() -> targetAngle = base.getPose().getRotation());
+    }
+
+    public Command targetAngle(Rotation2d angle) {
+        return Commands.runOnce(() -> targetAngle = angle);
     }
 
     public Command resetGyro() {
@@ -146,32 +144,6 @@ public class SwerveIO extends SubsystemBase implements Loggable {
 		}
 		return rotationalVelocity;
 	}
-
-    private Rotation2d calculateTargetAngle(
-        CommandXboxController xbox,
-        BooleanSupplier faceForward,
-        BooleanSupplier faceBackwards,
-        BooleanSupplier faceBlueRight,
-        BooleanSupplier faceBlueLeft
-    ) {
-        double allianceCoefficient = 
-                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ?
-                1 : -1;
-        if (faceForward.getAsBoolean())
-            return Rotation2d.fromDegrees(90 - allianceCoefficient * 90);
-        else if (faceBackwards.getAsBoolean()) {
-            return Rotation2d.fromDegrees(90 + allianceCoefficient * 90);
-        }
-        else if (faceBlueRight.getAsBoolean()) 
-            return Rotation2d.fromDegrees(-90);
-        else if (faceBlueLeft.getAsBoolean())
-            return Rotation2d.fromDegrees(90);
-        else
-            return Rotation2d.fromDegrees(
-                targetAngle.getDegrees() -
-                xbox.getRightX() * Math.max(MIN_COEFFICIENT, 1 - xbox.getLeftTriggerAxis()) * MAX_ROTATIONAL_SPEED
-            );
-    } 
 
     public static record SwerveState(Pose2d pose, ChassisSpeeds speeds) {}
 }
