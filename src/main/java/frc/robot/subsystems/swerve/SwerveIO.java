@@ -7,7 +7,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,8 +14,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swerve.base.SwerveBaseIO;
 import frc.robot.subsystems.swerve.base.SwerveBaseReal;
 import frc.robot.subsystems.swerve.base.SwerveBaseSim;
-import frc.robot.utilities.EZLogger.LogAccess;
-import frc.robot.utilities.EZLogger.Loggable;
 
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
@@ -24,9 +21,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import dev.doglog.DogLog;
+
 import java.util.function.Function;
 
-public class SwerveIO extends SubsystemBase implements Loggable {
+public class SwerveIO extends SubsystemBase {
     private static SwerveIO instance;
     public static synchronized SwerveIO getInstance() {
         if (instance == null) instance = new SwerveIO();
@@ -36,7 +35,6 @@ public class SwerveIO extends SubsystemBase implements Loggable {
     private SwerveBaseIO base;
     private Rotation2d targetAngle;
     private PIDController anglePID;
-    private Field2d field;
     private SwerveIO() {
         base = RobotBase.isReal() ? new SwerveBaseReal() : new SwerveBaseSim();
         targetAngle = new Rotation2d();
@@ -53,22 +51,18 @@ public class SwerveIO extends SubsystemBase implements Loggable {
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, 
             this
         );
-        field = new Field2d();
     }
 
     @Override
     public void periodic() {
         base.periodic();
-        field.setRobotPose(base.getPose());
     }
 
-    @Override
-    public void log(LogAccess table) {
-        table.put("Target Angle", targetAngle);
-        table.put("Speeds", base.getSpeeds());
-        table.put("Pose", base.getPose());
-        table.put("Module States", base.getStates());
-        table.put("Field", field);
+    public void log() {
+        DogLog.log("Target Angle", targetAngle);
+        DogLog.log("Speeds", base.getSpeeds());
+        DogLog.log("Pose", base.getPose());
+        DogLog.log("Module States", base.getStates());
     }
 
     public Command fieldCentric(CommandXboxController xbox, Function<ChassisSpeeds, ChassisSpeeds> conversion) {
@@ -114,7 +108,9 @@ public class SwerveIO extends SubsystemBase implements Loggable {
                     speeds.vyMetersPerSecond,
                     calculateRotationalVelocityToTarget(targetAngle)
                 );
-        }).beforeStarting(() -> targetAngle = base.getPose().getRotation());
+        }).beforeStarting(
+            () -> targetAngle = base.getPose().getRotation()
+        ).withName("Angel Centric Drive");
     }
 
     public Command targetAngle(Rotation2d angle) {

@@ -4,9 +4,10 @@
 
 package frc.robot;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.utilities.EZLogger;
 
 public class Robot extends TimedRobot {
     public Robot() {
@@ -15,7 +16,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        double loopStartTime = Timer.getFPGATimestamp();
         CommandScheduler.getInstance().run();
-        EZLogger.periodic();
-    }
+        DogLog.log("SystemStats/Commands Loop Time", 1000 * (Timer.getFPGATimestamp() - loopStartTime));    }
 }
