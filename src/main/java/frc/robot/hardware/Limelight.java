@@ -1,36 +1,62 @@
 package frc.robot.hardware;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.RobotBase;
 
 public class Limelight {
     private NetworkTable table;
+    private Pose3d pose;
 
     public Limelight(String name, int pipeline) {
         table = NetworkTableInstance.getDefault().getTable(name);
         table.getEntry("pipline").setNumber(pipeline);
+        pose = null;
+    }
+
+    public Limelight(String name, int pipeline, Pose3d pose) {
+        table = NetworkTableInstance.getDefault().getTable(name);
+        table.getEntry("pipline").setNumber(pipeline);
+        this.pose = pose;
     }
 
     public boolean hasTargets() {
-        return table.getEntry("tv").getNumber(0).intValue() == 1;
+        if (RobotBase.isReal() || pose == null) {
+            return table.getEntry("tv").getNumber(0).intValue() == 1;
+        }
+        return false;
+        
     }
 
     public double getTX() {
-        return -(double) table.getEntry("tx").getNumber(0);
+        if (RobotBase.isReal() || pose == null) {
+            return -(double) table.getEntry("tx").getNumber(0);
+        }
+        return 0;
     }
 
     public double getTY() {
-        return (double) table.getEntry("ty").getNumber(0);
+        if (RobotBase.isReal() || pose == null) {
+            return (double) table.getEntry("ty").getNumber(0);
+        }
+        return 0;
     }
 
     public double getTA() {
-        return (double) table.getEntry("ta").getNumber(100);
+        if (RobotBase.isReal() || pose == null) {
+            return (double) table.getEntry("ta").getNumber(100);
+        }
+        return 0;
     }
 
     public double getLatency() {
-        return (double) table.getEntry("cl").getNumber(0) + (double) table.getEntry("tl").getNumber(0);
+        if (RobotBase.isReal()) {
+            return (double) table.getEntry("cl").getNumber(0) + (double) table.getEntry("tl").getNumber(0);
+        }
+        return 0;
     }
 
     public PoseEstimate getPoseMT1() {
@@ -60,4 +86,5 @@ public class Limelight {
     }
 
     public static record PoseEstimate(Pose2d pose, double latencySeconds, int tagCount, double averageDistance, double averageArea, boolean exists) {}
+    public static record PieceEstimate(double tx, double ty, double area, double latencySeconds, boolean exists) {}
 }

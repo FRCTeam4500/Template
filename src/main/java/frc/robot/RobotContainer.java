@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.SwerveIO;
+import frc.robot.utilities.GamePieceManager;
 
 public class RobotContainer {
     private CommandXboxController xbox;
@@ -62,6 +63,7 @@ public class RobotContainer {
         Field2d field = new Field2d();
         SmartDashboard.putData("Field", field);
         SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
+        GamePieceManager.resetField();
 
         Commands.run(() -> {
             DogLog.setOptions(
