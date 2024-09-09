@@ -24,36 +24,32 @@ public class Limelight {
     }
 
     public boolean hasTargets() {
-        if (RobotBase.isReal() || pose == null) {
-            return table.getEntry("tv").getNumber(0).intValue() == 1;
-        }
-        return false;
-        
+        return table.getEntry("tv").getNumber(0).intValue() == 1;
     }
 
     public double getTX() {
-        if (RobotBase.isReal() || pose == null) {
+        if (hasTargets()) {
             return -(double) table.getEntry("tx").getNumber(0);
         }
         return 0;
     }
 
     public double getTY() {
-        if (RobotBase.isReal() || pose == null) {
+        if (hasTargets()) {
             return (double) table.getEntry("ty").getNumber(0);
         }
         return 0;
     }
 
     public double getTA() {
-        if (RobotBase.isReal() || pose == null) {
+        if (hasTargets()) {
             return (double) table.getEntry("ta").getNumber(100);
         }
         return 0;
     }
 
     public double getLatency() {
-        if (RobotBase.isReal()) {
+        if (hasTargets()) {
             return (double) table.getEntry("cl").getNumber(0) + (double) table.getEntry("tl").getNumber(0);
         }
         return 0;
