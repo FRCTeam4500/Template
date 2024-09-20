@@ -105,7 +105,6 @@ public class GamePieceManager {
             table.getEntry("tv").setInteger(1);
             table.getEntry("tx").setNumber(-sideAngle);
             table.getEntry("ty").setNumber(upAngle);
-            table.getEntry("ta").setNumber(0); //TODO: figure this out
         }
        
     }
