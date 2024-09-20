@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -40,11 +39,6 @@ public class GamePieceManager {
     public static void removePiece(Translation2d translation) {
         pieces.remove(translation);
         log();
-    }
-
-    public static boolean seesPiece(Pose2d robotPose, Pose3d cameraRelativePose) {
-        Translation2d[] piecesRel = getRelativeToRobot(robotPose, cameraRelativePose);
-        return false;
     }
 
     private static void log() {
@@ -105,29 +99,6 @@ public class GamePieceManager {
             table.getEntry("tv").setInteger(1);
             table.getEntry("tx").setNumber(-sideAngle);
             table.getEntry("ty").setNumber(upAngle);
-        }
-       
-    }
-
-    private static Translation2d[] getRelativeToRobot(Pose2d robotPose, Pose3d cameraRelativePose) {
-        Rotation3d cameraRotation3d = new Rotation3d(
-            cameraRelativePose.getRotation().getX(), 
-            cameraRelativePose.getRotation().getY(), 
-            robotPose.getRotation().getRadians() + cameraRelativePose.getRotation().toRotation2d().getRadians()
-        );
-        Translation3d cameraTranslation3d = new Translation3d(
-            robotPose.getX() + cameraRelativePose.getX(), 
-            robotPose.getY() + cameraRelativePose.getY(), 
-            cameraRelativePose.getZ()
-        );
-        Pose3d camera = new Pose3d(cameraTranslation3d, cameraRotation3d);
-        Translation2d[] piecesRel = new Translation2d[pieces.size()];
-        int i = 0;
-        for (Translation2d piece : pieces) {
-            Pose3d poseVer = new Pose3d(new Pose2d(piece, new Rotation2d()));
-            piecesRel[i] = poseVer.relativeTo(camera).getTranslation().toTranslation2d();
-            i++;
-        }
-        return piecesRel;
+        }       
     }
 }

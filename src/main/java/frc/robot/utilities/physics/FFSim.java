@@ -5,8 +5,8 @@ import java.util.function.BiConsumer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 
 public class FFSim {
-    BiConsumer<State, Double> calc;
-    State state;
+    private BiConsumer<State, Double> calc;
+    private State state;
     private double volts;
 
     public FFSim(BiConsumer<State, Double> calc, State initalState) {
