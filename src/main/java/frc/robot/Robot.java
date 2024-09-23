@@ -18,5 +18,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         double loopStartTime = Timer.getFPGATimestamp();
         CommandScheduler.getInstance().run();
-        DogLog.log("SystemStats/Commands Loop Time", 1000 * (Timer.getFPGATimestamp() - loopStartTime));    }
+        DogLog.log("SystemStats/Commands Loop Time", 1000 * (Timer.getFPGATimestamp() - loopStartTime));   
+    }
 }
