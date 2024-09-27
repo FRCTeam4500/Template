@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.RobotBase;
 
 public class Limelight {
     private NetworkTable table;
@@ -13,44 +12,44 @@ public class Limelight {
 
     public Limelight(String name, int pipeline) {
         table = NetworkTableInstance.getDefault().getTable(name);
-        table.getEntry("pipline").setNumber(pipeline);
+        table.getEntry("pipline").setInteger(pipeline);
         pose = null;
     }
 
     public Limelight(String name, int pipeline, Pose3d pose) {
         table = NetworkTableInstance.getDefault().getTable(name);
-        table.getEntry("pipline").setNumber(pipeline);
+        table.getEntry("pipline").setInteger(pipeline);
         this.pose = pose;
     }
 
     public boolean hasTargets() {
-        return table.getEntry("tv").getNumber(0).intValue() == 1;
+        return table.getEntry("tv").getInteger(0) == 1;
     }
 
     public double getTX() {
         if (hasTargets()) {
-            return -(double) table.getEntry("tx").getNumber(0);
+            return -table.getEntry("tx").getDouble(0);
         }
         return 0;
     }
 
     public double getTY() {
         if (hasTargets()) {
-            return (double) table.getEntry("ty").getNumber(0);
+            return table.getEntry("ty").getDouble(0);
         }
         return 0;
     }
 
     public double getTA() {
         if (hasTargets()) {
-            return (double) table.getEntry("ta").getNumber(100);
+            return table.getEntry("ta").getDouble(100);
         }
         return 0;
     }
 
     public double getLatency() {
         if (hasTargets()) {
-            return (double) table.getEntry("cl").getNumber(0) + (double) table.getEntry("tl").getNumber(0);
+            return table.getEntry("cl").getDouble(0) + table.getEntry("tl").getDouble(0);
         }
         return 0;
     }
@@ -82,5 +81,4 @@ public class Limelight {
     }
 
     public static record PoseEstimate(Pose2d pose, double latencySeconds, int tagCount, double averageDistance, double averageArea, boolean exists) {}
-    public static record PieceEstimate(double tx, double ty, double area, double latencySeconds, boolean exists) {}
 }

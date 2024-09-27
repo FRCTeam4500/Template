@@ -26,16 +26,10 @@ import dev.doglog.DogLog;
 import java.util.function.Function;
 
 public class SwerveIO extends SubsystemBase {
-    private static SwerveIO instance;
-    public static synchronized SwerveIO getInstance() {
-        if (instance == null) instance = new SwerveIO();
-        return instance;
-    }
-    
     private SwerveBaseIO base;
     private Rotation2d targetAngle;
     private PIDController anglePID;
-    private SwerveIO() {
+    public SwerveIO() {
         base = RobotBase.isReal() ? new SwerveBaseReal() : new SwerveBaseSim();
         targetAngle = new Rotation2d();
         anglePID = new PIDController(5, 0, 0);

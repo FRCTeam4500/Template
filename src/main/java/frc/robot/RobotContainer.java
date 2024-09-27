@@ -32,7 +32,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
         xbox = new CommandXboxController(2);
         structure = new Superstructure();
-        swerve = SwerveIO.getInstance();
+        swerve = new SwerveIO();
         swerve.setDefaultCommand(swerve.angleCentric(xbox));
         configureButtons();
         configureLogging();

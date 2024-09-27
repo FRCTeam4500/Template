@@ -56,7 +56,7 @@ public class FeedforwardSim {
     public static FeedforwardSim createFlywheel(double kS, double kV, double kA, State initalState) {
         return new FeedforwardSim(
             (state, voltage) -> {
-                double staticVolts = Math.signum(voltage) * kS;
+                double staticVolts = Math.signum(state.velocity) * kS;
                 double velocityVolts = state.velocity * kV;
                 double deltaVel = 0.02 * (voltage - staticVolts - velocityVolts) / kA;
                 double averageVel = state.velocity + deltaVel / 2;
@@ -81,7 +81,7 @@ public class FeedforwardSim {
     public static FeedforwardSim createElevator(double kG, double kS, double kV, double kA, State initialState) {
         return new FeedforwardSim(
             (state, volts) -> {
-                double staticVolts = Math.signum(volts) * kS;
+                double staticVolts = Math.signum(state.velocity) * kS;
                 double velocityVolts = state.velocity * kV;
                 double deltaVel = 0.02 * (volts - kG - staticVolts - velocityVolts) / kA;
                 double averageVel = state.velocity + deltaVel / 2;
@@ -94,22 +94,22 @@ public class FeedforwardSim {
     /**
      * Creates a feedforward sim model for a jointed arm mechanism. 
      * This is applicable for systems that rotate vertically, and face different
-     * gravitational forces depending on their angle. Note that 0 rotations
+     * gravitational forces depending on their angle. Note that 0 degrees
      * must corespond to the arm being parallel to the ground
      * <p>
      * The feedforward constants should be obtained via SysId
      * @param kG The voltage need to overcome the gravitational force on the system
-     * when the mechanism is parallel to the ground (0 rotations).
+     * when the mechanism is parallel to the ground (0 degrees).
      * @param kS The voltage needed to overcome the friction forces in the system.
      * @param kV The voltage needed to cause a given constant velocity.
      * @param kA The voltage needed to cause a given acceleration.
-     * @param initialState The inital position and velocity of the mechanism in rotations and rotations/second.
+     * @param initialState The inital position and velocity of the mechanism in degrees and degrees/second.
      */
     public static FeedforwardSim createArm(double kG, double kS, double kV, double kA, State initialState) {
         return new FeedforwardSim(
             (state, volts) -> {
-                double gravityVolts = Math.cos(state.position * 2 * Math.PI) * kG;
-                double staticVolts = Math.signum(volts) * kS;
+                double gravityVolts = Math.cos(Math.toRadians(state.position)) * kG;
+                double staticVolts = Math.signum(state.velocity) * kS;
                 double velocityVolts = state.velocity * kV;
                 double deltaVel = 0.02 * (volts - gravityVolts - staticVolts - velocityVolts) / kA;
                 double averageVel = state.velocity + deltaVel / 2;

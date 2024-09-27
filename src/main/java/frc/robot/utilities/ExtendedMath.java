@@ -34,7 +34,8 @@ public class ExtendedMath {
 	 * @return the clamped value
 	 */
 	public static double clamp(double min, double max, double output) {
-		return Math.min(max, Math.max(min, output));
+		// return Math.min(max, Math.max(min, output));
+		return MathUtil.clamp(output, min, max);
 	}
 
 	public static double dot(Translation2d a, Translation2d b) {
