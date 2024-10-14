@@ -8,18 +8,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Limelight {
     private NetworkTable table;
-    private Pose3d pose;
 
     public Limelight(String name, int pipeline) {
         table = NetworkTableInstance.getDefault().getTable(name);
         table.getEntry("pipline").setInteger(pipeline);
-        pose = null;
     }
 
     public Limelight(String name, int pipeline, Pose3d pose) {
         table = NetworkTableInstance.getDefault().getTable(name);
         table.getEntry("pipline").setInteger(pipeline);
-        this.pose = pose;
     }
 
     public boolean hasTargets() {
