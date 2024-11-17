@@ -2,8 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.utilities.Loggable;
 
-public class Superstructure {
+public class Superstructure implements Loggable {
     // Create objects for all non-drivebase subsystems
     private Mechanism2d robotMech;
     public Superstructure() {
@@ -16,7 +17,7 @@ public class Superstructure {
         SmartDashboard.putData("Robot Mech", robotMech);
     }
 
-    public void log() {
+    public void log(String name) {
         // Call log() methods for contained subsystems
     }
 

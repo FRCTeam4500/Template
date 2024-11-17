@@ -89,11 +89,14 @@ public class GamePieceManager {
             NetworkTable table = cameraEntry.getKey(); 
             if (seenPiece) {
                 table.getEntry("tv").setInteger(1);
+                table.getEntry("tx").setNumber(-sideAngle);
+                table.getEntry("ty").setNumber(upAngle);
             } else {
                 table.getEntry("tv").setInteger(0);
+                table.getEntry("tx").setNumber(0);
+                table.getEntry("ty").setNumber(0);
             }
-            table.getEntry("tx").setNumber(-sideAngle);
-            table.getEntry("ty").setNumber(upAngle);
+            
         }
     }
 }

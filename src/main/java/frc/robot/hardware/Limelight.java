@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.utilities.GamePieceManager;
 
 public class Limelight {
     private NetworkTable table;
@@ -17,6 +18,7 @@ public class Limelight {
     public Limelight(String name, int pipeline, Pose3d pose) {
         table = NetworkTableInstance.getDefault().getTable(name);
         table.getEntry("pipline").setInteger(pipeline);
+        GamePieceManager.addCamera(name, pose);
     }
 
     public boolean hasTargets() {
@@ -24,31 +26,19 @@ public class Limelight {
     }
 
     public double getTX() {
-        if (hasTargets()) {
-            return -table.getEntry("tx").getDouble(0);
-        }
-        return 0;
+        return -table.getEntry("tx").getDouble(0);
     }
 
     public double getTY() {
-        if (hasTargets()) {
-            return table.getEntry("ty").getDouble(0);
-        }
-        return 0;
+        return table.getEntry("ty").getDouble(0);
     }
 
     public double getTA() {
-        if (hasTargets()) {
-            return table.getEntry("ta").getDouble(100);
-        }
-        return 0;
+        return table.getEntry("ta").getDouble(100);
     }
 
     public double getLatency() {
-        if (hasTargets()) {
-            return table.getEntry("cl").getDouble(0) + table.getEntry("tl").getDouble(0);
-        }
-        return 0;
+        return table.getEntry("cl").getDouble(0) + table.getEntry("tl").getDouble(0);
     }
 
     public PoseEstimate getPoseMT1() {
