@@ -6,7 +6,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -14,7 +13,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.FeedbackController;
 import frc.robot.utilities.FeedforwardSim;
-import frc.robot.utilities.Loggable;
+import frc.robot.utilities.logging.HoundLog;
+import frc.robot.utilities.logging.Loggable;
 
 public interface VelocityMotor extends Loggable {
     public void setVelocity(double target);
@@ -47,12 +47,12 @@ public interface VelocityMotor extends Loggable {
 
             @Override
             public void log(String name) {
-                DogLog.log(name + "/Position", motor.getPosition().getValueAsDouble());
-                DogLog.log(name + "/Velocity", motor.getVelocity().getValueAsDouble());
-                DogLog.log(name + "/Temperature", motor.getDeviceTemp().getValueAsDouble());
-                DogLog.log(name + "/Stator Current", motor.getStatorCurrent().getValueAsDouble());
-                DogLog.log(name + "/Supply Current", motor.getSupplyCurrent().getValueAsDouble());
-                DogLog.log(name + "/Applied Voltage", motor.getMotorVoltage().getValueAsDouble());
+                HoundLog.log(name + "/Position", motor.getPosition().getValueAsDouble());
+                HoundLog.log(name + "/Velocity", motor.getVelocity().getValueAsDouble());
+                HoundLog.log(name + "/Temperature", motor.getDeviceTemp().getValueAsDouble());
+                HoundLog.log(name + "/Stator Current", motor.getStatorCurrent().getValueAsDouble());
+                HoundLog.log(name + "/Supply Current", motor.getSupplyCurrent().getValueAsDouble());
+                HoundLog.log(name + "/Applied Voltage", motor.getMotorVoltage().getValueAsDouble());
             }
 
             @Override
@@ -121,11 +121,11 @@ public interface VelocityMotor extends Loggable {
 
             @Override
             public void log(String name) {
-                DogLog.log(name + "/Applied Volts", motor.getAppliedOutput() * motor.getBusVoltage());
-                DogLog.log(name + "/Temperature", motor.getMotorTemperature());
-                DogLog.log(name + "/Stator Current", motor.getOutputCurrent());
-                DogLog.log(name + "/Position", motor.getEncoder().getPosition());
-                DogLog.log(name + "/Velocity", motor.getEncoder().getVelocity());
+                HoundLog.log(name + "/Applied Volts", motor.getAppliedOutput() * motor.getBusVoltage());
+                HoundLog.log(name + "/Temperature", motor.getMotorTemperature());
+                HoundLog.log(name + "/Stator Current", motor.getOutputCurrent());
+                HoundLog.log(name + "/Position", motor.getEncoder().getPosition());
+                HoundLog.log(name + "/Velocity", motor.getEncoder().getVelocity());
             }
 
             @Override
@@ -177,9 +177,9 @@ public interface VelocityMotor extends Loggable {
             double targetVel = 0;
             @Override
             public void log(String name) {
-                DogLog.log(name + "/Voltage", sim.getVoltage());
-                DogLog.log(name + "/Position", sim.getPosition());
-                DogLog.log(name + "/Velocity", sim.getVelocity());
+                HoundLog.log(name + "/Voltage", sim.getVoltage());
+                HoundLog.log(name + "/Position", sim.getPosition());
+                HoundLog.log(name + "/Velocity", sim.getVelocity());
             }
             @Override
             public void setVelocity(double target) {
@@ -227,8 +227,8 @@ public interface VelocityMotor extends Loggable {
             double position = 0;
             @Override
             public void log(String name) {
-                DogLog.log(name + "/Position", position);
-                DogLog.log(name + "/Velocity", current.position);
+                HoundLog.log(name + "/Position", position);
+                HoundLog.log(name + "/Velocity", current.position);
             }
             @Override
             public void setVelocity(double target) {

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,6 +12,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.utilities.logging.HoundLog;
 
 public class GamePieceManager {
     private static HashMap<NetworkTable, Pose3d> cameras = new HashMap<>();
@@ -54,7 +54,7 @@ public class GamePieceManager {
             array[i] = piece;
             i++;
         }
-        DogLog.log("Pieces", array);
+        HoundLog.log("Pieces", array);
     }
     
     public static void updateNT(Pose2d robotPose) {

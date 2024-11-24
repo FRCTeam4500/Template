@@ -5,7 +5,6 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -27,7 +26,8 @@ import frc.robot.hardware.Limelight.PoseEstimate;
 import frc.robot.hardware.Gyro;
 import frc.robot.utilities.ExtendedMath;
 import frc.robot.utilities.GamePieceManager;
-import frc.robot.utilities.Loggable;
+import frc.robot.utilities.logging.HoundLog;
+import frc.robot.utilities.logging.Loggable;
 
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 import static frc.robot.utilities.ExtendedMath.withHardDeadzone;
@@ -204,12 +204,12 @@ public class Swerve extends SubsystemBase implements Loggable {
 
     @Override
     public void log(String name) {
-        DogLog.log(name + "/Modules", getModuleStates());
-        DogLog.log(name + "/Speeds", getSpeeds());
-        DogLog.log(name + "/Pose", estimator.getEstimatedPosition());
-        DogLog.log(name + "/Target Heading", targetHeading);
-        DogLog.log(name + "/Gyro Angle", gyro.getAngle());
-        DogLog.log(name + "/Sideways", estimator.getEstimatedPosition().getY());
+        HoundLog.log(name + "/Modules", getModuleStates());
+        HoundLog.log(name + "/Speeds", getSpeeds());
+        HoundLog.log(name + "/Pose", estimator.getEstimatedPosition());
+        HoundLog.log(name + "/Target Heading", targetHeading);
+        HoundLog.log(name + "/Gyro Angle", gyro.getAngle());
+        HoundLog.log(name + "/Sideways", estimator.getEstimatedPosition().getY());
         modules[0].log(name + "/Front Left Module");
         modules[1].log(name + "/Front Right Module");
         modules[2].log(name + "/Back Left Module");

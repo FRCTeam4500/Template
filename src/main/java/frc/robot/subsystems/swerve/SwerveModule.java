@@ -1,13 +1,13 @@
 package frc.robot.subsystems.swerve;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.hardware.motors.PositionMotor;
 import frc.robot.hardware.motors.VelocityMotor;
-import frc.robot.utilities.Loggable;
+import frc.robot.utilities.logging.HoundLog;
+import frc.robot.utilities.logging.Loggable;
 
 public class SwerveModule implements Loggable {
     private VelocityMotor drive;
@@ -44,8 +44,8 @@ public class SwerveModule implements Loggable {
 
     @Override
     public void log(String name) {
-        DogLog.log(name + "/Current State", getCurrentState());
-        DogLog.log(name + "/Target State", targetState);
+        HoundLog.log(name + "/Current State", getCurrentState());
+        HoundLog.log(name + "/Target State", targetState);
         drive.log(name + "/Drive Motor");
         angle.log(name + "/Angle Motor");
     }

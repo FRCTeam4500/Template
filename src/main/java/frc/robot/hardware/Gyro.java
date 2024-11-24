@@ -2,10 +2,10 @@ package frc.robot.hardware;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.Loggable;
+import frc.robot.utilities.logging.HoundLog;
+import frc.robot.utilities.logging.Loggable;
 
 import java.util.function.DoubleSupplier;
 
@@ -17,10 +17,10 @@ public interface Gyro extends Loggable {
         return new Gyro() {
             @Override
             public void log(String name) {
-                DogLog.log(name + "/Connected", navx.isConnected());
-                DogLog.log(name + "/Pitch", navx.getPitch());
-                DogLog.log(name + "/Roll", navx.getRoll());
-                DogLog.log(name + "/Angle", navx.getYaw());
+                HoundLog.log(name + "/Connected", navx.isConnected());
+                HoundLog.log(name + "/Pitch", navx.getPitch());
+                HoundLog.log(name + "/Roll", navx.getRoll());
+                HoundLog.log(name + "/Angle", navx.getYaw());
             }
 
             @Override
@@ -35,7 +35,7 @@ public interface Gyro extends Loggable {
             double angle = 0;
             @Override
             public void log(String name) {
-                DogLog.log(name + "/Angle", Math.toDegrees(angle));    
+                HoundLog.log(name + "/Angle", Math.toDegrees(angle));    
             }
 
             @Override

@@ -6,12 +6,12 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
-import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utilities.GamePieceManager;
+import frc.robot.utilities.logging.HoundLog;
 
 public class Robot extends TimedRobot {
     private DogLogOptions homeOptions = new DogLogOptions(true, true, true, true, 1000);
@@ -35,9 +36,9 @@ public class Robot extends TimedRobot {
         DriverStation.silenceJoystickConnectionWarning(true);
         swerve.setDefaultCommand(swerve.angleCentric(xbox.getHID()));
 
+        setupLogging();
         setupDriveController();
         setupAuto();
-        setupLogging();
     }
 
     public void setupDriveController() {
@@ -58,24 +59,35 @@ public class Robot extends TimedRobot {
 
     public void setupAuto() {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser();
+        chooser.addOption("Hi", Commands.print("Hi"));
+        chooser.addOption("Bye", Commands.print("Bye"));
         SmartDashboard.putData("Auto Chooser", chooser);
+        HoundLog.log("Auto Chooser", chooser);
         RobotModeTriggers.autonomous().whileTrue(Commands.deferredProxy(chooser::getSelected));
     }
 
     public void setupLogging() {
-        DogLog.setEnabled(true);
-        DogLog.setPdh(new PowerDistribution());
-        DogLog.setOptions(homeOptions);
+        HoundLog.setEnabled(true);
+        HoundLog.setPdh(new PowerDistribution());
+        HoundLog.setOptions(homeOptions);
         GamePieceManager.resetField();
     }
 
     @Override
     public void robotPeriodic() {
-        DogLog.setOptions(
+        double start = Timer.getFPGATimestamp();
+        HoundLog.setOptions(
             DriverStation.isFMSAttached() ? compOptions : homeOptions
         );
         swerve.log("Swerve");
-        structure.log("Superstructure");
+        structure.log("Superstrucutre");
+        HoundLog.updateSendables();
+        double loggingLoop = Timer.getFPGATimestamp() - start;
+        HoundLog.log("HoundLog/Logging Loop Time", loggingLoop * 1000);
+        start = Timer.getFPGATimestamp();
         CommandScheduler.getInstance().run();
+        double commandsLoop = Timer.getFPGATimestamp() - start;
+        HoundLog.log("HoundLog/Commands Loop Time", commandsLoop * 1000);
+        HoundLog.log("HoundLog/Total Loop Time", 1000 * (commandsLoop + loggingLoop));
     }
 }
