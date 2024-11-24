@@ -1,36 +1,44 @@
 package frc.robot.hardware;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.utilities.GamePieceManager;
 
 public class Limelight {
     private NetworkTable table;
 
     public Limelight(String name, int pipeline) {
         table = NetworkTableInstance.getDefault().getTable(name);
-        table.getEntry("pipline").setNumber(pipeline);
+        table.getEntry("pipline").setInteger(pipeline);
+    }
+
+    public Limelight(String name, int pipeline, Pose3d pose) {
+        table = NetworkTableInstance.getDefault().getTable(name);
+        table.getEntry("pipline").setInteger(pipeline);
+        GamePieceManager.addCamera(name, pose);
     }
 
     public boolean hasTargets() {
-        return table.getEntry("tv").getNumber(0).intValue() == 1;
+        return table.getEntry("tv").getInteger(0) == 1;
     }
 
     public double getTX() {
-        return -(double) table.getEntry("tx").getNumber(0);
+        return -table.getEntry("tx").getDouble(0);
     }
 
     public double getTY() {
-        return (double) table.getEntry("ty").getNumber(0);
+        return table.getEntry("ty").getDouble(0);
     }
 
     public double getTA() {
-        return (double) table.getEntry("ta").getNumber(100);
+        return table.getEntry("ta").getDouble(100);
     }
 
     public double getLatency() {
-        return (double) table.getEntry("cl").getNumber(0) + (double) table.getEntry("tl").getNumber(0);
+        return table.getEntry("cl").getDouble(0) + table.getEntry("tl").getDouble(0);
     }
 
     public PoseEstimate getPoseMT1() {
