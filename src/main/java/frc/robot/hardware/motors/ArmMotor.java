@@ -1,7 +1,11 @@
 package frc.robot.hardware.motors;
 
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -16,10 +20,83 @@ import frc.robot.utilities.FeedforwardSim;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
-public interface ArmMotor extends Loggable {
-    public void setRotations(double target);
-    public void resetRotations(double actual);
-    public double getRotations();
+public class ArmMotor extends SubsystemBase implements Loggable {
+    private double target;
+    private DoubleConsumer positionSetter;
+    private DoubleConsumer voltageSetter;
+    private DoubleSupplier positionGetter;
+    private FeedbackController fb;
+    private ArmFeedforward ff;
+    private Loggable motorInfo;
+
+    public ArmMotor(
+        DoubleConsumer positionSetter,
+        DoubleConsumer voltageSetter,
+        DoubleSupplier positionGetter,
+        FeedbackController fb,
+        ArmFeedforward ff,
+        Loggable motorInfo
+    ) {
+        target = Double.MAX_VALUE;
+        this.positionSetter = positionSetter;
+        this.voltageSetter = voltageSetter;
+        this.positionGetter = positionGetter;
+        this.fb = fb;
+        this.ff = ff;
+        this.motorInfo = motorInfo;
+    }
+
+    public void setTarget(double rotations) {
+        target = rotations;
+    }
+
+    public void resetPosition(double rotations) {
+        positionSetter.accept(rotations);
+    }
+
+    public void coast() {
+        target = Double.MAX_VALUE;
+    }
+
+    public double getRotations() {
+        return positionGetter.getAsDouble();
+    }
+
+    public boolean atTarget() {
+        if (target == Double.MAX_VALUE) {
+            return true;
+        }
+        fb.calculate(getRotations(), target);
+        return fb.atGoal();
+    }
+
+    @Override
+    public void log(String name) {
+        motorInfo.log(name + "/Motor Info");
+        HoundLog.log(name + "/Coasting", target == Double.MAX_VALUE);
+        HoundLog.log(name + "/Current Rotation", getRotations());
+        if (target != Double.MAX_VALUE) {
+            HoundLog.log(name + "/Target Rotation", target);
+        }
+        HoundLog.log(name + "/At Target", atTarget());
+    }
+
+    @Override
+    public void periodic() {
+        if (target == Double.MAX_VALUE || DriverStation.isDisabled()) {
+            voltageSetter.accept(0);
+            return;
+        }
+        double fbVolts = fb.calculate(getRotations(), target);
+        double ffVolts = 0;
+        if (ff != null) {
+            ffVolts = ff.ks * Math.signum(fbVolts) 
+                        + ff.kg * Math.cos(
+                            getRotations() * Math.PI * 2
+                        );
+        }
+        voltageSetter.accept(fbVolts + ffVolts);
+    }
 
     public static ArmMotor fromTalonFX(
         int canID,
@@ -34,49 +111,23 @@ public interface ArmMotor extends Loggable {
                 return fromRealisticSim(fb, ff);
             }
         }
-        class ArmFX extends SubsystemBase implements ArmMotor {
-            TalonFX motor = new TalonFX(canID);
-            double targetAngle = 0;
-            public ArmFX() {
-                config.accept(motor);
-            }
-            @Override
-            public void log(String name) {
-                HoundLog.log(name + "/Rotations", motor.getPosition().getValueAsDouble());
+        TalonFX motor = new TalonFX(canID);
+        config.accept(motor);
+        return new ArmMotor(
+            motor::setPosition, 
+            motor::setVoltage, 
+            () -> motor.getPosition().getValueAsDouble(), 
+            fb, 
+            ff, 
+            name -> {
                 HoundLog.log(name + "/Velocity", motor.getVelocity().getValueAsDouble());
                 HoundLog.log(name + "/Temperature", motor.getDeviceTemp().getValueAsDouble());
                 HoundLog.log(name + "/Stator Current", motor.getStatorCurrent().getValueAsDouble());
                 HoundLog.log(name + "/Supply Current", motor.getSupplyCurrent().getValueAsDouble());
                 HoundLog.log(name + "/Applied Voltage", motor.getMotorVoltage().getValueAsDouble());
             }
-            @Override
-            public void setRotations(double target) {
-                targetAngle = target;
-            }
-            @Override
-            public void resetRotations(double actual) {
-                motor.setPosition(actual);
-            }
-            @Override
-            public double getRotations() {
-                return motor.getPosition().getValueAsDouble();
-            }
-            @Override
-            public void periodic() {
-                double fbVolts = fb.calculate(motor.getPosition().getValueAsDouble(), targetAngle);
-                double feedforwardVolts = 0;
-                if (ff != null) {
-                    feedforwardVolts = ff.ks * Math.signum(fbVolts) 
-                        + ff.kg * Math.cos(
-                            motor.getPosition().getValueAsDouble() * Math.PI * 2
-                        );
-                }
-                double totalVolts = fbVolts + feedforwardVolts;
-                motor.setVoltage(totalVolts);
-            }
-        }
-        return new ArmFX();
-    }
+        );
+    } 
 
     public static ArmMotor fromSparkMax(
         int canID,
@@ -92,125 +143,87 @@ public interface ArmMotor extends Loggable {
                 return fromRealisticSim(fb, ff);
             }
         }
-        class ArmSparkMax extends SubsystemBase implements ArmMotor {
-            CANSparkMax motor = new CANSparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless);
-            double targetAngle = 0;
-            public ArmSparkMax() {
-                config.accept(motor);
-            }
-            @Override
-            public void log(String name) {
+        CANSparkMax motor = new CANSparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless); 
+        config.accept(motor);
+        return new ArmMotor(
+            position -> motor.getEncoder().setPosition(position), 
+            motor::setVoltage, 
+            () -> motor.getEncoder().getPosition(), 
+            fb, 
+            ff, 
+            name -> {
                 HoundLog.log(name + "/Applied Volts", motor.getAppliedOutput() * motor.getBusVoltage());
                 HoundLog.log(name + "/Temperature", motor.getMotorTemperature());
                 HoundLog.log(name + "/Stator Current", motor.getOutputCurrent());
-                HoundLog.log(name + "/Rotations", motor.getEncoder().getPosition());
                 HoundLog.log(name + "/Velocity", motor.getEncoder().getVelocity());
             }
-            @Override
-            public void setRotations(double target) {
-                targetAngle = target;
-            }
-            @Override
-            public void resetRotations(double actual) {
-                motor.getEncoder().setPosition(actual);
-            }
-            @Override
-            public double getRotations() {
-                return motor.getEncoder().getPosition();
-            }
-            @Override
-            public void periodic() {
-                double fbVolts = fb.calculate(motor.getEncoder().getPosition(), targetAngle);
-                double feedforwardVolts = 0;
-                if (ff != null) {
-                    feedforwardVolts = ff.ks * Math.signum(fbVolts) 
-                        + ff.kg * Math.cos(
-                            motor.getEncoder().getPosition() * Math.PI * 2
-                        );
-                }
-                double totalVolts = fbVolts + feedforwardVolts;
-                motor.setVoltage(totalVolts);
+        );
+    }
+
+    public static ArmMotor fromTalonSRX(
+        int canID,
+        double conversionFactor,
+        Consumer<TalonSRX> config,
+        FeedbackController fb,
+        ArmFeedforward ff
+    ) {
+        if (RobotBase.isSimulation()) {
+            if (ff == null) {
+                return fromIdealSim(fb);
+            } else {
+                return fromRealisticSim(fb, ff);
             }
         }
-        return new ArmSparkMax();
+        TalonSRX motor = new TalonSRX(canID);
+        config.accept(motor);
+        return new ArmMotor(
+            position -> motor.setSelectedSensorPosition(position / conversionFactor), 
+            voltage -> motor.set(ControlMode.PercentOutput, voltage / motor.getBusVoltage()), 
+            motor::getSelectedSensorPosition, 
+            fb, 
+            ff, 
+            name -> {
+                HoundLog.log(name + "/Velocity", motor.getSelectedSensorVelocity() * 10 * conversionFactor);
+                HoundLog.log(name + "/Bus Voltage", motor.getBusVoltage());
+            }
+        );
     }
 
     public static ArmMotor fromRealisticSim(
         FeedbackController fb,
         ArmFeedforward ff
     ) {
-        class ArmRealistic extends SubsystemBase implements ArmMotor {
-            FeedforwardSim sim = FeedforwardSim.createArm(ff.kg, ff.ks, ff.kv, ff.ka, new State());
-            double targetPos = 0;
-            @Override
-            public void log(String name) {
+        FeedforwardSim sim = FeedforwardSim.createElevator(ff.kg, ff.ks, ff.kv, ff.ka, new State());
+        return new ArmMotor(
+            sim::resetPosition, 
+            sim::setVoltage, 
+            sim::getPosition, 
+            fb, 
+            ff, 
+            name -> {
                 HoundLog.log(name + "/Voltage", sim.getVoltage());
                 HoundLog.log(name + "/Velocity", sim.getVelocity());
-                HoundLog.log(name + "/Rotations", sim.getPosition());
-                HoundLog.log(name + "/Setpoint", fb.getGoal());
             }
-            @Override
-            public void setRotations(double target) {
-                targetPos = target;
-            }
-            @Override
-            public void resetRotations(double actual) {
-                sim.resetPosition(actual);
-            }
-            @Override
-            public double getRotations() {
-                return sim.getPosition();
-            }
-            @Override
-            public void periodic() {
-                if (DriverStation.isDisabled()) {
-                    sim.setVoltage(0);
-                    return;
-                }
-                double feedbackVolts = fb.calculate(sim.getPosition(), targetPos);
-                double feedforwardVolts = ff.ks * Math.signum(feedbackVolts) 
-                        + ff.kg * Math.cos(
-                            sim.getPosition() * Math.PI * 2
-                        );
-                double totalVolts = feedbackVolts + feedforwardVolts;
-                sim.setVoltage(totalVolts);
-            }
-        }
-        return new ArmRealistic();
+        );
     }
 
     public static ArmMotor fromIdealSim(
         FeedbackController fb
     ) {
-        class ArmIdeal extends SubsystemBase implements ArmMotor {
-            State current = new State();
-            State target = new State();
-            @Override
-            public void log(String name) {
-                HoundLog.log(name + "/Rotations", current.position);
-                HoundLog.log(name + "/Velocity", current.velocity);
-                HoundLog.log(name + "/Setpoint", target.position);
+        State currentState = new State();
+        return new ArmMotor(
+            position -> currentState.position = position, 
+            voltage -> {
+                State nextState = fb.getSetpoint();
+                currentState.position = nextState.position;
+                currentState.velocity = nextState.velocity;
+            }, 
+            () -> currentState.position, 
+            fb, 
+            null, 
+            name -> {
+                HoundLog.log(name + "/Velocity", currentState.velocity);
             }
-            @Override
-            public void setRotations(double target) {
-                this.target.position = target;
-            }
-            @Override
-            public void resetRotations(double actual) {
-                current.position = actual;
-            }
-            @Override
-            public double getRotations() {
-                return current.position;
-            }
-            @Override
-            public void periodic() {
-                if (DriverStation.isEnabled()) {
-                    fb.calculate(current.position, target.position);
-                    current = fb.getSetpoint();
-                }
-            }
-        }
-        return new ArmIdeal();
+        );
     }
 }

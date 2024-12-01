@@ -38,8 +38,8 @@ public class SwerveModule implements Loggable {
     }
 
     public void periodic() {
-        drive.setVelocity(targetState.speedMetersPerSecond);
-        angle.setPosition(targetState.angle.getRotations());
+        drive.setTarget(targetState.speedMetersPerSecond);
+        angle.setTarget(targetState.angle.getRotations());
     };
 
     @Override

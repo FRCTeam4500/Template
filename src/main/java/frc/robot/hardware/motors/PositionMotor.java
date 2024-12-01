@@ -1,14 +1,14 @@
 package frc.robot.hardware.motors;
 
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.CANSparkMax;
-
-
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
@@ -20,10 +20,80 @@ import frc.robot.utilities.FeedforwardSim;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
-public interface PositionMotor extends Loggable {
-    public void setPosition(double target);
-    public void resetPosition(double actual);
-    public double getPosition();
+public class PositionMotor extends SubsystemBase implements Loggable {
+    private double target;
+    private DoubleConsumer positionSetter;
+    private DoubleConsumer voltageSetter;
+    private DoubleSupplier positionGetter;
+    private FeedbackController fb;
+    private ElevatorFeedforward ff;
+    private Loggable motorInfo;
+
+    public PositionMotor(
+        DoubleConsumer positionSetter,
+        DoubleConsumer voltageSetter,
+        DoubleSupplier positionGetter,
+        FeedbackController fb,
+        ElevatorFeedforward ff,
+        Loggable motorInfo
+    ) {
+        target = Double.MAX_VALUE;
+        this.positionSetter = positionSetter;
+        this.voltageSetter = voltageSetter;
+        this.positionGetter = positionGetter;
+        this.fb = fb;
+        this.ff = ff;
+        this.motorInfo = motorInfo;
+    }
+
+    public void setTarget(double position) {
+        target = position;
+    }
+
+    public void resetPosition(double position) {
+        positionSetter.accept(position);
+    }
+
+    public void coast() {
+        target = Double.MAX_VALUE;
+    }
+
+    public double getPosition() {
+        return positionGetter.getAsDouble();
+    }
+
+    public boolean atTarget() {
+        if (target == Double.MAX_VALUE) {
+            return true;
+        }
+        fb.calculate(positionGetter.getAsDouble(), target);
+        return fb.atGoal();
+    }
+
+    @Override
+    public void log(String name) {
+        motorInfo.log(name + "/Motor Info");
+        HoundLog.log(name + "/Coasting", target == Double.MAX_VALUE);
+        HoundLog.log(name + "/Current Position", getPosition());
+        if (target != Double.MAX_VALUE) {
+            HoundLog.log(name + "/Target Position", target);
+        }
+        HoundLog.log(name + "/At Target", atTarget());
+    }
+
+    @Override
+    public void periodic() {
+        if (target == Double.MAX_VALUE || DriverStation.isDisabled()) {
+            voltageSetter.accept(0);
+            return;
+        }
+        double fbVolts = fb.calculate(positionGetter.getAsDouble(), target);
+        double ffVolts = 0;
+        if (ff != null) {
+            ffVolts = ff.kg + ff.ks * Math.signum(fbVolts);
+        }
+        voltageSetter.accept(fbVolts + ffVolts);
+    }
 
     public static PositionMotor fromTalonFX(
         int canID,
@@ -38,47 +108,23 @@ public interface PositionMotor extends Loggable {
                 return fromRealisticSim(fb, ff);
             }
         }
-        class PositionFX extends SubsystemBase implements PositionMotor {
-            TalonFX motor = new TalonFX(canID);
-            double targetPos = 0;
-            public PositionFX() {
-                config.accept(motor);
-            }
-            @Override
-            public void log(String name) {
-                HoundLog.log(name + "/Position", motor.getPosition().getValueAsDouble());
+        TalonFX motor = new TalonFX(canID);
+        config.accept(motor);
+        return new PositionMotor(
+            motor::setPosition, 
+            motor::setVoltage, 
+            () -> motor.getPosition().getValueAsDouble(), 
+            fb, 
+            ff, 
+            name -> {
                 HoundLog.log(name + "/Velocity", motor.getVelocity().getValueAsDouble());
-                HoundLog.log(name + "/Target", targetPos);
                 HoundLog.log(name + "/Temperature", motor.getDeviceTemp().getValueAsDouble());
                 HoundLog.log(name + "/Stator Current", motor.getStatorCurrent().getValueAsDouble());
                 HoundLog.log(name + "/Supply Current", motor.getSupplyCurrent().getValueAsDouble());
                 HoundLog.log(name + "/Applied Voltage", motor.getMotorVoltage().getValueAsDouble());
             }
-            @Override
-            public void setPosition(double target) {
-                targetPos = target;
-            }
-            @Override
-            public void resetPosition(double actual) {
-                motor.setPosition(actual);
-            }
-            @Override
-            public double getPosition() {
-                return motor.getPosition().getValueAsDouble();
-            }
-            @Override
-            public void periodic() {
-                double fbVolts = fb.calculate(motor.getPosition().getValueAsDouble(), targetPos);
-                double feedforwardVolts = 0;
-                if (ff != null) {
-                    feedforwardVolts = ff.kg + ff.ks * Math.signum(fbVolts);
-                }
-                double totalVolts = fbVolts + feedforwardVolts;
-                motor.setVoltage(totalVolts);
-            }
-        }
-        return new PositionFX();
-    }
+        );
+    } 
 
     public static PositionMotor fromSparkMax(
         int canID,
@@ -94,45 +140,21 @@ public interface PositionMotor extends Loggable {
                 return fromRealisticSim(fb, ff);
             }
         }
-        class PositionSparkMax extends SubsystemBase implements PositionMotor {
-            CANSparkMax motor = new CANSparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless);
-            double targetPos = 0;
-            public PositionSparkMax() {
-                config.accept(motor);
-            }
-            @Override
-            public void log(String name) {
+        CANSparkMax motor = new CANSparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless); 
+        config.accept(motor);
+        return new PositionMotor(
+            position -> motor.getEncoder().setPosition(position), 
+            motor::setVoltage, 
+            () -> motor.getEncoder().getPosition(), 
+            fb, 
+            ff, 
+            name -> {
                 HoundLog.log(name + "/Applied Volts", motor.getAppliedOutput() * motor.getBusVoltage());
                 HoundLog.log(name + "/Temperature", motor.getMotorTemperature());
                 HoundLog.log(name + "/Stator Current", motor.getOutputCurrent());
-                HoundLog.log(name + "/Position", motor.getEncoder().getPosition());
                 HoundLog.log(name + "/Velocity", motor.getEncoder().getVelocity());
-                HoundLog.log(name + "/Target", targetPos);
             }
-            @Override
-            public void setPosition(double target) {
-                targetPos = target;
-            }
-            @Override
-            public void resetPosition(double actual) {
-                motor.getEncoder().setPosition(actual);
-            }
-            @Override
-            public double getPosition() {
-                return motor.getEncoder().getPosition();
-            }
-            @Override
-            public void periodic() {
-                double fbVolts = fb.calculate(motor.getEncoder().getPosition(), targetPos);
-                double feedforwardVolts = 0;
-                if (ff != null) {
-                    feedforwardVolts = ff.kg + ff.ks * Math.signum(fbVolts);
-                }
-                double totalVolts = fbVolts + feedforwardVolts;
-                motor.setVoltage(totalVolts);
-            }
-        }
-        return new PositionSparkMax();
+        );
     }
 
     public static PositionMotor fromTalonSRX(
@@ -149,125 +171,56 @@ public interface PositionMotor extends Loggable {
                 return fromRealisticSim(fb, ff);
             }
         }
-        class PositionSRX extends SubsystemBase implements PositionMotor {
-            TalonSRX motor = new TalonSRX(canID);
-            double targetPos = 0;
-            @Override
-            public void log(String name) {
-                HoundLog.log(name + "/Position", motor.getSelectedSensorPosition() * conversionFactor);
+        TalonSRX motor = new TalonSRX(canID);
+        config.accept(motor);
+        return new PositionMotor(
+            position -> motor.setSelectedSensorPosition(position / conversionFactor), 
+            voltage -> motor.set(ControlMode.PercentOutput, voltage / motor.getBusVoltage()), 
+            motor::getSelectedSensorPosition, 
+            fb, 
+            ff, 
+            name -> {
                 HoundLog.log(name + "/Velocity", motor.getSelectedSensorVelocity() * 10 * conversionFactor);
-                HoundLog.log(name + "/Target", targetPos);
+                HoundLog.log(name + "/Bus Voltage", motor.getBusVoltage());
             }
-
-            @Override
-            public void setPosition(double target) {
-                targetPos = target;
-            }
-
-            @Override
-            public void resetPosition(double actual) {
-                motor.setSelectedSensorPosition(targetPos / conversionFactor);
-            }
-
-            @Override
-            public double getPosition() {
-                return motor.getSelectedSensorPosition() * conversionFactor;
-            }
-
-            @Override
-            public void periodic() {
-                if (DriverStation.isDisabled()) {
-                    motor.set(ControlMode.PercentOutput, 0);
-                    return;
-                }
-                double feedbackVolts = fb.calculate(motor.getSelectedSensorPosition() * conversionFactor, targetPos);
-                double feedforwardVolts = ff.kg + ff.ks * Math.signum(feedbackVolts);
-                double totalVolts = feedbackVolts + feedforwardVolts;
-                if (DriverStation.isDisabled()) {
-                    totalVolts = 0;
-                }
-                motor.set(ControlMode.PercentOutput, totalVolts / motor.getBusVoltage());
-            }
-        }
-        return new PositionSRX();
+        );
     }
 
     public static PositionMotor fromRealisticSim(
         FeedbackController fb,
         ElevatorFeedforward ff
     ) {
-        class PositionRealistic extends SubsystemBase implements PositionMotor {
-            FeedforwardSim sim = FeedforwardSim.createElevator(ff.kg, ff.ks, ff.kv, ff.ka, new State());
-            double targetPos = 0;
-            @Override
-            public void log(String name) {
+        FeedforwardSim sim = FeedforwardSim.createElevator(ff.kg, ff.ks, ff.kv, ff.ka, new State());
+        return new PositionMotor(
+            sim::resetPosition, 
+            sim::setVoltage, 
+            sim::getPosition, 
+            fb, 
+            ff, 
+            name -> {
                 HoundLog.log(name + "/Voltage", sim.getVoltage());
                 HoundLog.log(name + "/Velocity", sim.getVelocity());
-                HoundLog.log(name + "/Position", sim.getPosition());
-                HoundLog.log(name + "/Setpoint", fb.getGoal());
             }
-            @Override
-            public void setPosition(double target) {
-                targetPos = target;
-            }
-            @Override
-            public void resetPosition(double actual) {
-                sim.resetPosition(actual);
-            }
-            @Override
-            public double getPosition() {
-                return sim.getPosition();
-            }
-            @Override
-            public void periodic() {
-                if (DriverStation.isDisabled()) {
-                    sim.setVoltage(0);
-                    return;
-                }
-                double feedbackVolts = fb.calculate(sim.getPosition(), targetPos);
-                double feedforwardVolts = ff.kg + ff.ks * Math.signum(feedbackVolts);
-                double totalVolts = feedbackVolts + feedforwardVolts;
-                if (DriverStation.isDisabled()) {
-                    totalVolts = 0;
-                }
-                sim.setVoltage(totalVolts);
-            }
-        }
-        return new PositionRealistic();
+        );
     }
 
     public static PositionMotor fromIdealSim(
         FeedbackController fb
     ) {
-        class PositionIdeal extends SubsystemBase implements PositionMotor {
-            State current = new State();
-            State target = new State();
-            @Override
-            public void log(String name) {
-                HoundLog.log(name + "/Position", current.position);
-                HoundLog.log(name + "/Velocity", current.velocity);
-                HoundLog.log(name + "/Setpoint", target.position);
+        State currentState = new State();
+        return new PositionMotor(
+            position -> currentState.position = position, 
+            voltage -> {
+                State nextState = fb.getSetpoint();
+                currentState.position = nextState.position;
+                currentState.velocity = nextState.velocity;
+            }, 
+            () -> currentState.position, 
+            fb, 
+            null, 
+            name -> {
+                HoundLog.log(name + "/Velocity", currentState.velocity);
             }
-            @Override
-            public void setPosition(double target) {
-                this.target.position = target;
-            }
-            @Override
-            public void resetPosition(double actual) {
-                current.position = actual;
-            }
-            @Override
-            public double getPosition() {
-                return current.position;
-            }
-            @Override
-            public void periodic() {
-                if (DriverStation.isEnabled()) {
-                    fb.calculate(current.position, target.position);
-                    current = fb.getSetpoint();
-                }
-            }
-        }
-        return new PositionIdeal();
+        );
     }
 }
