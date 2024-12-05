@@ -15,16 +15,25 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utilities.FeedbackController;
 import frc.robot.utilities.FeedforwardSim;
+import frc.robot.utilities.SysIDCommands;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
+import static edu.wpi.first.units.Units.*;
+
 public class ArmMotor extends SubsystemBase implements Loggable {
     private double target;
+    private double lastVoltage;
     private DoubleConsumer positionSetter;
     private DoubleConsumer voltageSetter;
     private DoubleSupplier positionGetter;
+    private DoubleSupplier velocityGetter;
     private FeedbackController fb;
     private ArmFeedforward ff;
     private Loggable motorInfo;
@@ -33,14 +42,19 @@ public class ArmMotor extends SubsystemBase implements Loggable {
         DoubleConsumer positionSetter,
         DoubleConsumer voltageSetter,
         DoubleSupplier positionGetter,
+        DoubleSupplier velocityGetter,
         FeedbackController fb,
         ArmFeedforward ff,
         Loggable motorInfo
     ) {
         target = Double.MAX_VALUE;
         this.positionSetter = positionSetter;
-        this.voltageSetter = voltageSetter;
+        this.voltageSetter = volts -> {
+            lastVoltage = volts;
+            voltageSetter.accept(volts);
+        };
         this.positionGetter = positionGetter;
+        this.velocityGetter = velocityGetter;
         this.fb = fb;
         this.ff = ff;
         this.motorInfo = motorInfo;
@@ -62,6 +76,10 @@ public class ArmMotor extends SubsystemBase implements Loggable {
         return positionGetter.getAsDouble();
     }
 
+    public double getRPS() {
+        return velocityGetter.getAsDouble();
+    }
+
     public boolean atTarget() {
         if (target == Double.MAX_VALUE) {
             return true;
@@ -75,6 +93,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
         motorInfo.log(name + "/Motor Info");
         HoundLog.log(name + "/Coasting", target == Double.MAX_VALUE);
         HoundLog.log(name + "/Current Rotation", getRotations());
+        HoundLog.log(name + "/Current RPS", getRPS());
         if (target != Double.MAX_VALUE) {
             HoundLog.log(name + "/Target Rotation", target);
         }
@@ -98,6 +117,84 @@ public class ArmMotor extends SubsystemBase implements Loggable {
         voltageSetter.accept(fbVolts + ffVolts);
     }
 
+    public SysIDCommands getSysID(
+        String mechName,
+        double voltageRampRate,
+        double stepVoltage,
+        double timeout
+    ) {
+        Config config = new Config(
+            Volts.of(voltageRampRate).per(Seconds), 
+            Volts.of(stepVoltage), 
+            Seconds.of(timeout)
+        );
+        Mechanism mech = new Mechanism(
+            voltage -> voltageSetter.accept(voltage.in(Volts)), 
+            log -> log.motor("Motor")
+                .value("Position", getRotations(), "IDK")
+                .value("Velocity", getRPS(), "IDK")
+                .value("Voltage", lastVoltage, "Volts"),
+            this,
+            mechName
+        );
+        SysIdRoutine routine = new SysIdRoutine(config, mech);
+        return new SysIDCommands(
+            routine.dynamic(Direction.kForward), 
+            routine.dynamic(Direction.kReverse), 
+            routine.quasistatic(Direction.kForward), 
+            routine.quasistatic(Direction.kReverse)
+        );
+    }
+
+    public SysIDCommands getSynchronizedSysID(
+        String mechName,
+        double voltageRampRate,
+        double stepVoltage,
+        double timeout,
+        ArmMotor... otherMotors
+    ) {
+        Config config = new Config(
+            Volts.of(voltageRampRate).per(Seconds), 
+            Volts.of(stepVoltage), 
+            Seconds.of(timeout)
+        );
+        Mechanism mech = new Mechanism(
+            voltage -> {
+                voltageSetter.accept(voltage.in(Volts));
+                for (ArmMotor motor : otherMotors) {
+                    motor.voltageSetter.accept(voltage.in(Volts));
+                }
+            }, 
+            log -> {
+                log.motor("Motor 0")
+                    .value("Position", getRotations(), "IDK")
+                    .value("Velocity", getRPS(), "IDK")
+                    .value("Voltage", lastVoltage, "Volts");
+                for (int i = 0; i < otherMotors.length; i++) {
+                    ArmMotor motor = otherMotors[i];
+                    log.motor("Motor" + (i + 1))
+                        .value("Position", motor.getRotations(), "IDK")
+                        .value("Velocity", motor.getRPS(), "IDK")
+                        .value("Voltage", motor.lastVoltage, "Volts");
+                }
+            },
+            this,
+            mechName
+        );
+        SysIdRoutine routine = new SysIdRoutine(config, mech);
+        SysIDCommands commands = new SysIDCommands(
+            routine.dynamic(Direction.kForward), 
+            routine.dynamic(Direction.kReverse), 
+            routine.quasistatic(Direction.kForward), 
+            routine.quasistatic(Direction.kReverse)
+        );
+        commands.dynamicForward().addRequirements(otherMotors);
+        commands.dynamicReverse().addRequirements(otherMotors);
+        commands.quasistaticForward().addRequirements(otherMotors);
+        commands.quasistaticReverse().addRequirements(otherMotors);
+        return commands;
+    }
+
     public static ArmMotor fromTalonFX(
         int canID,
         Consumer<TalonFX> config,
@@ -117,6 +214,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
             motor::setPosition, 
             motor::setVoltage, 
             () -> motor.getPosition().getValueAsDouble(), 
+            () -> motor.getVelocity().getValueAsDouble(),
             fb, 
             ff, 
             name -> {
@@ -149,6 +247,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
             position -> motor.getEncoder().setPosition(position), 
             motor::setVoltage, 
             () -> motor.getEncoder().getPosition(), 
+            () -> motor.getEncoder().getVelocity(),
             fb, 
             ff, 
             name -> {
@@ -179,7 +278,8 @@ public class ArmMotor extends SubsystemBase implements Loggable {
         return new ArmMotor(
             position -> motor.setSelectedSensorPosition(position / conversionFactor), 
             voltage -> motor.set(ControlMode.PercentOutput, voltage / motor.getBusVoltage()), 
-            motor::getSelectedSensorPosition, 
+            () -> motor.getSelectedSensorPosition() * conversionFactor, 
+            () -> motor.getSelectedSensorVelocity() * 10 * conversionFactor,
             fb, 
             ff, 
             name -> {
@@ -198,6 +298,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
             sim::resetPosition, 
             sim::setVoltage, 
             sim::getPosition, 
+            sim::getVelocity,
             fb, 
             ff, 
             name -> {
@@ -219,6 +320,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
                 currentState.velocity = nextState.velocity;
             }, 
             () -> currentState.position, 
+            () ->  currentState.velocity,
             fb, 
             null, 
             name -> {

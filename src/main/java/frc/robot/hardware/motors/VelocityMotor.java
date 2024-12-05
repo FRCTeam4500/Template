@@ -15,13 +15,21 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utilities.FeedbackController;
 import frc.robot.utilities.FeedforwardSim;
+import frc.robot.utilities.SysIDCommands;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
+import static edu.wpi.first.units.Units.*;
+
 public class VelocityMotor extends SubsystemBase implements Loggable  {
     private double target;
+    private double lastVoltage;
     private DoubleConsumer positionSetter;
     private DoubleConsumer voltageSetter;
     private DoubleSupplier positionGetter;
@@ -41,7 +49,10 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
     ) {
         target = Double.MAX_VALUE;
         this.positionSetter = positionSetter;
-        this.voltageSetter = voltageSetter;
+        this.voltageSetter = volts -> {
+            lastVoltage = volts;
+            voltageSetter.accept(volts);
+        };
         this.positionGetter = positionGetter;
         this.velocityGetter = velocityGetter;
         this.fb = fb;
@@ -101,6 +112,84 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
             ffVolts = ff.calculate(target);
         }
         voltageSetter.accept(fbVolts + ffVolts);
+    }
+
+    public SysIDCommands getSysID(
+        String mechName,
+        double voltageRampRate,
+        double stepVoltage,
+        double timeout
+    ) {
+        Config config = new Config(
+            Volts.of(voltageRampRate).per(Seconds), 
+            Volts.of(stepVoltage), 
+            Seconds.of(timeout)
+        );
+        Mechanism mech = new Mechanism(
+            voltage -> voltageSetter.accept(voltage.in(Volts)), 
+            log -> log.motor("Motor")
+                .value("Position", getPosition(), "IDK")
+                .value("Velocity", getVelocity(), "IDK")
+                .value("Voltage", lastVoltage, "Volts"),
+            this,
+            mechName
+        );
+        SysIdRoutine routine = new SysIdRoutine(config, mech);
+        return new SysIDCommands(
+            routine.dynamic(Direction.kForward), 
+            routine.dynamic(Direction.kReverse), 
+            routine.quasistatic(Direction.kForward), 
+            routine.quasistatic(Direction.kReverse)
+        );
+    }
+
+    public SysIDCommands getSynchronizedSysID(
+        String mechName,
+        double voltageRampRate,
+        double stepVoltage,
+        double timeout,
+        VelocityMotor... otherMotors
+    ) {
+        Config config = new Config(
+            Volts.of(voltageRampRate).per(Seconds), 
+            Volts.of(stepVoltage), 
+            Seconds.of(timeout)
+        );
+        Mechanism mech = new Mechanism(
+            voltage -> {
+                voltageSetter.accept(voltage.in(Volts));
+                for (VelocityMotor motor : otherMotors) {
+                    motor.voltageSetter.accept(voltage.in(Volts));
+                }
+            }, 
+            log -> {
+                log.motor("Motor 0")
+                    .value("Position", getPosition(), "IDK")
+                    .value("Velocity", getVelocity(), "IDK")
+                    .value("Voltage", lastVoltage, "Volts");
+                for (int i = 0; i < otherMotors.length; i++) {
+                    VelocityMotor motor = otherMotors[i];
+                    log.motor("Motor" + (i + 1))
+                        .value("Position", motor.getPosition(), "IDK")
+                        .value("Velocity", motor.getVelocity(), "IDK")
+                        .value("Voltage", motor.lastVoltage, "Volts");
+                }
+            },
+            this,
+            mechName
+        );
+        SysIdRoutine routine = new SysIdRoutine(config, mech);
+        SysIDCommands commands = new SysIDCommands(
+            routine.dynamic(Direction.kForward), 
+            routine.dynamic(Direction.kReverse), 
+            routine.quasistatic(Direction.kForward), 
+            routine.quasistatic(Direction.kReverse)
+        );
+        commands.dynamicForward().addRequirements(otherMotors);
+        commands.dynamicReverse().addRequirements(otherMotors);
+        commands.quasistaticForward().addRequirements(otherMotors);
+        commands.quasistaticReverse().addRequirements(otherMotors);
+        return commands;
     }
 
     public static VelocityMotor fromTalonFX(
