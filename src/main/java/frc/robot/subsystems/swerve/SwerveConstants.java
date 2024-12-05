@@ -4,7 +4,6 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -25,17 +24,6 @@ public class SwerveConstants {
     public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(4, 4, 4);
     public static final double MIN_COEFFICIENT = 0.2;
     public static final double MAX_MODULE_SPEED = 4;
-    public static final TalonFXConfiguration DRIVE_CONFIG = 
-        new TalonFXConfiguration()
-            .withSlot1(new Slot1Configs()
-                .withKP(0.11)
-                .withKI(0.5)
-                .withKD(0.0001)
-                .withKV(0.12))
-            .withCurrentLimits(new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(35)
-                .withSupplyCurrentLimitEnable(true)
-            );
     public static final Translation2d FRONT_LEFT_TRANSLATION = new Translation2d(
         0.2974, 0.2974
     );

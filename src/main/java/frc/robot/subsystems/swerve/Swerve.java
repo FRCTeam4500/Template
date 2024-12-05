@@ -61,7 +61,12 @@ public class Swerve extends SubsystemBase implements Loggable {
             BACK_LEFT_TRANSLATION,
             BACK_RIGHT_TRANSLATION
         );
-        estimator = new SwerveDrivePoseEstimator(kinematics, gyro.getAngle(), getModulePositions(), new Pose2d(0, 2, new Rotation2d()));
+        estimator = new SwerveDrivePoseEstimator(
+            kinematics, 
+            gyro.getAngle(), 
+            getModulePositions(), 
+            new Pose2d()
+        );
         targetHeading = new Rotation2d();
         headingPID = new PIDController(5, 0, 0);
         headingPID.enableContinuousInput(-Math.PI, Math.PI);
@@ -94,7 +99,7 @@ public class Swerve extends SubsystemBase implements Loggable {
                 Rotation2d currentHeading = estimator.getEstimatedPosition().getRotation();
                 targetHeading = Rotation2d.fromRadians(
                     targetHeading.getRadians() -
-                    withHardDeadzone(xbox.getRightX(), 0.2) * 
+                    withHardDeadzone(xbox.getRightX(), 0.1) * 
                     speedCoefficient *
                     MAX_SPEEDS.omegaRadiansPerSecond * 
                     0.02
@@ -106,8 +111,8 @@ public class Swerve extends SubsystemBase implements Loggable {
                 if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
                     speedCoefficient *= -1;
                 }
-                double forward = speedCoefficient * withHardDeadzone(xbox.getLeftY(), 0.2) * MAX_SPEEDS.vxMetersPerSecond;
-                double sideways = speedCoefficient * withHardDeadzone(xbox.getLeftX(), 0.2) * MAX_SPEEDS.vyMetersPerSecond;
+                double forward = speedCoefficient * withHardDeadzone(xbox.getLeftY(), 0.1) * MAX_SPEEDS.vxMetersPerSecond;
+                double sideways = speedCoefficient * withHardDeadzone(xbox.getLeftX(), 0.1) * MAX_SPEEDS.vyMetersPerSecond;
                 drive(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         forward, sideways, rotational, currentHeading
