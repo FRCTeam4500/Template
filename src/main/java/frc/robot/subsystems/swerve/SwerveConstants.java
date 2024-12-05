@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkBase.IdleMode;
 
@@ -46,7 +47,8 @@ public class SwerveConstants {
                         .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
                     config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake);
+                        .withNeutralMode(NeutralModeValue.Brake)
+                        .withInverted(InvertedValue.Clockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
                         .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -89,7 +91,8 @@ public class SwerveConstants {
                         .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
                     config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake);
+                        .withNeutralMode(NeutralModeValue.Brake)
+                        .withInverted(InvertedValue.CounterClockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
                         .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -132,7 +135,8 @@ public class SwerveConstants {
                         .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
                     config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake);
+                        .withNeutralMode(NeutralModeValue.Brake)
+                        .withInverted(InvertedValue.Clockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
                         .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -175,7 +179,8 @@ public class SwerveConstants {
                         .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
                     config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake);
+                        .withNeutralMode(NeutralModeValue.Brake)
+                        .withInverted(InvertedValue.CounterClockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
                         .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
