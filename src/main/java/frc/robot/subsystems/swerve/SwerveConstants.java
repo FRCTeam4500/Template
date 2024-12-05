@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 import frc.robot.hardware.motors.PositionMotor;
 import frc.robot.hardware.motors.VelocityMotor;
 import frc.robot.utilities.FeedbackController;
@@ -22,9 +23,9 @@ import static frc.robot.WiringConstants.SwerveWiring.*;
 
 public class SwerveConstants {
 
-    public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(4, 4, 4);
+    public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(5, 5, 4);
     public static final double MIN_COEFFICIENT = 0.2;
-    public static final double MAX_MODULE_SPEED = 4;
+    public static final double MAX_MODULE_SPEED = 5;
     public static final Translation2d FRONT_LEFT_TRANSLATION = new Translation2d(
         0.2974, 0.2974
     );
@@ -70,9 +71,12 @@ public class SwerveConstants {
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
+                AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_LEFT_ENCODER_ID);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
-                new PIDController(27, 0, 0.5),
+                new PIDController(27, 0, 0),
                 controller -> {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
@@ -114,9 +118,12 @@ public class SwerveConstants {
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
+                AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_RIGHT_ENCODER_ID);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
-                new PIDController(27, 0, 0.5),
+                new PIDController(27, 0, 0),
                 controller -> {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
@@ -158,9 +165,12 @@ public class SwerveConstants {
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
+                AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_LEFT_ENCODER_ID);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
-                new PIDController(27, 0, 0.5),
+                new PIDController(27, 0, 0),
                 controller -> {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
@@ -202,9 +212,12 @@ public class SwerveConstants {
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
+                AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_RIGHT_ENCODER_ID);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
-                new PIDController(27, 0, 0.5),
+                new PIDController(27, 0, 0),
                 controller -> {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
