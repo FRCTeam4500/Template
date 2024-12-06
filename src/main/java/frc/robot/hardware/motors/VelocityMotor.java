@@ -163,7 +163,7 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
                 }
             }, 
             log -> {
-                log.motor("Motor 0")
+                log.motor("Motor0")
                     .value("Position", getPosition(), "IDK")
                     .value("Velocity", getVelocity(), "IDK")
                     .value("Voltage", lastVoltage, "Volts");

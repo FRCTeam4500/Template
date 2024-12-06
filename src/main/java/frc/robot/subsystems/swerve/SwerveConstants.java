@@ -51,7 +51,7 @@ public class SwerveConstants {
                         .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.Clockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
+                        .withSensorToMechanismRatio(12.1908);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
                     for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
                         status = motor.getConfigurator().apply(config);
@@ -61,18 +61,19 @@ public class SwerveConstants {
                     new PIDController(0.004, 0, 0),
                     controller -> {}
                 ),
-                new SimpleMotorFeedforward(0.055145, 0.19082, 0.0040725)
+                new SimpleMotorFeedforward(0.10624, 1.407, 0.16994) // Stolen from front right, sysID kA gain was wierd
         ),
         PositionMotor.fromSparkMax(
             FRONT_LEFT_ANGLE_ID, 
             false,
             motor -> {
+                motor.setInverted(false);
                 motor.setSmartCurrentLimit(20);
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_LEFT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.805);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
@@ -98,7 +99,7 @@ public class SwerveConstants {
                         .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.CounterClockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
+                        .withSensorToMechanismRatio(12.1908);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
                     for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
                         status = motor.getConfigurator().apply(config);
@@ -108,18 +109,19 @@ public class SwerveConstants {
                     new PIDController(0.004, 0, 0),
                     controller -> {}
                 ),
-                new SimpleMotorFeedforward(0.055145, 0.19082, 0.0040725)
+                new SimpleMotorFeedforward(0.10624, 1.407, 0.16994)
         ),
         PositionMotor.fromSparkMax(
             FRONT_RIGHT_ANGLE_ID, 
             false,
             motor -> {
+                motor.setInverted(false);
                 motor.setSmartCurrentLimit(20);
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_RIGHT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.394);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
@@ -145,7 +147,7 @@ public class SwerveConstants {
                         .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.Clockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
+                        .withSensorToMechanismRatio(12.1908);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
                     for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
                         status = motor.getConfigurator().apply(config);
@@ -155,18 +157,19 @@ public class SwerveConstants {
                     new PIDController(0.004, 0, 0),
                     controller -> {}
                 ),
-                new SimpleMotorFeedforward(0.055145, 0.19082, 0.0040725)
+                new SimpleMotorFeedforward(0.11833, 1.3984, 0.16306)
         ),
         PositionMotor.fromSparkMax(
             BACK_LEFT_ANGLE_ID, 
             false,
             motor -> {
+                motor.setInverted(false);
                 motor.setSmartCurrentLimit(20);
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_LEFT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.511);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
@@ -192,7 +195,7 @@ public class SwerveConstants {
                         .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.CounterClockwise_Positive);
                     config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(5.14 * Math.PI * 0.1016);
+                        .withSensorToMechanismRatio(12.1908);
                     StatusCode status = StatusCode.StatusCodeNotInitialized;
                     for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
                         status = motor.getConfigurator().apply(config);
@@ -202,18 +205,19 @@ public class SwerveConstants {
                     new PIDController(0.004, 0, 0),
                     controller -> {}
                 ),
-                new SimpleMotorFeedforward(0.055145, 0.19082, 0.0040725)
+                new SimpleMotorFeedforward(0.10512, 1.3954, 0.19264)
         ),
         PositionMotor.fromSparkMax(
             BACK_RIGHT_ANGLE_ID, 
             false,
             motor -> {
+                motor.setInverted(false);
                 motor.setSmartCurrentLimit(20);
                 motor.getEncoder().setPositionConversionFactor(1.0 / 25);
                 motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
                 motor.setIdleMode(IdleMode.kBrake);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_RIGHT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0);
+                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.061);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(

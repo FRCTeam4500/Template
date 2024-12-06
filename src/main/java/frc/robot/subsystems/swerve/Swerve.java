@@ -219,5 +219,6 @@ public class Swerve extends SubsystemBase implements Loggable {
         modules[1].log(name + "/Front Right Module");
         modules[2].log(name + "/Back Left Module");
         modules[3].log(name + "/Back Right Module");
+        gyro.log("Gyro");
     }
 }

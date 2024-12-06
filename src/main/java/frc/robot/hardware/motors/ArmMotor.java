@@ -166,7 +166,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
                 }
             }, 
             log -> {
-                log.motor("Motor 0")
+                log.motor("Motor0")
                     .value("Position", getRotations(), "IDK")
                     .value("Velocity", getRPS(), "IDK")
                     .value("Voltage", lastVoltage, "Volts");
