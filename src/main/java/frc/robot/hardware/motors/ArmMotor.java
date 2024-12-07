@@ -7,8 +7,8 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
@@ -109,8 +109,8 @@ public class ArmMotor extends SubsystemBase implements Loggable {
         double fbVolts = fb.calculate(getRotations(), target);
         double ffVolts = 0;
         if (ff != null) {
-            ffVolts = ff.ks * Math.signum(fbVolts) 
-                        + ff.kg * Math.cos(
+            ffVolts = ff.getKs() * Math.signum(fbVolts) 
+                        + ff.getKg() * Math.cos(
                             getRotations() * Math.PI * 2
                         );
         }
@@ -230,7 +230,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
     public static ArmMotor fromSparkMax(
         int canID,
         boolean brushed,
-        Consumer<CANSparkMax> config,
+        Consumer<SparkMax> config,
         FeedbackController fb,
         ArmFeedforward ff
     ) {
@@ -241,7 +241,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
                 return fromRealisticSim(fb, ff);
             }
         }
-        CANSparkMax motor = new CANSparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless); 
+        SparkMax motor = new SparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless); 
         config.accept(motor);
         return new ArmMotor(
             position -> motor.getEncoder().setPosition(position), 
@@ -293,7 +293,7 @@ public class ArmMotor extends SubsystemBase implements Loggable {
         FeedbackController fb,
         ArmFeedforward ff
     ) {
-        FeedforwardSim sim = FeedforwardSim.createElevator(ff.kg, ff.ks, ff.kv, ff.ka, new State());
+        FeedforwardSim sim = FeedforwardSim.createElevator(ff.getKg(), ff.getKs(), ff.getKv(), ff.getKa(), new State());
         return new ArmMotor(
             sim::resetPosition, 
             sim::setVoltage, 

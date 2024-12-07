@@ -7,8 +7,8 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
@@ -109,7 +109,7 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
         double fbVolts = fb.calculate(velocityGetter.getAsDouble(), target);
         double ffVolts = 0;
         if (ff != null) {
-            ffVolts = ff.calculate(target);
+            ffVolts = ff.getKs() * Math.signum(target) + ff.getKv() * target;
         }
         voltageSetter.accept(fbVolts + ffVolts);
     }
@@ -226,7 +226,7 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
     public static VelocityMotor fromSparkMax(
         int canID,
         boolean brushed,
-        Consumer<CANSparkMax> config,
+        Consumer<SparkMax> config,
         FeedbackController fb,
         SimpleMotorFeedforward ff
     ) {
@@ -237,7 +237,7 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
                 return fromRealisticSim(fb, ff);
             }
         }
-        CANSparkMax motor = new CANSparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless);
+        SparkMax motor = new SparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless);
         config.accept(motor);
         return new VelocityMotor(
             position -> motor.getEncoder().setPosition(position), 
@@ -287,7 +287,7 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
         FeedbackController fb,
         SimpleMotorFeedforward ff
     ) {
-        FeedforwardSim sim = FeedforwardSim.createFlywheel(ff.ks, ff.kv, ff.ka, new State());
+        FeedforwardSim sim = FeedforwardSim.createFlywheel(ff.getKs(), ff.getKv(), ff.getKa(), new State());
         return new VelocityMotor(
             sim::resetPosition, 
             sim::setVoltage, 

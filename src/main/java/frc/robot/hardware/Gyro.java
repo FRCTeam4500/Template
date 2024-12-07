@@ -1,19 +1,23 @@
 package frc.robot.hardware;
 
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
+
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 
 public interface Gyro extends Loggable {
     public Rotation2d getAngle();
 
-    public static Gyro fromNavX() {
-        AHRS navx = new AHRS();
+    public static Gyro fromNavX(Consumer<AHRS> config) {
+        AHRS navx = new AHRS(NavXComType.kMXP_SPI);
+        config.accept(navx);
         return new Gyro() {
             @Override
             public void log(String name) {

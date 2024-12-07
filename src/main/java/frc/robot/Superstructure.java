@@ -1,13 +1,13 @@
 package frc.robot;
 
 import frc.robot.utilities.logging.Loggable;
-import frc.robot.utilities.logging.sendables.mechanism.Mech2d;
+import frc.robot.utilities.logging.sendables.mechanism.LoggedMechanism2d;
 
 public class Superstructure implements Loggable {
     // Create objects for all non-drivebase subsystems
-    private Mech2d robotMech;
+    private LoggedMechanism2d robotMech;
     public Superstructure() {
-        robotMech = new Mech2d(1.5, 1.5);
+        robotMech = new LoggedMechanism2d(1.5, 1.5);
         configureMech();
     }
 

@@ -7,7 +7,8 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -20,12 +21,14 @@ import frc.robot.hardware.motors.VelocityMotor;
 import frc.robot.utilities.FeedbackController;
 
 import static frc.robot.WiringConstants.SwerveWiring.*;
+import static com.revrobotics.spark.SparkBase.ResetMode.*;
+import static com.revrobotics.spark.SparkBase.PersistMode.*;
 
 public class SwerveConstants {
 
-    public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(5, 5, 4);
+    public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(6, 6, 4);
     public static final double MIN_COEFFICIENT = 0.2;
-    public static final double MAX_MODULE_SPEED = 5;
+    public static final double MAX_MODULE_SPEED = 6;
     public static final Translation2d FRONT_LEFT_TRANSLATION = new Translation2d(
         0.2974, 0.2974
     );
@@ -67,13 +70,17 @@ public class SwerveConstants {
             FRONT_LEFT_ANGLE_ID, 
             false,
             motor -> {
-                motor.setInverted(false);
-                motor.setSmartCurrentLimit(20);
-                motor.getEncoder().setPositionConversionFactor(1.0 / 25);
-                motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
-                motor.setIdleMode(IdleMode.kBrake);
+                SparkMaxConfig config = new SparkMaxConfig();
+                config
+                    .inverted(false)
+                    .smartCurrentLimit(20)
+                    .idleMode(IdleMode.kBrake);
+                config.encoder
+                    .positionConversionFactor(1.0 / 25)
+                    .velocityConversionFactor(1.0 / 25/ 60);
+                motor.configure(config, kResetSafeParameters, kPersistParameters);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_LEFT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.805);
+                motor.getEncoder().setPosition(absoluteEncoder.get() - 0.805);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
@@ -115,13 +122,17 @@ public class SwerveConstants {
             FRONT_RIGHT_ANGLE_ID, 
             false,
             motor -> {
-                motor.setInverted(false);
-                motor.setSmartCurrentLimit(20);
-                motor.getEncoder().setPositionConversionFactor(1.0 / 25);
-                motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
-                motor.setIdleMode(IdleMode.kBrake);
+                SparkMaxConfig config = new SparkMaxConfig();
+                config
+                    .inverted(false)
+                    .smartCurrentLimit(20)
+                    .idleMode(IdleMode.kBrake);
+                config.encoder
+                    .positionConversionFactor(1.0 / 25)
+                    .velocityConversionFactor(1.0 / 25/ 60);
+                motor.configure(config, kResetSafeParameters, kPersistParameters);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_RIGHT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.394);
+                motor.getEncoder().setPosition(absoluteEncoder.get() - 0.394);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
@@ -163,13 +174,17 @@ public class SwerveConstants {
             BACK_LEFT_ANGLE_ID, 
             false,
             motor -> {
-                motor.setInverted(false);
-                motor.setSmartCurrentLimit(20);
-                motor.getEncoder().setPositionConversionFactor(1.0 / 25);
-                motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
-                motor.setIdleMode(IdleMode.kBrake);
+                SparkMaxConfig config = new SparkMaxConfig();
+                config
+                    .inverted(false)
+                    .smartCurrentLimit(20)
+                    .idleMode(IdleMode.kBrake);
+                config.encoder
+                    .positionConversionFactor(1.0 / 25)
+                    .velocityConversionFactor(1.0 / 25/ 60);
+                motor.configure(config, kResetSafeParameters, kPersistParameters);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_LEFT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.511);
+                motor.getEncoder().setPosition(absoluteEncoder.get() - 0.511);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(
@@ -211,13 +226,17 @@ public class SwerveConstants {
             BACK_RIGHT_ANGLE_ID, 
             false,
             motor -> {
-                motor.setInverted(false);
-                motor.setSmartCurrentLimit(20);
-                motor.getEncoder().setPositionConversionFactor(1.0 / 25);
-                motor.getEncoder().setVelocityConversionFactor(1.0 / 25 / 60);
-                motor.setIdleMode(IdleMode.kBrake);
+                SparkMaxConfig config = new SparkMaxConfig();
+                config
+                    .inverted(false)
+                    .smartCurrentLimit(20)
+                    .idleMode(IdleMode.kBrake);
+                config.encoder
+                    .positionConversionFactor(1.0 / 25)
+                    .velocityConversionFactor(1.0 / 25/ 60);
+                motor.configure(config, kResetSafeParameters, kPersistParameters);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_RIGHT_ENCODER_ID);
-                motor.getEncoder().setPosition(absoluteEncoder.getAbsolutePosition() - 0.061);
+                motor.getEncoder().setPosition(absoluteEncoder.get() - 0.061);
                 absoluteEncoder.close();
             }, 
             FeedbackController.fromPID(

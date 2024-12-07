@@ -12,32 +12,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * This is a simple container for math methods which are useful
  */
 public class ExtendedMath {
-
-	/**
-	 * Clamps an output between {@code min} and {@code max}. "Clamping" refers to restricting a
-	 * value between a minimum and a maximum. If the given value is below the minimum, the returned
-	 * value is equal to the minimum. If the given value is above the maximum, the returned value is
-	 * equal to the maximum. If neither of these conditions are met, the given value is returned as
-	 * is.
-	 *
-	 * @param min    the value minimum
-	 * @param max    the value maximum
-	 * @param output the value to be clamped
-	 * @return the clamped value
-	 */
-	public static double clamp(double min, double max, double output) {
-		// return Math.min(max, Math.max(min, output));
-		return MathUtil.clamp(output, min, max);
-	}
-
 	public static double dot(Translation2d a, Translation2d b) {
 		return a.getX() * b.getX() + a.getY() * b.getY();
 	}
@@ -167,41 +146,6 @@ public class ExtendedMath {
 		return Rotation2d.fromRadians(MathUtil.angleModulus(rotationToWrap.getRadians()));
 	}
 
-	/**
-	 * @param desiredState the target state of the module
-	 * @param currentAngle the current angle of the module
-	 * @param continuousRotation whether the encoder of the angle motor of the module
-	 * supports continous rotation
-	 * @see <a
-	 *      href=https://www.chiefdelphi.com/t/swerve-modules-flip-180-degrees-periodically-conditionally/393059/3
-	 *      >Chief Delphi Post Concerning The Issue</a>
-	 */
-	public static SwerveModuleState optimizeModuleState(
-		SwerveModuleState desiredState,
-		Rotation2d currentAngle,
-		boolean continuousRotation
-	) {
-		if (continuousRotation) {
-			return SwerveModuleState.optimize(desiredState, currentAngle);
-		}
-		double originalAngle = currentAngle.getDegrees();
-		double delta = MathUtil.inputModulus(
-			desiredState.angle.getDegrees() - originalAngle + 180, 0, 360
-		) - 180;
-		if (Math.abs(delta) > 90) {
-			return new SwerveModuleState(
-				-desiredState.speedMetersPerSecond,
-				Rotation2d.fromDegrees(
-					originalAngle + delta - Math.signum(delta) * 180
-				)
-			);
-		}
-		return new SwerveModuleState(
-			desiredState.speedMetersPerSecond,
-			Rotation2d.fromDegrees(originalAngle + delta)
-		);
-	}
-
 	public static boolean within(double a, double b, double threshold) {
 		return Math.abs(a - b) < Math.abs(threshold);
 	}
@@ -224,34 +168,5 @@ public class ExtendedMath {
 		return within(a.vxMetersPerSecond, b.vxMetersPerSecond, threshold.vxMetersPerSecond)
 			&& within(a.vyMetersPerSecond, b.vyMetersPerSecond, threshold.vyMetersPerSecond)
 			&& within(a.omegaRadiansPerSecond, b.omegaRadiansPerSecond, threshold.omegaRadiansPerSecond);
-	}
-	/**
-	 * takes in current position of robot and finds angle to speaker based off our alliance
-	 * @author Bennett
-	 * @author David
-	 * @deprecated <strong>Use {@link ExtendedMath#getSpeakerAngle(Translation2d) getSpeakerAngle} instead <p> </strong>
-	*/
-	public static Rotation2d getAngleToSpeaker(Pose2d currentPose) {
-		if (currentPose.getY() == 5.6)  return Rotation2d.fromDegrees(180);
-		Pose2d speakerPosition = (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) ?
-		new Pose2d(0, 5.6, Rotation2d.fromDegrees(0)) :
-		new Pose2d(16, 5.6, Rotation2d.fromDegrees(180));
-
-		double wrongAngle = (Math.atan(-(speakerPosition.getX()-currentPose.getX())
-			/(speakerPosition.getY()-currentPose.getY()))
-			-speakerPosition.getRotation().getRadians());
-		return Rotation2d.fromRadians((currentPose.getY() > 5.6) ?
-			wrongAngle + 3*Math.PI/2 :
-			wrongAngle + Math.PI/2);
-	}
-
-	public static Rotation2d getSpeakerAngle(Translation2d current, Alliance currentAlliance) {
-		return new Translation2d(
-			currentAlliance == Alliance.Blue ? 0 : 16, 5.975
-		).minus(current).getAngle().plus(Rotation2d.fromDegrees(180));
-	}
-
-	public static Rotation2d getSpeakerAngle(Translation2d current) {
-		return getSpeakerAngle(current, DriverStation.getAlliance().orElse(Alliance.Blue));
 	}
 }

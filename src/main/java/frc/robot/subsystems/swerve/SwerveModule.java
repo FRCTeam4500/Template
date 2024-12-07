@@ -21,7 +21,8 @@ public class SwerveModule implements Loggable {
     }
 
     public void setTargetState(SwerveModuleState state) {
-        targetState = SwerveModuleState.optimize(state, Rotation2d.fromRotations(MathUtil.inputModulus(angle.getPosition(), 0, 1)));
+        targetState = new SwerveModuleState(state.speedMetersPerSecond, state.angle);
+        targetState.optimize(Rotation2d.fromRotations(MathUtil.inputModulus(angle.getPosition(), 0, 1)));
     };
 
     public SwerveModuleState getCurrentState() {

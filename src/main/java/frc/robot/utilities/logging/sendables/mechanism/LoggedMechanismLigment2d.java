@@ -5,12 +5,12 @@ import frc.robot.utilities.logging.Loggable;
 
 import java.util.HashMap;
 
-public class MechLigment2d implements Loggable {
+public class LoggedMechanismLigment2d implements Loggable {
     private double angle;
     private double length;
-    private HashMap<String, MechLigment2d> ligments;
+    private HashMap<String, LoggedMechanismLigment2d> ligments;
 
-    public MechLigment2d(double length, double angle) {
+    public LoggedMechanismLigment2d(double length, double angle) {
         this.angle = angle;
         this.length = length;
         ligments  = new HashMap<>();
@@ -24,7 +24,7 @@ public class MechLigment2d implements Loggable {
         this.length = length;
     }
     
-    public void append(String name, MechLigment2d ligment) {
+    public void append(String name, LoggedMechanismLigment2d ligment) {
         ligments.put(name, ligment);
     }
 

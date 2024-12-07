@@ -1,9 +1,9 @@
 package frc.robot.subsystems.swerve;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -13,10 +13,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -42,7 +44,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     private PIDController headingPID;
     public Swerve() {
         if (RobotBase.isReal()) {
-            gyro = Gyro.fromNavX();
+            gyro = Gyro.fromNavX(navx -> {});
         } else {
             gyro = Gyro.fromSim(() -> getSpeeds().omegaRadiansPerSecond);
         }
@@ -72,18 +74,28 @@ public class Swerve extends SubsystemBase implements Loggable {
         headingPID.enableContinuousInput(-Math.PI, Math.PI);
         headingPID.setTolerance(Math.PI / 32, Math.PI / 32);
 		headingPID.setSetpoint(0);
-        AutoBuilder.configureHolonomic(
+
+        RobotConfig config;
+        try {
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            Alert alert = new Alert("READING AUTO CONFIG FILE FAILED!!", AlertType.kError);
+            alert.set(true);
+            alert.close();
+            config = null;
+        }
+        AutoBuilder.configure(
             estimator::getEstimatedPosition, 
             this::resetPose, 
             this::getSpeeds, 
-            this::drive, 
-            new HolonomicPathFollowerConfig(
-                new PIDConstants(5),
-                new PIDConstants(5),
-                MAX_MODULE_SPEED, 
-                FRONT_LEFT_TRANSLATION.getNorm(), 
-                new ReplanningConfig()
+            (speeds, feedforwards) -> {
+
+            }, 
+            new PPHolonomicDriveController(
+                new PIDConstants(5), 
+                new PIDConstants(5)
             ), 
+            config, 
             () -> {
                 Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
                 return alliance == Alliance.Red;
@@ -113,11 +125,9 @@ public class Swerve extends SubsystemBase implements Loggable {
                 }
                 double forward = speedCoefficient * withHardDeadzone(xbox.getLeftY(), 0.1) * MAX_SPEEDS.vxMetersPerSecond;
                 double sideways = speedCoefficient * withHardDeadzone(xbox.getLeftX(), 0.1) * MAX_SPEEDS.vyMetersPerSecond;
-                drive(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        forward, sideways, rotational, currentHeading
-                    )
-                );
+                ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
+                fieldRel.toRobotRelativeSpeeds(currentHeading);
+                drive(fieldRel);
             },
             this
         ).beforeStarting(
@@ -141,7 +151,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     }
 
     private ChassisSpeeds applySkewCorrection(ChassisSpeeds speeds) {
-        speeds = ChassisSpeeds.discretize(speeds, 0.02);
+        speeds.discretize(0.02);
         // Rotate by the opposite of how far the robot will turn by the next loop
         double delta = -0.02 * speeds.omegaRadiansPerSecond;
         return new ChassisSpeeds(

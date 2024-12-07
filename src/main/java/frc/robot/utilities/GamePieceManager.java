@@ -19,17 +19,8 @@ public class GamePieceManager {
     private static Set<Translation2d> pieces = new HashSet<>();
     public static void resetField() {
         pieces.clear();
-        pieces.add(new Translation2d(2.9, 7));
-        pieces.add(new Translation2d(2.9, 5.55));
-        pieces.add(new Translation2d(2.9, 4.1));
-        pieces.add(new Translation2d(8.3, 7.44));
-        pieces.add(new Translation2d(8.3, 5.78));
-        pieces.add(new Translation2d(8.3, 4.11));
-        pieces.add(new Translation2d(8.3, 2.44));
-        pieces.add(new Translation2d(8.3, 0.77));
-        pieces.add(new Translation2d(13.67, 7));
-        pieces.add(new Translation2d(13.67, 5.55));
-        pieces.add(new Translation2d(13.67, 4.1));
+        // TODO: Add starting translations of the pieces here!!
+        // Ex: pieces.add(new Translation2d(1, 2));
         log();
     }
 
