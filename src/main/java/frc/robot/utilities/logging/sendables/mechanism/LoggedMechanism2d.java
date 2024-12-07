@@ -5,19 +5,19 @@ import frc.robot.utilities.logging.Loggable;
 
 import java.util.HashMap;
 
-public class Mech2d implements Loggable {
+public class LoggedMechanism2d implements Loggable {
     private double[] dims;
-    private HashMap<String, MechRoot2d> roots;
-    public Mech2d(double width, double height) {
+    private HashMap<String, LoggedMechanismRoot2d> roots;
+    public LoggedMechanism2d(double width, double height) {
         dims = new double[] {width, height};
         roots = new HashMap<>();
     }
 
-    public MechRoot2d getRoot(String name, double x, double y) {
+    public LoggedMechanismRoot2d getRoot(String name, double x, double y) {
         if (roots.containsKey(name)) {
             return roots.get(name);
         }
-        MechRoot2d root = new MechRoot2d(x, y);
+        LoggedMechanismRoot2d root = new LoggedMechanismRoot2d(x, y);
         roots.put(name, root);
         return root;
 

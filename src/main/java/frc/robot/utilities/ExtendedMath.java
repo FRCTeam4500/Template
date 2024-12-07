@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -20,23 +19,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * This is a simple container for math methods which are useful
  */
 public class ExtendedMath {
-
-	/**
-	 * Clamps an output between {@code min} and {@code max}. "Clamping" refers to restricting a
-	 * value between a minimum and a maximum. If the given value is below the minimum, the returned
-	 * value is equal to the minimum. If the given value is above the maximum, the returned value is
-	 * equal to the maximum. If neither of these conditions are met, the given value is returned as
-	 * is.
-	 *
-	 * @param min    the value minimum
-	 * @param max    the value maximum
-	 * @param output the value to be clamped
-	 * @return the clamped value
-	 */
-	public static double clamp(double min, double max, double output) {
-		// return Math.min(max, Math.max(min, output));
-		return MathUtil.clamp(output, min, max);
-	}
 
 	public static double dot(Translation2d a, Translation2d b) {
 		return a.getX() * b.getX() + a.getY() * b.getY();
@@ -165,41 +147,6 @@ public class ExtendedMath {
 
 	public static Rotation2d wrapRotation2d(Rotation2d rotationToWrap) {
 		return Rotation2d.fromRadians(MathUtil.angleModulus(rotationToWrap.getRadians()));
-	}
-
-	/**
-	 * @param desiredState the target state of the module
-	 * @param currentAngle the current angle of the module
-	 * @param continuousRotation whether the encoder of the angle motor of the module
-	 * supports continous rotation
-	 * @see <a
-	 *      href=https://www.chiefdelphi.com/t/swerve-modules-flip-180-degrees-periodically-conditionally/393059/3
-	 *      >Chief Delphi Post Concerning The Issue</a>
-	 */
-	public static SwerveModuleState optimizeModuleState(
-		SwerveModuleState desiredState,
-		Rotation2d currentAngle,
-		boolean continuousRotation
-	) {
-		if (continuousRotation) {
-			return SwerveModuleState.optimize(desiredState, currentAngle);
-		}
-		double originalAngle = currentAngle.getDegrees();
-		double delta = MathUtil.inputModulus(
-			desiredState.angle.getDegrees() - originalAngle + 180, 0, 360
-		) - 180;
-		if (Math.abs(delta) > 90) {
-			return new SwerveModuleState(
-				-desiredState.speedMetersPerSecond,
-				Rotation2d.fromDegrees(
-					originalAngle + delta - Math.signum(delta) * 180
-				)
-			);
-		}
-		return new SwerveModuleState(
-			desiredState.speedMetersPerSecond,
-			Rotation2d.fromDegrees(originalAngle + delta)
-		);
 	}
 
 	public static boolean within(double a, double b, double threshold) {

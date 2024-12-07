@@ -6,9 +6,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
-public class Field implements Loggable {
+public class LoggedField2d implements Loggable {
     private HashMap<String, double[]> objects;
-    public Field() {
+    public LoggedField2d() {
         objects = new HashMap<>();
         objects.put("Robot", new double[] {0, 0, 0});
     }
