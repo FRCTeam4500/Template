@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -58,7 +59,7 @@ public class Robot extends TimedRobot {
 
     public void setupAuto() {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser();
-        HoundLog.log("Auto Chooser", chooser);
+        SmartDashboard.putData("Auto Chooser", chooser);
         RobotModeTriggers.autonomous().whileTrue(Commands.deferredProxy(chooser::getSelected));
     }
 
@@ -66,7 +67,7 @@ public class Robot extends TimedRobot {
         HoundLog.setEnabled(true);
         HoundLog.setPdh(new PowerDistribution());
         HoundLog.setOptions(homeOptions);
-        HoundLog.log("Command Scheduler", CommandScheduler.getInstance());
+        SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
         Trigger atComp = new Trigger(DriverStation::isFMSAttached);
         atComp.onTrue(Commands.runOnce(() -> HoundLog.setOptions(compOptions)));
         atComp.onFalse(Commands.runOnce(() -> HoundLog.setOptions(homeOptions)));
@@ -78,7 +79,6 @@ public class Robot extends TimedRobot {
         double start = Timer.getFPGATimestamp();
         swerve.log("Swerve");
         structure.log("Superstrucutre");
-        HoundLog.updateSendables();
         double loggingLoop = Timer.getFPGATimestamp() - start;
 
         start = Timer.getFPGATimestamp();
