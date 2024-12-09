@@ -79,9 +79,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         double start = Timer.getFPGATimestamp();
-        swerve.log("Swerve");
-        structure.log("Superstrucutre");
-        HoundLog.updateSendables();
+        HoundLog.log("Swerve", swerve);
+        HoundLog.log("Superstrucutre", structure);
         double loggingLoop = Timer.getFPGATimestamp() - start;
 
         start = Timer.getFPGATimestamp();

@@ -44,27 +44,27 @@ public class SwerveConstants {
 
     public static final SwerveModule FRONT_LEFT_MODULE = new SwerveModule(
         VelocityMotor.fromTalonFX(
-                FRONT_LEFT_DRIVE_ID, 
-                motor -> {
-                    TalonFXConfiguration config = new TalonFXConfiguration();
-                    config.CurrentLimits = new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(40)
-                        .withSupplyCurrentLimitEnable(true);
-                    config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.Clockwise_Positive);
-                    config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(12.1908);
-                    StatusCode status = StatusCode.StatusCodeNotInitialized;
-                    for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                        status = motor.getConfigurator().apply(config);
-                    }
-                }, 
-                FeedbackController.fromPID(
-                    new PIDController(0.004, 0, 0),
-                    controller -> {}
-                ),
-                new SimpleMotorFeedforward(0.10624, 1.407, 0.16994) // Stolen from front right, sysID kA gain was wierd
+            FRONT_LEFT_DRIVE_ID, 
+            motor -> {
+                TalonFXConfiguration config = new TalonFXConfiguration();
+                config.CurrentLimits = new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(40)
+                    .withSupplyCurrentLimitEnable(true);
+                config.MotorOutput = new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.Clockwise_Positive);
+                config.Feedback = new FeedbackConfigs()
+                    .withSensorToMechanismRatio(12.1908);
+                StatusCode status = StatusCode.StatusCodeNotInitialized;
+                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+                    status = motor.getConfigurator().apply(config);
+                }
+            }, 
+            FeedbackController.fromPID(
+                new PIDController(0.004, 0, 0),
+                controller -> {}
+            ),
+            new SimpleMotorFeedforward(0.10624, 1.407, 0.16994) // Stolen from front right, sysID kA gain was wierd
         ),
         PositionMotor.fromSparkMax(
             FRONT_LEFT_ANGLE_ID, 
@@ -96,27 +96,27 @@ public class SwerveConstants {
 
     public static final SwerveModule FRONT_RIGHT_MODULE = new SwerveModule(
         VelocityMotor.fromTalonFX(
-                FRONT_RIGHT_DRIVE_ID, 
-                motor -> {
-                    TalonFXConfiguration config = new TalonFXConfiguration();
-                    config.CurrentLimits = new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(40)
-                        .withSupplyCurrentLimitEnable(true);
-                    config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.CounterClockwise_Positive);
-                    config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(12.1908);
-                    StatusCode status = StatusCode.StatusCodeNotInitialized;
-                    for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                        status = motor.getConfigurator().apply(config);
-                    }
-                }, 
-                FeedbackController.fromPID(
-                    new PIDController(0.004, 0, 0),
-                    controller -> {}
-                ),
-                new SimpleMotorFeedforward(0.10624, 1.407, 0.16994)
+            FRONT_RIGHT_DRIVE_ID, 
+            motor -> {
+                TalonFXConfiguration config = new TalonFXConfiguration();
+                config.CurrentLimits = new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(40)
+                    .withSupplyCurrentLimitEnable(true);
+                config.MotorOutput = new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.CounterClockwise_Positive);
+                config.Feedback = new FeedbackConfigs()
+                    .withSensorToMechanismRatio(12.1908);
+                StatusCode status = StatusCode.StatusCodeNotInitialized;
+                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+                    status = motor.getConfigurator().apply(config);
+                }
+            }, 
+            FeedbackController.fromPID(
+                new PIDController(0.004, 0, 0),
+                controller -> {}
+            ),
+            new SimpleMotorFeedforward(0.10624, 1.407, 0.16994)
         ),
         PositionMotor.fromSparkMax(
             FRONT_RIGHT_ANGLE_ID, 
@@ -148,27 +148,27 @@ public class SwerveConstants {
 
     public static final SwerveModule BACK_LEFT_MODULE = new SwerveModule(
         VelocityMotor.fromTalonFX(
-                BACK_LEFT_DRIVE_ID, 
-                motor -> {
-                    TalonFXConfiguration config = new TalonFXConfiguration();
-                    config.CurrentLimits = new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(40)
-                        .withSupplyCurrentLimitEnable(true);
-                    config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.Clockwise_Positive);
-                    config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(12.1908);
-                    StatusCode status = StatusCode.StatusCodeNotInitialized;
-                    for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                        status = motor.getConfigurator().apply(config);
-                    }
-                }, 
-                FeedbackController.fromPID(
-                    new PIDController(0.004, 0, 0),
-                    controller -> {}
-                ),
-                new SimpleMotorFeedforward(0.11833, 1.3984, 0.16306)
+            BACK_LEFT_DRIVE_ID, 
+            motor -> {
+                TalonFXConfiguration config = new TalonFXConfiguration();
+                config.CurrentLimits = new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(40)
+                    .withSupplyCurrentLimitEnable(true);
+                config.MotorOutput = new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.Clockwise_Positive);
+                config.Feedback = new FeedbackConfigs()
+                    .withSensorToMechanismRatio(12.1908);
+                StatusCode status = StatusCode.StatusCodeNotInitialized;
+                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+                    status = motor.getConfigurator().apply(config);
+                }
+            }, 
+            FeedbackController.fromPID(
+                new PIDController(0.004, 0, 0),
+                controller -> {}
+            ),
+            new SimpleMotorFeedforward(0.11833, 1.3984, 0.16306)
         ),
         PositionMotor.fromSparkMax(
             BACK_LEFT_ANGLE_ID, 
@@ -200,27 +200,27 @@ public class SwerveConstants {
 
     public static final SwerveModule BACK_RIGHT_MODULE = new SwerveModule(
         VelocityMotor.fromTalonFX(
-                BACK_RIGHT_DRIVE_ID, 
-                motor -> {
-                    TalonFXConfiguration config = new TalonFXConfiguration();
-                    config.CurrentLimits = new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(40)
-                        .withSupplyCurrentLimitEnable(true);
-                    config.MotorOutput = new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.CounterClockwise_Positive);
-                    config.Feedback = new FeedbackConfigs()
-                        .withSensorToMechanismRatio(12.1908);
-                    StatusCode status = StatusCode.StatusCodeNotInitialized;
-                    for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                        status = motor.getConfigurator().apply(config);
-                    }
-                }, 
-                FeedbackController.fromPID(
-                    new PIDController(0.004, 0, 0),
-                    controller -> {}
-                ),
-                new SimpleMotorFeedforward(0.10512, 1.3954, 0.19264)
+            BACK_RIGHT_DRIVE_ID, 
+            motor -> {
+                TalonFXConfiguration config = new TalonFXConfiguration();
+                config.CurrentLimits = new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(40)
+                    .withSupplyCurrentLimitEnable(true);
+                config.MotorOutput = new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.CounterClockwise_Positive);
+                config.Feedback = new FeedbackConfigs()
+                    .withSensorToMechanismRatio(12.1908);
+                StatusCode status = StatusCode.StatusCodeNotInitialized;
+                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+                    status = motor.getConfigurator().apply(config);
+                }
+            }, 
+            FeedbackController.fromPID(
+                new PIDController(0.004, 0, 0),
+                controller -> {}
+            ),
+            new SimpleMotorFeedforward(0.10512, 1.3954, 0.19264)
         ),
         PositionMotor.fromSparkMax(
             BACK_RIGHT_ANGLE_ID, 

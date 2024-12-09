@@ -47,7 +47,7 @@ public class SwerveModule implements Loggable {
     public void log(String name) {
         HoundLog.log(name + "/Current State", getCurrentState());
         HoundLog.log(name + "/Target State", targetState);
-        drive.log(name + "/Drive Motor");
-        angle.log(name + "/Angle Motor");
+        HoundLog.log(name + "/Drive Motor", drive);
+        HoundLog.log(name + "/Angle Motor", angle);
     }
 }

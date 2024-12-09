@@ -30,7 +30,7 @@ public class LoggedMechanism2d implements Loggable {
         HoundLog.log(name + "/.controllable", true);
         HoundLog.log(name + "/dims", dims);
         for (String rootName : roots.keySet()) {
-            roots.get(rootName).log(name + "/" + rootName);
+            HoundLog.log(name + "/" + rootName, roots.get(rootName));
         }
     }
 }

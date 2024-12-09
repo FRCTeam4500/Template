@@ -90,7 +90,7 @@ public class VelocityMotor extends SubsystemBase implements Loggable  {
 
     @Override
     public void log(String name) {
-        motorInfo.log(name + "/Motor Info");
+        HoundLog.log(name + "/Motor Info", motorInfo);
         HoundLog.log(name + "/Coasting", target == Double.MAX_VALUE);
         HoundLog.log(name + "/Current Position", getPosition());
         HoundLog.log(name + "/Current Velocity", getVelocity());

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 import frc.robot.utilities.logging.sendables.mechanism.LoggedMechanism2d;
 
@@ -17,7 +18,7 @@ public class Superstructure implements Loggable {
 
     public void log(String name) {
         // Call log() methods for contained subsystems
-        robotMech.log("Robot Mech");
+        HoundLog.log("Robot Mech", robotMech);
     }
 
     // Put Command Factories Here

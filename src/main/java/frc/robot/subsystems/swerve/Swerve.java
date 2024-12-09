@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -82,15 +84,27 @@ public class Swerve extends SubsystemBase implements Loggable {
             Alert alert = new Alert("READING AUTO CONFIG FILE FAILED!!", AlertType.kError);
             alert.set(true);
             alert.close();
-            config = null;
+            System.out.println(e.getMessage());
+            config = new RobotConfig(
+                68, 
+                6.884, 
+                new ModuleConfig(
+                    0.5, 
+                    6, 
+                    1.2, 
+                    DCMotor.getKrakenX60(1).withReduction(5.143), 
+                    60, 
+                    1
+                ), 
+                0.546,
+                0.546
+            );
         }
         AutoBuilder.configure(
             estimator::getEstimatedPosition, 
             this::resetPose, 
             this::getSpeeds, 
-            (speeds, feedforwards) -> {
-
-            }, 
+            this::drive, 
             new PPHolonomicDriveController(
                 new PIDConstants(5), 
                 new PIDConstants(5)
@@ -225,10 +239,10 @@ public class Swerve extends SubsystemBase implements Loggable {
         HoundLog.log(name + "/Target Heading", targetHeading);
         HoundLog.log(name + "/Gyro Angle", gyro.getAngle());
         HoundLog.log(name + "/Sideways", estimator.getEstimatedPosition().getY());
-        modules[0].log(name + "/Front Left Module");
-        modules[1].log(name + "/Front Right Module");
-        modules[2].log(name + "/Back Left Module");
-        modules[3].log(name + "/Back Right Module");
-        gyro.log("Gyro");
+        HoundLog.log(name + "/Front Left Module", modules[0]);
+        HoundLog.log(name + "/Front Right Module", modules[1]);
+        HoundLog.log(name + "/Back Left Module", modules[2]);
+        HoundLog.log(name + "/Back Right Module", modules[3]);
+        HoundLog.log(name + "/Gyro", gyro);
     }
 }

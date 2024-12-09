@@ -25,7 +25,7 @@ public class LoggedMechanismRoot2d implements Loggable {
         HoundLog.log(name + "/x", x);
         HoundLog.log(name + "/y", y);
         for (String ligmentName : ligments.keySet()) {
-            ligments.get(ligmentName).log(name + "/" + ligmentName);
+            HoundLog.log(name + "/" + ligmentName, ligments.get(ligmentName));
         }
     }
 }
