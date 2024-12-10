@@ -7,38 +7,20 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utilities.FeedbackController;
 import frc.robot.utilities.FeedforwardSim;
-import frc.robot.utilities.SysIDCommands;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
-import static edu.wpi.first.units.Units.*;
-
-public class PositionMotor extends SubsystemBase implements Loggable {
-    private double target;
-    private double lastVoltage;
-    private DoubleConsumer positionSetter;
-    private DoubleConsumer voltageSetter;
-    private DoubleSupplier positionGetter;
-    private DoubleSupplier velocityGetter;
-    private FeedbackController fb;
+public class PositionMotor extends Motor {
     private ElevatorFeedforward ff;
-    private Loggable motorInfo;
-
     public PositionMotor(
         DoubleConsumer positionSetter,
         DoubleConsumer voltageSetter,
@@ -48,12 +30,8 @@ public class PositionMotor extends SubsystemBase implements Loggable {
         ElevatorFeedforward ff,
         Loggable motorInfo
     ) {
-        target = Double.MAX_VALUE;
         this.positionSetter = positionSetter;
-        this.voltageSetter = volts -> {
-            lastVoltage = volts;
-            voltageSetter.accept(volts);
-        };
+        this.voltageSetter = voltageSetter;
         this.positionGetter = positionGetter;
         this.velocityGetter = velocityGetter;
         this.fb = fb;
@@ -61,53 +39,14 @@ public class PositionMotor extends SubsystemBase implements Loggable {
         this.motorInfo = motorInfo;
     }
 
-    public void setTarget(double position) {
-        target = position;
-    }
-
-    public void resetPosition(double position) {
-        positionSetter.accept(position);
-    }
-
-    public void coast() {
-        target = Double.MAX_VALUE;
-    }
-
-    public double getPosition() {
-        return positionGetter.getAsDouble();
-    }
-
-    public double getVelocity() {
-        return velocityGetter.getAsDouble();
-    }
-
-    public boolean atTarget() {
-        if (target == Double.MAX_VALUE) {
-            return true;
-        }
-        fb.calculate(positionGetter.getAsDouble(), target);
-        return fb.atGoal();
-    }
-
-    @Override
-    public void log(String name) {
-        HoundLog.log(name + "/Motor Info", motorInfo);
-        HoundLog.log(name + "/Coasting", target == Double.MAX_VALUE);
-        HoundLog.log(name + "/Current Position", getPosition());
-        HoundLog.log(name + "/Current Velocity", getVelocity());
-        if (target != Double.MAX_VALUE) {
-            HoundLog.log(name + "/Target Position", target);
-        }
-        HoundLog.log(name + "/At Target", atTarget());
-    }
-
     @Override
     public void periodic() {
-        if (CommandScheduler.getInstance().requiring(this) != null) {
+        if (DriverStation.isDisabled()) {
+            voltageSetter.accept(0);
             return;
         }
-        if (target == Double.MAX_VALUE || DriverStation.isDisabled()) {
-            voltageSetter.accept(0);
+        if (useVoltage) {
+            voltageSetter.accept(target);
             return;
         }
         double fbVolts = fb.calculate(positionGetter.getAsDouble(), target);
@@ -118,82 +57,13 @@ public class PositionMotor extends SubsystemBase implements Loggable {
         voltageSetter.accept(fbVolts + ffVolts);
     }
 
-    public SysIDCommands getSysID(
-        String mechName,
-        double voltageRampRate,
-        double stepVoltage,
-        double timeout
-    ) {
-        Config config = new Config(
-            Volts.of(voltageRampRate).per(Seconds), 
-            Volts.of(stepVoltage), 
-            Seconds.of(timeout)
-        );
-        Mechanism mech = new Mechanism(
-            voltage -> voltageSetter.accept(voltage.in(Volts)), 
-            log -> log.motor("Motor")
-                .value("Position", getPosition(), "IDK")
-                .value("Velocity", getVelocity(), "IDK")
-                .value("Voltage", lastVoltage, "Volts"),
-            this,
-            mechName
-        );
-        SysIdRoutine routine = new SysIdRoutine(config, mech);
-        return new SysIDCommands(
-            routine.dynamic(Direction.kForward), 
-            routine.dynamic(Direction.kReverse), 
-            routine.quasistatic(Direction.kForward), 
-            routine.quasistatic(Direction.kReverse)
-        );
-    }
-
-    public SysIDCommands getSynchronizedSysID(
-        String mechName,
-        double voltageRampRate,
-        double stepVoltage,
-        double timeout,
-        PositionMotor... otherMotors
-    ) {
-        Config config = new Config(
-            Volts.of(voltageRampRate).per(Seconds), 
-            Volts.of(stepVoltage), 
-            Seconds.of(timeout)
-        );
-        Mechanism mech = new Mechanism(
-            voltage -> {
-                voltageSetter.accept(voltage.in(Volts));
-                for (PositionMotor motor : otherMotors) {
-                    motor.voltageSetter.accept(voltage.in(Volts));
-                }
-            }, 
-            log -> {
-                log.motor("Motor0")
-                    .value("Position", getPosition(), "IDK")
-                    .value("Velocity", getVelocity(), "IDK")
-                    .value("Voltage", lastVoltage, "Volts");
-                for (int i = 0; i < otherMotors.length; i++) {
-                    PositionMotor motor = otherMotors[i];
-                    log.motor("Motor" + (i + 1))
-                        .value("Position", motor.getPosition(), "IDK")
-                        .value("Velocity", motor.getVelocity(), "IDK")
-                        .value("Voltage", motor.lastVoltage, "Volts");
-                }
-            },
-            this,
-            mechName
-        );
-        SysIdRoutine routine = new SysIdRoutine(config, mech);
-        SysIDCommands commands = new SysIDCommands(
-            routine.dynamic(Direction.kForward), 
-            routine.dynamic(Direction.kReverse), 
-            routine.quasistatic(Direction.kForward), 
-            routine.quasistatic(Direction.kReverse)
-        );
-        commands.dynamicForward().addRequirements(otherMotors);
-        commands.dynamicReverse().addRequirements(otherMotors);
-        commands.quasistaticForward().addRequirements(otherMotors);
-        commands.quasistaticReverse().addRequirements(otherMotors);
-        return commands;
+    @Override
+    public boolean atTarget() {
+        if (useVoltage) {
+            return true;
+        }
+        fb.calculate(getPosition(), target);
+        return fb.atGoal();
     }
 
     public static PositionMotor fromTalonFX(
@@ -320,8 +190,7 @@ public class PositionMotor extends SubsystemBase implements Loggable {
             () -> currentState.velocity,
             fb, 
             null, 
-            name -> {
-            }
+            name -> {}
         );
     }
 }

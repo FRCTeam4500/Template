@@ -166,13 +166,20 @@ public class Swerve extends SubsystemBase implements Loggable {
 
     private ChassisSpeeds applySkewCorrection(ChassisSpeeds speeds) {
         speeds.discretize(0.02);
-        // Rotate by the opposite of how far the robot will turn by the next loop
-        double delta = -0.02 * speeds.omegaRadiansPerSecond;
+        double angle = SKEW_COEFFICIENT * speeds.omegaRadiansPerSecond;
         return new ChassisSpeeds(
-            Math.cos(delta) * speeds.vxMetersPerSecond - Math.sin(delta) * speeds.vyMetersPerSecond,
-            Math.sin(delta) * speeds.vxMetersPerSecond + Math.cos(delta) * speeds.vyMetersPerSecond, 
+            Math.cos(angle) * speeds.vxMetersPerSecond - Math.sin(angle) * speeds.vyMetersPerSecond,
+            Math.sin(angle) * speeds.vxMetersPerSecond + Math.cos(angle) * speeds.vyMetersPerSecond, 
             speeds.omegaRadiansPerSecond
         );
+    }
+
+    public Command skewTest() {
+        return run(() -> {
+            ChassisSpeeds fieldRel = new ChassisSpeeds(3, 0, Math.PI);
+            fieldRel.toRobotRelativeSpeeds(estimator.getEstimatedPosition().getRotation());
+            drive(fieldRel);
+        }).finallyDo(() -> drive(new ChassisSpeeds()));
     }
 
     private void drive(ChassisSpeeds speeds) {
