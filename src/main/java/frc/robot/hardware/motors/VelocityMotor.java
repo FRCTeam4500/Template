@@ -30,13 +30,8 @@ public class VelocityMotor extends Motor {
         SimpleMotorFeedforward ff,
         Loggable motorInfo
     ) {
-        this.positionSetter = positionSetter;
-        this.voltageSetter = voltageSetter;
-        this.positionGetter = positionGetter;
-        this.velocityGetter = velocityGetter;
-        this.fb = fb;
+        super(positionSetter, voltageSetter, positionGetter, velocityGetter, fb, motorInfo);
         this.ff = ff;
-        this.motorInfo = motorInfo;
     }
 
     @Override

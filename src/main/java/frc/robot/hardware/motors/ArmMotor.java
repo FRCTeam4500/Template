@@ -31,13 +31,8 @@ public class ArmMotor extends Motor {
         ArmFeedforward ff,
         Loggable motorInfo
     ) {
-        this.positionSetter = positionSetter;
-        this.voltageSetter = voltageSetter;
-        this.positionGetter = positionGetter;
-        this.velocityGetter = velocityGetter;
-        this.fb = fb;
+        super(positionSetter, voltageSetter, positionGetter, velocityGetter, fb, motorInfo);
         this.ff = ff;
-        this.motorInfo = motorInfo;
     }
 
     @Override
