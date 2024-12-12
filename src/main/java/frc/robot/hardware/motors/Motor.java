@@ -25,28 +25,55 @@ public abstract class Motor extends SubsystemBase implements Loggable {
     protected FeedbackController fb;
     protected Loggable motorInfo;
 
+    /**
+     * Sets the target for the motor. This is either a position or a velocity,
+     * depending on whether you are using a Arm/Position motor or a Velocity motor.
+     * @param target the target position/velocity to go to
+     */
     public void setTarget(double target) {
         useVoltage = false;
         this.target = target;
     }
 
+    /**
+     * Sets the target voltage. 
+     * @param volts the target voltage...
+     */
     public void setVoltage(double volts) {
         useVoltage = true;
         target = volts;
     }
 
+    /**
+     * Tell the motor what position it is actually at.
+     * @param actualPosition The position the motor actually is at.
+     */
     public void resetPosition(double actualPosition) {
         positionSetter.accept(actualPosition);
     }
 
+    /**
+     * @return The current position of the motor
+     */
     public double getPosition() {
         return positionGetter.getAsDouble();
     }
 
+    /**
+     * @return The current velocity of the motor
+     */
     public double getVelocity() {
         return velocityGetter.getAsDouble();
     }
 
+    /**
+     * Gets a set of sysID commands to run to characterize a mechanism
+     * @param name The name of the mechanism, will be added to the logs
+     * @param voltageRampRate For the quasistatic commands, how many volts increase per second
+     * @param stepVoltage For the dynammic commands, what voltage should it run at
+     * @param timeout How long the commands run for
+     * @return a set of SysIDCommands
+     */
     public SysIDCommands getSysIDCommands(
         String name, 
         double voltageRampRate, 
@@ -76,6 +103,15 @@ public abstract class Motor extends SubsystemBase implements Loggable {
         );
     }
 
+    /**
+     * Very similar to {@link frc.robot.hardware.motors.Motor#getSysIDCommands getSysIDCommands}
+     * @param name
+     * @param voltageRampRate
+     * @param stepVoltage
+     * @param timeout
+     * @param otherMotors
+     * @return
+     */
     public SysIDCommands getSynchronizedSysIDCommands(
         String name, 
         double voltageRampRate,
