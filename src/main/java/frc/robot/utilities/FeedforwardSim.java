@@ -71,7 +71,7 @@ public class FeedforwardSim extends SubsystemBase {
      * @param kV The voltage needed to cause a given constant velocity.
      * @param kA The voltage needed to cause a given acceleration
      * @param initialState The inital position and velocity of the mechanism
-     * @implNote this is just {@link frc.robot.utilities.FeedforwardSim#createElevator createElevator} but where gravity is 0.
+     * @implNote this is just {@link #createElevator createElevator} but where gravity is 0.
      */
     public static FeedforwardSim createFlywheel(double kS, double kV, double kA, State initialState) {
         return createElevator(0, kS, kV, kA, initialState);

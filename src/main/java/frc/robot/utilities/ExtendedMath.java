@@ -103,9 +103,9 @@ public class ExtendedMath {
 	}
 
 	/**
-	 * wraps a rotation count into a {@link edu.wpi.first.math.geometry.Rotation2d Rotation2d}
+	 * wraps a rotation count into a {@link Rotation2d}
 	 * @param rotations rotation count
-	 * @return the {@link edu.wpi.first.math.geometry.Rotation2d Rotation2d} representing the appropriate angle.
+	 * @return the {@link Rotation2d} representing the appropriate angle.
 	 */
 	public static Rotation2d wrapDouble(double rotations) {
 		return Rotation2d.fromRotations(rotations % 1);

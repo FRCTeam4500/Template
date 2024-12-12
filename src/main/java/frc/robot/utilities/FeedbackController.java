@@ -7,7 +7,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 
 /**
- * Generalization of {@link edu.wpi.first.math.controller.ProfiledPIDController Profiled PIDs}
+ * Generalization of {@link ProfiledPIDController}
  */
 public interface FeedbackController {
     /** @param goal intended final position
@@ -56,7 +56,7 @@ public interface FeedbackController {
     }
 
     /**
-     * The fancy version of {@link frc.robot.utilities.FeedbackController#fromPID fromPID},
+     * The fancy version of {@link FeedbackController#fromPID fromPID},
      * that allows for profiling (changing the setpoint over time)
      * @param pid the controller to wrap
      * @param config configuration function
