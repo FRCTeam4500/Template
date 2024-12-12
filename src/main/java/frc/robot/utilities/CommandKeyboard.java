@@ -13,7 +13,7 @@ public class CommandKeyboard {
 
     /**
      * @param key the key to poll for
-     * @return a {@link edu.wpi.first.wpilibj2.command.button.Trigger Trigger} that detects specified keypresses.
+     * @return a {@link Trigger} that detects specified keypresses.
      */
     public static Trigger getKey(String key) {
         BooleanEntry entry = table.getBooleanTopic(key).getEntry(false);
