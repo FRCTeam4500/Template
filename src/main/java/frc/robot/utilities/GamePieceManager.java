@@ -31,7 +31,7 @@ public class GamePieceManager {
 
     public static void removePiece(Translation2d translation) {
         pieces.remove(translation);
-        log();
+        log(); // should we also be logging that we removed a piece?
     }
 
     public static void addCamera(String name, Pose3d offset) {
