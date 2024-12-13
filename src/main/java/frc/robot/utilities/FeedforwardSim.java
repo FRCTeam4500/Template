@@ -5,6 +5,8 @@ import java.util.function.BiConsumer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.hardware.Motor.FeedforwardConstants;
+import frc.robot.hardware.Motor.TargetType;
 
 public class FeedforwardSim extends SubsystemBase {
     /** function that modifies the State argument, stepping forward in time by 20 ms */
@@ -33,6 +35,7 @@ public class FeedforwardSim extends SubsystemBase {
         }
         calc.accept(state, volts);
     }
+
 
     /** setter function
      * @param volts new voltage
@@ -127,5 +130,21 @@ public class FeedforwardSim extends SubsystemBase {
                 state.velocity += deltaVel;
             }, initialState  
         );
+    }
+
+    /**
+     * Creates a feedforward sim for the given type. If the type is rotation, 
+     * {@link #createArm} is returned. Otherwise, {@link #createElevator} is returned
+     * @param type What the goal of the mechansim is.
+     * @param ff The feedforward values used to simulate 
+     * @param initalState The inital positon and velocity of the mechanism
+     * @return
+     */
+    public static FeedforwardSim create(TargetType type, FeedforwardConstants ff, State initalState) {
+        if (type == TargetType.Rotation) {
+            return createArm(ff.kG(), ff.kS(), ff.kV(), ff.kA(), initalState);
+        } else {
+            return createElevator(ff.kG(), ff.kS(), ff.kV(), ff.kA(), initalState);
+        }
     }
 }

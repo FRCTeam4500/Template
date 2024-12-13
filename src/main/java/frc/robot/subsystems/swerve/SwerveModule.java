@@ -4,16 +4,15 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.hardware.motors.PositionMotor;
-import frc.robot.hardware.motors.VelocityMotor;
+import frc.robot.hardware.Motor;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
 public class SwerveModule implements Loggable {
-    private VelocityMotor drive;
-    private PositionMotor angle;
+    private Motor drive;
+    private Motor angle;
     private SwerveModuleState targetState;
-    public SwerveModule(VelocityMotor drive, PositionMotor angle) {
+    public SwerveModule(Motor drive, Motor angle) {
         this.drive = drive;
         this.angle = angle; 
         targetState = new SwerveModuleState(

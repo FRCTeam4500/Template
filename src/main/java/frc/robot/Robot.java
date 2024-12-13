@@ -63,7 +63,6 @@ public class Robot extends TimedRobot {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", chooser);
         RobotModeTriggers.autonomous().whileTrue(Commands.defer(chooser::getSelected, Set.of()));
-        RobotModeTriggers.autonomous().whileTrue(Commands.defer(chooser::getSelected, Set.of(swerve)));
     }
 
     public void setupLogging() {
