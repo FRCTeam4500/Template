@@ -10,8 +10,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class CommandKeyboard {
     private static NetworkTable table = NetworkTableInstance.getDefault().getTable("Keyboard");
+
+    /**
+     * @param key the key to poll for
+     * @return a {@link Trigger} that detects specified keypresses.
+     */
     public static Trigger getKey(String key) {
         BooleanEntry entry = table.getBooleanTopic(key).getEntry(false);
-        return new Trigger(() -> entry.get());
+        return new Trigger(entry::get);
     }
 }

@@ -10,14 +10,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import frc.robot.hardware.motors.PositionMotor;
-import frc.robot.hardware.motors.VelocityMotor;
+import frc.robot.hardware.Motor;
+import frc.robot.hardware.Motor.FeedforwardConstants;
+import frc.robot.hardware.Motor.TargetType;
 import frc.robot.utilities.FeedbackController;
 
 import static frc.robot.WiringConstants.SwerveWiring.*;
@@ -25,7 +24,6 @@ import static com.revrobotics.spark.SparkBase.ResetMode.*;
 import static com.revrobotics.spark.SparkBase.PersistMode.*;
 
 public class SwerveConstants {
-
     public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(6, 6, 4);
     public static final double MIN_COEFFICIENT = 0.2;
     public static final double MAX_MODULE_SPEED = 6;
@@ -44,7 +42,7 @@ public class SwerveConstants {
     );
 
     public static final SwerveModule FRONT_LEFT_MODULE = new SwerveModule(
-        VelocityMotor.fromTalonFX(
+        Motor.fromTalonFX(
             FRONT_LEFT_DRIVE_ID, 
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
@@ -65,9 +63,10 @@ public class SwerveConstants {
                 new PIDController(0.004, 0, 0),
                 controller -> {}
             ),
-            new SimpleMotorFeedforward(0.10624, 1.407, 0.16994) // Stolen from front right, sysID kA gain was wierd
+            new FeedforwardConstants(0, 0.10624, 1.407, 0.16994), // Stolen from front right, sysID kA gain was wierd
+            TargetType.Velocity
         ),
-        PositionMotor.fromSparkMax(
+        Motor.fromSparkMax(
             FRONT_LEFT_ANGLE_ID, 
             false,
             motor -> {
@@ -91,12 +90,13 @@ public class SwerveConstants {
                     controller.setTolerance(0.01);
                 }
             ), 
-            new ElevatorFeedforward(0.18487, 0, 2.953, 0.22385)
+            new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+            TargetType.Position
         )
     );
 
     public static final SwerveModule FRONT_RIGHT_MODULE = new SwerveModule(
-        VelocityMotor.fromTalonFX(
+        Motor.fromTalonFX(
             FRONT_RIGHT_DRIVE_ID, 
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
@@ -117,9 +117,10 @@ public class SwerveConstants {
                 new PIDController(0.004, 0, 0),
                 controller -> {}
             ),
-            new SimpleMotorFeedforward(0.10624, 1.407, 0.16994)
+            new FeedforwardConstants(0, 0.10624, 1.407, 0.16994),
+            TargetType.Velocity
         ),
-        PositionMotor.fromSparkMax(
+        Motor.fromSparkMax(
             FRONT_RIGHT_ANGLE_ID, 
             false,
             motor -> {
@@ -143,12 +144,13 @@ public class SwerveConstants {
                     controller.setTolerance(0.01);
                 }
             ), 
-            new ElevatorFeedforward(0.18487, 0, 2.953, 0.22385)
+            new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+            TargetType.Position
         )
     );
 
     public static final SwerveModule BACK_LEFT_MODULE = new SwerveModule(
-        VelocityMotor.fromTalonFX(
+        Motor.fromTalonFX(
             BACK_LEFT_DRIVE_ID, 
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
@@ -169,9 +171,10 @@ public class SwerveConstants {
                 new PIDController(0.004, 0, 0),
                 controller -> {}
             ),
-            new SimpleMotorFeedforward(0.11833, 1.3984, 0.16306)
+            new FeedforwardConstants(0, 0.11833, 1.3984, 0.16306),
+            TargetType.Velocity
         ),
-        PositionMotor.fromSparkMax(
+        Motor.fromSparkMax(
             BACK_LEFT_ANGLE_ID, 
             false,
             motor -> {
@@ -195,12 +198,13 @@ public class SwerveConstants {
                     controller.setTolerance(0.01);
                 }
             ), 
-            new ElevatorFeedforward(0.18487, 0, 2.953, 0.22385)
+            new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+            TargetType.Position
         )
     );
 
     public static final SwerveModule BACK_RIGHT_MODULE = new SwerveModule(
-        VelocityMotor.fromTalonFX(
+        Motor.fromTalonFX(
             BACK_RIGHT_DRIVE_ID, 
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
@@ -221,9 +225,10 @@ public class SwerveConstants {
                 new PIDController(0.004, 0, 0),
                 controller -> {}
             ),
-            new SimpleMotorFeedforward(0.10512, 1.3954, 0.19264)
+            new FeedforwardConstants(0, 0.10512, 1.3954, 0.19264),
+            TargetType.Velocity
         ),
-        PositionMotor.fromSparkMax(
+        Motor.fromSparkMax(
             BACK_RIGHT_ANGLE_ID, 
             false,
             motor -> {
@@ -247,7 +252,8 @@ public class SwerveConstants {
                     controller.setTolerance(0.01);
                 }
             ), 
-            new ElevatorFeedforward(0.18487, 0, 2.953, 0.22385)
+            new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+            TargetType.Position
         )
     );
 }
