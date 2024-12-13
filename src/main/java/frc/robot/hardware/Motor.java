@@ -52,7 +52,7 @@ public class Motor extends SubsystemBase implements Loggable {
      * @param positionGetter A function that returns the current position of the motor
      * @param velocityGetter A function that returns the current velocity of the motor, in units per second
      * @param fb A feedback controller, which drives the motor to its goal
-     * @param ff A feedforward controller, used to help the feedback controller
+     * @param ff A set of feedforward constants, used to help the feedback controller
      * @param motorInfo A {@link Loggable} which logs information about the motor, such as applied voltage, tempreture, and current
      */
     public Motor(
@@ -179,6 +179,16 @@ public class Motor extends SubsystemBase implements Loggable {
     @Override
     public void log(String name) {
         HoundLog.log(name + "/Motor Info", motorInfo);
+        HoundLog.log(name + "/Position", getPosition());
+        HoundLog.log(name + "/Velocity", getVelocity());
+        boolean atTarget = atTarget();
+        HoundLog.log(name + "/At Target", atTarget);
+        HoundLog.log(name + "/Target", target);
+        if (useVoltage) {
+            HoundLog.log(name + "/Target Type", "Voltage");
+        } else {
+            HoundLog.log(name + "/Target Type", type.name());
+        }
     }
 
     /**

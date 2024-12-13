@@ -138,7 +138,6 @@ public class FeedforwardSim extends SubsystemBase {
      * @param type What the goal of the mechansim is.
      * @param ff The feedforward values used to simulate 
      * @param initalState The inital positon and velocity of the mechanism
-     * @return
      */
     public static FeedforwardSim create(TargetType type, FeedforwardConstants ff, State initalState) {
         if (type == TargetType.Rotation) {
