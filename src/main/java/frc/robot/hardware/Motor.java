@@ -181,8 +181,7 @@ public class Motor extends SubsystemBase implements Loggable {
         HoundLog.log(name + "/Motor Info", motorInfo);
         HoundLog.log(name + "/Position", getPosition());
         HoundLog.log(name + "/Velocity", getVelocity());
-        boolean atTarget = atTarget();
-        HoundLog.log(name + "/At Target", atTarget);
+        HoundLog.log(name + "/At Target", atTarget());
         HoundLog.log(name + "/Target", target);
         if (useVoltage) {
             HoundLog.log(name + "/Target Type", "Voltage");
@@ -296,6 +295,20 @@ public class Motor extends SubsystemBase implements Loggable {
         Rotation;
     }
 
+    /**
+     * An object that holds feedforward gains
+     * <p>
+     * {@link #getSysIDCommands} can be used to obtain values for gains
+     * @param kG The voltage needed to hold the mechanism in place against gravity.
+     * For linear mechanisms, this is a constant value, but for rotating mechanisms, 
+     * this should be the voltage to hold it up parallel to the ground
+     * @param kS The voltage needed to overcome static friction.
+     * @param kV The voltage needed to maintain a velocity of 1 unit/s
+     * @param kA The voltage needed to induce an acceleration of 1 unit/s^
+     * @see <a href = "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html#introduction-to-dc-motor-feedforward">
+     * Introduction to Feedforward
+     * 
+     */
     public static record FeedforwardConstants(double kG, double kS, double kV, double kA) {}
 
     /**
@@ -440,10 +453,15 @@ public class Motor extends SubsystemBase implements Loggable {
         FeedforwardConstants ff,
         TargetType type
     ) {
-        if (ff == null) {
+        if (ff == null || ff.kV() == 0 || ff.kA() == 0) {
             return fromIdealSim(fb, type);
         }
-        FeedforwardSim sim = FeedforwardSim.create(type, ff, new State());
+        FeedforwardSim sim;
+        if (type == TargetType.Rotation){
+            sim = FeedforwardSim.withScalingGravity(ff, new State());
+        } else {
+            sim = FeedforwardSim.withConstantGravity(ff, new State());
+        }
         return new Motor(
             type,
             sim::resetPosition, 

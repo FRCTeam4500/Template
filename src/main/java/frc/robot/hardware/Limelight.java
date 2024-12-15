@@ -56,6 +56,7 @@ public class Limelight {
     public PoseEstimate getPoseMT2(Rotation2d currentRotation, Rotation2d currentRotationRate) {
         if (Math.abs(currentRotationRate.getDegrees()) > 5) return getPoseMT1();
         table.getEntry("robot_orientation_set").setDoubleArray(new double[] {currentRotation.getDegrees(), 0, 0, 0, 0, 0});
+        NetworkTableInstance.getDefault().flush();
         double[] raw = table.getEntry("botpose_orb_wpiblue").getDoubleArray(new double[11]);
         return new PoseEstimate(
             new Pose2d(raw[0], raw[1], Rotation2d.fromDegrees(raw[5])),

@@ -14,6 +14,7 @@ import com.studica.frc.AHRS.NavXComType;
 
 public interface Gyro extends Loggable {
     public Rotation2d getAngle();
+    public Rotation2d getAngularVelocity();
 
     public static Gyro fromNavX(Consumer<AHRS> config) {
         AHRS navx = new AHRS(NavXComType.kMXP_SPI);
@@ -31,6 +32,11 @@ public interface Gyro extends Loggable {
             public Rotation2d getAngle() {
                 return navx.getRotation2d();
             }
+
+            @Override
+            public Rotation2d getAngularVelocity() {
+                return Rotation2d.fromDegrees(-navx.getRate());
+            }
         };
     }
 
@@ -45,6 +51,11 @@ public interface Gyro extends Loggable {
             @Override
             public Rotation2d getAngle() {
                 return Rotation2d.fromRadians(angle);
+            }
+
+            @Override
+            public Rotation2d getAngularVelocity() {
+                return Rotation2d.fromRadians(radiansPerSecond.getAsDouble());
             }
 
             @Override
