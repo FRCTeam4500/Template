@@ -44,6 +44,7 @@ public class SwerveConstants {
     public static final SwerveModule FRONT_LEFT_MODULE = new SwerveModule(
         Motor.fromTalonFX(
             FRONT_LEFT_DRIVE_ID, 
+            0,
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits = new CurrentLimitsConfigs()
@@ -68,7 +69,8 @@ public class SwerveConstants {
         ),
         Motor.fromSparkMax(
             FRONT_LEFT_ANGLE_ID, 
-            false,
+            false, 
+            0,
             motor -> {
                 SparkMaxConfig config = new SparkMaxConfig();
                 config
@@ -97,7 +99,8 @@ public class SwerveConstants {
 
     public static final SwerveModule FRONT_RIGHT_MODULE = new SwerveModule(
         Motor.fromTalonFX(
-            FRONT_RIGHT_DRIVE_ID, 
+            FRONT_RIGHT_DRIVE_ID,  
+            0,
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits = new CurrentLimitsConfigs()
@@ -122,7 +125,8 @@ public class SwerveConstants {
         ),
         Motor.fromSparkMax(
             FRONT_RIGHT_ANGLE_ID, 
-            false,
+            false, 
+            0,
             motor -> {
                 SparkMaxConfig config = new SparkMaxConfig();
                 config
@@ -151,7 +155,8 @@ public class SwerveConstants {
 
     public static final SwerveModule BACK_LEFT_MODULE = new SwerveModule(
         Motor.fromTalonFX(
-            BACK_LEFT_DRIVE_ID, 
+            BACK_LEFT_DRIVE_ID,  
+            0,
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits = new CurrentLimitsConfigs()
@@ -176,7 +181,8 @@ public class SwerveConstants {
         ),
         Motor.fromSparkMax(
             BACK_LEFT_ANGLE_ID, 
-            false,
+            false, 
+            0,
             motor -> {
                 SparkMaxConfig config = new SparkMaxConfig();
                 config
@@ -205,7 +211,8 @@ public class SwerveConstants {
 
     public static final SwerveModule BACK_RIGHT_MODULE = new SwerveModule(
         Motor.fromTalonFX(
-            BACK_RIGHT_DRIVE_ID, 
+            BACK_RIGHT_DRIVE_ID,  
+            0,
             motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits = new CurrentLimitsConfigs()
@@ -231,6 +238,7 @@ public class SwerveConstants {
         Motor.fromSparkMax(
             BACK_RIGHT_ANGLE_ID, 
             false,
+            0,
             motor -> {
                 SparkMaxConfig config = new SparkMaxConfig();
                 config

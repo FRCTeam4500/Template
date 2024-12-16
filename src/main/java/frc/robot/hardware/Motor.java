@@ -313,6 +313,7 @@ public class Motor extends SubsystemBase implements Loggable {
 
     /**
      * @param canID The canID of the controller
+     * @param initialPosition The starting position of the mechanism
      * @param config A function that takes in a {@link TalonFX} and configures it
      * @param fb The feedback controller used
      * @param ff The feedforward controller used. This can be null!!
@@ -323,6 +324,7 @@ public class Motor extends SubsystemBase implements Loggable {
      */
     public static Motor fromTalonFX(
         int canID,
+        double initalPosition,
         Consumer<TalonFX> config,
         FeedbackController fb,
         FeedforwardConstants ff,
@@ -330,12 +332,13 @@ public class Motor extends SubsystemBase implements Loggable {
     ) {
         if (RobotBase.isSimulation()) {
             if (ff == null) {
-                return fromIdealSim(fb, type);
+                return fromIdealSim(fb, type, initalPosition);
             } else {
-                return fromRealisticSim(fb, ff, type);
+                return fromRealisticSim(fb, ff, type, initalPosition);
             }
         }
         TalonFX motor = new TalonFX(canID);
+        motor.setPosition(initalPosition);
         config.accept(motor);
         return new Motor(
             type,
@@ -350,6 +353,8 @@ public class Motor extends SubsystemBase implements Loggable {
                 HoundLog.log(name + "/Stator Current", motor.getStatorCurrent().getValueAsDouble());
                 HoundLog.log(name + "/Supply Current", motor.getSupplyCurrent().getValueAsDouble());
                 HoundLog.log(name + "/Applied Voltage", motor.getMotorVoltage().getValueAsDouble());
+                HoundLog.log(name + "/Bus Voltage", motor.getSupplyVoltage().getValueAsDouble());
+                HoundLog.log(name + "/Motor Status", motor.getMotorOutputStatus().getValue());
             }
         );
     } 
@@ -358,6 +363,7 @@ public class Motor extends SubsystemBase implements Loggable {
      * @param canID The canID of the controller
      * @param brushed Whether the motor controlled by the controller is brushed or not.
      * This is probably false!!
+     * @param initialPosition The starting position of the mechanism
      * @param config A function that takes in a {@link SparkMax} and configures it
      * @param fb The feedback controller used
      * @param ff The feedforward controller used. This can be null!!
@@ -369,6 +375,7 @@ public class Motor extends SubsystemBase implements Loggable {
     public static Motor fromSparkMax(
         int canID,
         boolean brushed,
+        double initalPosition,
         Consumer<SparkMax> config,
         FeedbackController fb,
         FeedforwardConstants ff,
@@ -376,12 +383,13 @@ public class Motor extends SubsystemBase implements Loggable {
     ) {
         if (RobotBase.isSimulation()) {
             if (ff == null) {
-                return fromIdealSim(fb, type);
+                return fromIdealSim(fb, type, initalPosition);
             } else {
-                return fromRealisticSim(fb, ff, type);
+                return fromRealisticSim(fb, ff, type, initalPosition);
             }
         }
         SparkMax motor = new SparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless); 
+        motor.getEncoder().setPosition(initalPosition);
         config.accept(motor);
         return new Motor(
             type,
@@ -395,6 +403,7 @@ public class Motor extends SubsystemBase implements Loggable {
                 HoundLog.log(name + "/Applied Volts", motor.getAppliedOutput() * motor.getBusVoltage());
                 HoundLog.log(name + "/Temperature", motor.getMotorTemperature());
                 HoundLog.log(name + "/Stator Current", motor.getOutputCurrent());
+                HoundLog.log(name + "/Bus Voltage", motor.getBusVoltage());
             }
         );
     }
@@ -402,6 +411,7 @@ public class Motor extends SubsystemBase implements Loggable {
     /**
      * @param canID The canID of the controller
      * @param conversionFactor The gear ratio before the encoder, in mechanism units per sensor unit
+     * @param initialPosition The starting position of the mechanism
      * @param config A function that takes in a {@link TalonSRX} and configures it
      * @param fb The feedback controller used
      * @param ff The feedforward controller used. This can be null!!
@@ -413,6 +423,7 @@ public class Motor extends SubsystemBase implements Loggable {
     public static Motor fromTalonSRX(
         int canID,
         double conversionFactor,
+        double initalPosition,
         Consumer<TalonSRX> config,
         FeedbackController fb,
         FeedforwardConstants ff,
@@ -420,12 +431,13 @@ public class Motor extends SubsystemBase implements Loggable {
     ) {
         if (RobotBase.isSimulation()) {
             if (ff == null) {
-                return fromIdealSim(fb, type);
+                return fromIdealSim(fb, type, initalPosition);
             } else {
-                return fromRealisticSim(fb, ff, type);
+                return fromRealisticSim(fb, ff, type, initalPosition);
             }
         }
         TalonSRX motor = new TalonSRX(canID);
+        motor.setSelectedSensorPosition(initalPosition / conversionFactor);
         config.accept(motor);
         return new Motor(
             type,
@@ -438,23 +450,29 @@ public class Motor extends SubsystemBase implements Loggable {
             name -> {
                 HoundLog.log(name + "/Bus Voltage", motor.getBusVoltage());
                 HoundLog.log(name + "/Temperature", motor.getTemperature());
+                HoundLog.log(name + "/Output Voltage", motor.getMotorOutputVoltage());
+                HoundLog.log(name + "/Stator Current", motor.getStatorCurrent());
+                HoundLog.log(name + "/Supply Current", motor.getSupplyCurrent());
             }
         );
     }
 
     /**
      * @param fb The feedback controller used
-     * @param ff The feedforward controller used
+     * @param ff The feedforward controller used.<p>
+     * <strong>If kV or kA is 0, or ff is null, {@link #fromIdealSim} will be used instead</strong>
      * @param type The type of target the motor is trying to reach
+     * @param initialPosition The starting position of the mechanism
      * @return A simulated {@link Motor}, using the constants from ff to predict movement
      */
     public static Motor fromRealisticSim(
         FeedbackController fb,
         FeedforwardConstants ff,
-        TargetType type
+        TargetType type,
+        double inititalPosition
     ) {
         if (ff == null || ff.kV() == 0 || ff.kA() == 0) {
-            return fromIdealSim(fb, type);
+            return fromIdealSim(fb, type, inititalPosition);
         }
         FeedforwardSim sim;
         if (type == TargetType.Rotation){
@@ -462,6 +480,7 @@ public class Motor extends SubsystemBase implements Loggable {
         } else {
             sim = FeedforwardSim.withConstantGravity(ff, new State());
         }
+        sim.resetPosition(inititalPosition);
         return new Motor(
             type,
             sim::resetPosition, 
@@ -479,15 +498,17 @@ public class Motor extends SubsystemBase implements Loggable {
     /**
      * @param fb The feedback controller used
      * @param type The type of target the motor is trying to reach
-     * @return An {@link Motor} that teleports to the setpoint of fb. 
+     * @param initialPosition The starting position of the mechanism
+     * @return A {@link Motor} that teleports to the setpoint of fb. 
      * Note that something somewhat realistic can be cobbled together
      * if fb is wrapping a ProfiledPIDController
      */
     public static Motor fromIdealSim(
         FeedbackController fb,
-        TargetType type
+        TargetType type, 
+        double initalPosition
     ) {
-        double[] stateHolder = new double[] {0, 0, 0};
+        double[] stateHolder = new double[] {initalPosition, 0, 0};
         return new Motor(
             type,
             position -> stateHolder[0] = position, 

@@ -225,8 +225,6 @@ public class Swerve extends SubsystemBase implements Loggable {
 			!DriverStation.isAutonomous());
         for (Limelight camera : limelights) {
             PoseEstimate estimate = camera.getPoseMT1();
-            // PoseEstimate estimate = camera.getPoseMT2(
-            //     gyro.getOffsetedAngle(), new Rotation2d(getSpeeds().omegaRadiansPerSecond));
             if (estimate.exists() && speedLimit && (estimate.tagCount() > 1 || estimate.averageDistance() < 4))
                 estimator.addVisionMeasurement(estimate.pose(), Timer.getFPGATimestamp() - estimate.latencySeconds());
         }

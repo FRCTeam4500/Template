@@ -12,10 +12,36 @@ import java.util.function.DoubleSupplier;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+/**
+ * Interface for a standard 2d gyro
+ * <pre>
+ * // Example Usage
+ * Gyro gyro;
+ * if (RobotBase.isReal) {
+ *     gyro = Gyro.fromNavX(gyro -> {}); // Get the onboard navX, no configuring
+ * } else {
+ *     gyro = Gyro.fromSim(() -> getSpeeds().omegaRadiansPerSecond); 
+ *     // Tell the simulated gyro to turn how fast the robot is turning
+ * }
+ * double angle = gyro.getAngle().getDegrees();
+ * double angularVelocity = gyro.getAngularVelocity().getDegrees();
+ */
 public interface Gyro extends Loggable {
+    /**
+     * @return Returns the angle of the gyro. Note that this is continous, so it
+     * will go from 360 to 361, not back to 1. Also, counterclockwise is positive,
+     * in accordance with the WPI coordinate system.
+     */
     public Rotation2d getAngle();
+    /**
+     * @return Returns the angular velocity of the gyro (per second). Counterclockwise positive
+     */
     public Rotation2d getAngularVelocity();
 
+    /**
+     * @param config Method to configure the navX
+     * @return the navX on the RIO wrapped as a {@link Gyro}
+     */
     public static Gyro fromNavX(Consumer<AHRS> config) {
         AHRS navx = new AHRS(NavXComType.kMXP_SPI);
         config.accept(navx);
@@ -40,6 +66,10 @@ public interface Gyro extends Loggable {
         };
     }
 
+    /**
+     * @param radiansPerSecond A method that returns how fast the gyro should turn
+     * @return a simulated gyro
+     */
     public static Gyro fromSim(DoubleSupplier radiansPerSecond) {
         class GyroSim extends SubsystemBase implements Gyro {
             double angle = 0;
