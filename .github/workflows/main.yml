@@ -24,18 +24,19 @@ jobs:
           java-version: 17
       - name: Spotless Apply
         run: ./gradlew spotlessApply
-      - name: Commit
-        id: commit
-        continue-on-error: true
-        run: |
-          git config --global user.name 'Spotless Commiter'
-          git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
-          git commit -am "Clean '${{ github.event.head_commit.message }}'"
-      - name: Push
-        if: steps.commit.outcome == 'success'
-        run: |
-          git push
-          echo "Push successful"
+      # - name: Commit
+      #   id: commit
+      #   continue-on-error: true
+      #   run: |
+      #     git config --global user.name 'Spotless Commiter'
+      #     git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
+      #     git commit -am "Clean '${{ github.event.head_commit.message }}'"
+      # - name: Push
+      #   if: steps.commit.outcome == 'success'
+      #   run: |
+      #     git push
+      #     echo "Push successful"
+      - uses: stefanzweifel/git-auto-commit-action@v5
   
   # This workflow contains a single job called "build"
   build:
