@@ -214,7 +214,7 @@ public class SwerveConstants {
                     .encoder
                     .positionConversionFactor(1.0 / 25)
                     .velocityConversionFactor(1.0 / 25 / 60);
-                motor.configure(config, kResetSafeParameters, kPersistParameters);
+       motor.configure(config, kResetSafeParameters, kPersistParameters);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_RIGHT_ENCODER_ID);
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.061);
                 absoluteEncoder.close();
