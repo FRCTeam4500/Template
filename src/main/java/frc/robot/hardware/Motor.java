@@ -5,6 +5,7 @@ import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -313,8 +314,10 @@ public class Motor extends SubsystemBase implements Loggable {
 
     /**
      * @param canID The canID of the controller
-     * @param initialPosition The starting position of the mechanism
      * @param config A function that takes in a {@link TalonFX} and configures it
+     * @param initialPosition The starting position of the mechanism.
+     * This is set after the config has been applied, so any gear ratios 
+     * applied in the config are used
      * @param fb The feedback controller used
      * @param ff The feedforward controller used. This can be null!!
      * @param type The type of target the motor is trying to reach
@@ -324,8 +327,8 @@ public class Motor extends SubsystemBase implements Loggable {
      */
     public static Motor fromTalonFX(
         int canID,
-        double initalPosition,
         Consumer<TalonFX> config,
+        double initalPosition,
         FeedbackController fb,
         FeedforwardConstants ff,
         TargetType type
@@ -338,8 +341,8 @@ public class Motor extends SubsystemBase implements Loggable {
             }
         }
         TalonFX motor = new TalonFX(canID);
-        motor.setPosition(initalPosition);
         config.accept(motor);
+        motor.setPosition(initalPosition);
         return new Motor(
             type,
             motor::setPosition, 
@@ -363,8 +366,10 @@ public class Motor extends SubsystemBase implements Loggable {
      * @param canID The canID of the controller
      * @param brushed Whether the motor controlled by the controller is brushed or not.
      * This is probably false!!
-     * @param initialPosition The starting position of the mechanism
      * @param config A function that takes in a {@link SparkMax} and configures it
+     * @param initialPosition The starting position of the mechanism.
+     * This is set after the config has been applied, so any gear ratios 
+     * applied in the config are used
      * @param fb The feedback controller used
      * @param ff The feedforward controller used. This can be null!!
      * @param type The type of target the motor is trying to reach
@@ -375,8 +380,8 @@ public class Motor extends SubsystemBase implements Loggable {
     public static Motor fromSparkMax(
         int canID,
         boolean brushed,
-        double initalPosition,
         Consumer<SparkMax> config,
+        double initalPosition,
         FeedbackController fb,
         FeedforwardConstants ff,
         TargetType type
@@ -389,8 +394,8 @@ public class Motor extends SubsystemBase implements Loggable {
             }
         }
         SparkMax motor = new SparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless); 
-        motor.getEncoder().setPosition(initalPosition);
         config.accept(motor);
+        motor.getEncoder().setPosition(initalPosition);
         return new Motor(
             type,
             position -> motor.getEncoder().setPosition(position), 
@@ -409,10 +414,32 @@ public class Motor extends SubsystemBase implements Loggable {
     }
 
     /**
+     * <pre>
+     * // Example
+     * Motor motor = Motor.fromTalonSRX( // Make a TalonSRX motor
+     *     7,
+     *     srx -> {
+     *         srx.configSupplyCurrentLimit( // Set a supply current limit of 30.
+     *             // Limit is triggered if current > 40 for over 0.1 seconds
+     *             new SupplyCurrentLimitConfiguration(true, 30, 40, 0.1),  
+     *             0 // Don't wait for confirmation from the controller
+     *         );
+     *     } 
+     *     FeedbackController.fromPID( // Using PID for our feedback
+     *         new PIDController(5, 0, 0), // Our PID values
+     *         pid -> { // Configuring the pid controller
+     *             pid.setTolerance(1); // Within one unit to our goal is good enough
+     *         }
+     *     ),
+     *     new FeedforwardConstants(0, 0.10624, 1.407, 0.16994), // Our feedforward values
+     *     TargetType.Position, // This motor goes to a position
+     *     0 // The starting position of the motor is 0 units
+     * );
+     * </pre>
      * @param canID The canID of the controller
-     * @param conversionFactor The gear ratio before the encoder, in mechanism units per sensor unit
-     * @param initialPosition The starting position of the mechanism
      * @param config A function that takes in a {@link TalonSRX} and configures it
+     * @param conversionFactor The gear ratio before the encoder, in mechanism units per sensor unit
+     * @param initialPosition The starting position of the mechanism.
      * @param fb The feedback controller used
      * @param ff The feedforward controller used. This can be null!!
      * @param type The type of target the motor is trying to reach
@@ -422,9 +449,9 @@ public class Motor extends SubsystemBase implements Loggable {
      */
     public static Motor fromTalonSRX(
         int canID,
+        Consumer<TalonSRX> config,
         double conversionFactor,
         double initalPosition,
-        Consumer<TalonSRX> config,
         FeedbackController fb,
         FeedforwardConstants ff,
         TargetType type
@@ -437,13 +464,14 @@ public class Motor extends SubsystemBase implements Loggable {
             }
         }
         TalonSRX motor = new TalonSRX(canID);
-        motor.setSelectedSensorPosition(initalPosition / conversionFactor);
+        motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 40, 0.1), 0);
         config.accept(motor);
+        motor.setSelectedSensorPosition(initalPosition / conversionFactor);
         return new Motor(
             type,
             position -> motor.setSelectedSensorPosition(position / conversionFactor), 
             voltage -> motor.set(ControlMode.PercentOutput, voltage / motor.getBusVoltage()), 
-            () -> motor.getSelectedSensorPosition() * conversionFactor, 
+            () -> motor.getSelectedSensorPosition() * conversionFactor,
             () -> motor.getSelectedSensorVelocity() * 10 * conversionFactor,
             fb, 
             ff, 
@@ -458,6 +486,20 @@ public class Motor extends SubsystemBase implements Loggable {
     }
 
     /**
+     * <pre>
+     * // Example
+     * Motor motor = Motor.fromRealisticSim( // Make a realistic sim
+     *     FeedbackController.fromPID( // Using PID for our feedback
+     *         new PIDController(5, 0, 0), // Our PID values
+     *         pid -> { // Configuring the pid controller
+     *             pid.setTolerance(1); // Within one unit to our goal is good enough
+     *         }
+     *     ),
+     *     new FeedforwardConstants(0, 0.10624, 1.407, 0.16994), // Our feedforward values
+     *     TargetType.Position, // This motor goes to a position
+     *     0 // The starting position of the motor is 0 units
+     * );
+     * </pre>
      * @param fb The feedback controller used
      * @param ff The feedforward controller used.<p>
      * <strong>If kV or kA is 0, or ff is null, {@link #fromIdealSim} will be used instead</strong>
@@ -496,6 +538,19 @@ public class Motor extends SubsystemBase implements Loggable {
     }
 
     /**
+     * <pre>
+     * // Example
+     * Motor motor = Motor.fromIdealSim( // Make an ideal sim
+     *     FeedbackController.fromPID( // Using PID for our feedback
+     *         new PIDController(5, 0, 0), // Our PID values
+     *         pid -> { // Configuring the pid controller
+     *             pid.setTolerance(1); // Within one unit to our goal is good enough
+     *         }
+     *     ),
+     *     TargetType.Position, // This motor goes to a position
+     *     0 // The starting position of the motor is 0 units
+     * );
+     * </pre>
      * @param fb The feedback controller used
      * @param type The type of target the motor is trying to reach
      * @param initialPosition The starting position of the mechanism

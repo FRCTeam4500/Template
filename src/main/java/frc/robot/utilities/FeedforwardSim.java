@@ -26,7 +26,7 @@ public class FeedforwardSim extends SubsystemBase {
     }
 
     /**
-     * If this Simulator is enabled, steps time forward by 20 ms.
+     * Simulates the next 0.02s. If the robot is disabled, voltage is set to 0
      */
     public void periodic() {
         if (DriverStation.isDisabled()) {
@@ -69,11 +69,11 @@ public class FeedforwardSim extends SubsystemBase {
      * The feedforward constants should be obtained via SysId
      * @param ff The feedforward constants
      * @param initialState The inital position and velocity of the mechanism.
-     * @throws RuntimeException if kA or kV are 0
+     * @throws IllegalArgumentException if kA or kV are 0
      */
     public static FeedforwardSim withConstantGravity(FeedforwardConstants ff, State initialState) {
         if (ff.kA() == 0 || ff.kV() == 0) {
-            throw new RuntimeException("kA and kV can not be 0 when making a feedforward sim!!");
+            throw new IllegalArgumentException("kA and kV can not be 0 when making a feedforward sim!!");
         }
         return new FeedforwardSim(
             (state, volts) -> {
@@ -96,11 +96,11 @@ public class FeedforwardSim extends SubsystemBase {
      * <strong>Units for using this sim must be rotations and rotations/second</strong>
      * @param ff The feedforward constants
      * @param initialState The inital position and velocity of the mechanism in rotations and rotations/second.
-     * @throws RuntimeException if kA or kV are 0
+     * @throws IllegalArgumentException if kA or kV are 0
      */
     public static FeedforwardSim withScalingGravity(FeedforwardConstants ff, State initialState) {
         if (ff.kA() == 0 || ff.kV() == 0) {
-            throw new RuntimeException("kA and kV can not be 0 when making a feedforward sim!!");
+            throw new IllegalArgumentException("kA and kV can not be 0 when making a feedforward sim!!");
         }
         return new FeedforwardSim(
             (state, volts) -> {
