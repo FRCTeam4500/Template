@@ -15,7 +15,8 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v4
     - name: Echo Commit Name
-      run: echo "${{ github.event.head_commit.message }}"
+      run: |
+        echo ${{ github.event.head_commit.message }}
     # Declares the repository safe and not under dubious ownership.
     - name: Add repository to git safe directories
       run: git config --global --add safe.directory $GITHUB_WORKSPACE
