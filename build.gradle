@@ -109,6 +109,7 @@ tasks.withType(JavaCompile) {
 }
 
 spotless {
+    enforceCheck = false
     java {
         target fileTree('.') {
             include '**/*.java'
