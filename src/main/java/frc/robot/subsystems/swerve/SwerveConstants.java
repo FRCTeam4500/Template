@@ -223,7 +223,7 @@ public class SwerveConstants {
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
                   controller -> {
-                    controller.enableContinuousInput(0, 1);
+       controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
               new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
