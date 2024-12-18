@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   private Superstructure structure = new Superstructure();
   private CommandXboxController xbox = new CommandXboxController(2);
 
-public Robot() {
+  public Robot() {
     DriverStation.silenceJoystickConnectionWarning(true);
     swerve.setDefaultCommand(swerve.angleCentric(xbox.getHID()));
 
