@@ -24,7 +24,7 @@ import frc.robot.utilities.FeedbackController;
 
 public class SwerveConstants {
   public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(6, 6, 4);
-  public static final double MIN_COEFFICIENT = 0.2;
+public static final double MIN_COEFFICIENT = 0.2;
   public static final double MAX_MODULE_SPEED = 6;
   public static final double SKEW_COEFFICIENT = -0.129;
   public static final Translation2d FRONT_LEFT_TRANSLATION = new Translation2d(0.2974, 0.2974);
