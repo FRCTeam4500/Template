@@ -6,5 +6,4 @@ public record SysIDCommands(
     Command dynamicForward,
     Command dynamicReverse,
     Command quasistaticForward,
-    Command quasistaticReverse
-) {}
+    Command quasistaticReverse) {}
