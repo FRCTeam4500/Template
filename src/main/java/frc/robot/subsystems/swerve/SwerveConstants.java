@@ -214,7 +214,7 @@ public class SwerveConstants {
                     .encoder
                     .positionConversionFactor(1.0 / 25)
                     .velocityConversionFactor(1.0 / 25 / 60);
-       motor.configure(config, kResetSafeParameters, kPersistParameters);
+                motor.configure(config, kResetSafeParameters, kPersistParameters);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(BACK_RIGHT_ENCODER_ID);
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.061);
                 absoluteEncoder.close();
@@ -223,7 +223,7 @@ public class SwerveConstants {
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
                   controller -> {
-       controller.enableContinuousInput(0, 1);
+                    controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
               new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
