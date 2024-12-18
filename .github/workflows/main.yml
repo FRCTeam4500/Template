@@ -37,6 +37,7 @@ jobs:
           git push
           echo "Push successful"
   build-call:
+    needs: spotless
     runs-on: ubuntu-22.04
     steps:
       - name: Invoke Call
