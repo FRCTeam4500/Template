@@ -12,7 +12,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  spotless-apply:
+  spotless-check:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -26,10 +26,10 @@ jobs:
           distribution: 'zulu'
           java-version: 17
       - name: Spotless Apply
-        run: ./gradlew spotlessApply
+        run: ./gradlew spotlessCheck
   # This workflow contains a single job called "build"
   build:
-    needs: [ spotless-apply ]
+    needs: [ spotless-check ]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
