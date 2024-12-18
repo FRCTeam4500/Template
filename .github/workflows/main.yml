@@ -37,7 +37,8 @@ jobs:
           git push
           echo "Push successful"
   build-call:
-    - name: Invoke Call
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: build.yml
+    steps:
+      - name: Invoke Call
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: build.yml
