@@ -4,17 +4,14 @@
 
 package frc.robot;
 
-import java.util.Set;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,68 +23,70 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utilities.GamePieceManager;
 import frc.robot.utilities.logging.HoundLog;
+import java.util.Set;
 
 public class Robot extends TimedRobot {
-    private DogLogOptions homeOptions =  new DogLogOptions(true, true, true, true, true, 1000);
-    private DogLogOptions compOptions = new DogLogOptions(false, true, true, true, true, 1000);
-    private Swerve swerve = new Swerve();
-    private Superstructure structure = new Superstructure();
-    private CommandXboxController xbox = new CommandXboxController(2);
-    
-    public Robot() {
-        DriverStation.silenceJoystickConnectionWarning(true);
-        swerve.setDefaultCommand(swerve.angleCentric(xbox.getHID()));
+  private DogLogOptions homeOptions = new DogLogOptions(true, true, true, true, true, 1000);
+  private DogLogOptions compOptions = new DogLogOptions(false, true, true, true, true, 1000);
+  private Swerve swerve = new Swerve();
+  private Superstructure structure = new Superstructure();
+  private CommandXboxController xbox = new CommandXboxController(2);
 
-        setupLogging();
-        setupDriveController();
-        setupAuto();
-    }
+  public Robot() {
+    DriverStation.silenceJoystickConnectionWarning(true);
+    swerve.setDefaultCommand(swerve.angleCentric(xbox.getHID()));
 
-    public void setupDriveController() {
-        Trigger onBlue = new Trigger(() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue);
-        Trigger onRed = onBlue.negate();
-        Trigger faceForwards = new Trigger(() -> xbox.getRightY() < -0.5);
-        Trigger faceBackwards = new Trigger(() -> xbox.getRightY() > 0.5);
-        Trigger resetHeading = xbox.a();
+    setupLogging();
+    setupDriveController();
+    setupAuto();
+  }
 
-        xbox.a().and(onBlue).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
-        xbox.a().and(onRed).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(180)));
-        faceForwards.and(onBlue).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(0)));
-        faceForwards.and(onRed).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(180)));
-        faceBackwards.and(onRed).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(0)));
-        faceBackwards.and(onBlue).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(180)));
-        resetHeading.onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
-    }
+  public void setupDriveController() {
+    Trigger onBlue =
+        new Trigger(() -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue);
+    Trigger onRed = onBlue.negate();
+    Trigger faceForwards = new Trigger(() -> xbox.getRightY() < -0.5);
+    Trigger faceBackwards = new Trigger(() -> xbox.getRightY() > 0.5);
+    Trigger resetHeading = xbox.a();
 
-    public void setupAuto() {
-        SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Auto Chooser", chooser);
-        RobotModeTriggers.autonomous().whileTrue(Commands.defer(chooser::getSelected, Set.of()));
-    }
+    xbox.a().and(onBlue).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
+    xbox.a().and(onRed).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(180)));
+    faceForwards.and(onBlue).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(0)));
+    faceForwards.and(onRed).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(180)));
+    faceBackwards.and(onRed).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(0)));
+    faceBackwards.and(onBlue).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(180)));
+    resetHeading.onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
+  }
 
-    public void setupLogging() {
-        HoundLog.setEnabled(true);
-        HoundLog.setPdh(new PowerDistribution());
-        HoundLog.setOptions(homeOptions);
-        Trigger atComp = new Trigger(() -> DriverStation.isFMSAttached());
-        atComp.onTrue(Commands.runOnce(() -> HoundLog.setOptions(compOptions)));
-        atComp.onFalse(Commands.runOnce(() -> HoundLog.setOptions(homeOptions)));
-        GamePieceManager.resetField();
-    }
+  public void setupAuto() {
+    SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", chooser);
+    RobotModeTriggers.autonomous().whileTrue(Commands.defer(chooser::getSelected, Set.of()));
+  }
 
-    @Override
-    public void robotPeriodic() {
-        double start = Timer.getFPGATimestamp();
-        HoundLog.log("Swerve", swerve);
-        HoundLog.log("Superstrucutre", structure);
-        double loggingLoop = Timer.getFPGATimestamp() - start;
+  public void setupLogging() {
+    HoundLog.setEnabled(true);
+    HoundLog.setPdh(new PowerDistribution());
+    HoundLog.setOptions(homeOptions);
+    Trigger atComp = new Trigger(() -> DriverStation.isFMSAttached());
+    atComp.onTrue(Commands.runOnce(() -> HoundLog.setOptions(compOptions)));
+    atComp.onFalse(Commands.runOnce(() -> HoundLog.setOptions(homeOptions)));
+    GamePieceManager.resetField();
+  }
 
-        start = Timer.getFPGATimestamp();
-        CommandScheduler.getInstance().run();
-        double commandsLoop = Timer.getFPGATimestamp() - start;
+  @Override
+  public void robotPeriodic() {
+    double start = Timer.getFPGATimestamp();
+    HoundLog.log("Swerve", swerve);
+    HoundLog.log("Superstrucutre", structure);
+    double loggingLoop = Timer.getFPGATimestamp() - start;
 
-        HoundLog.log("HoundLog/Logging Loop Time", loggingLoop * 1000);
-        HoundLog.log("HoundLog/Commands Loop Time", commandsLoop * 1000);
-        HoundLog.log("HoundLog/Total Loop Time", 1000 * (commandsLoop + loggingLoop));
-    }
+    start = Timer.getFPGATimestamp();
+    CommandScheduler.getInstance().run();
+    double commandsLoop = Timer.getFPGATimestamp() - start;
+
+    HoundLog.log("HoundLog/Logging Loop Time", loggingLoop * 1000);
+    HoundLog.log("HoundLog/Commands Loop Time", commandsLoop * 1000);
+    HoundLog.log("HoundLog/Total Loop Time", 1000 * (commandsLoop + loggingLoop));
+  }
 }

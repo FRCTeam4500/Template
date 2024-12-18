@@ -1,16 +1,13 @@
 package frc.robot.hardware;
 
-
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
-
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
-
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
 
 /**
  * Interface for a standard 2d gyro
@@ -20,79 +17,81 @@ import com.studica.frc.AHRS.NavXComType;
  * if (RobotBase.isReal) {
  *     gyro = Gyro.fromNavX(gyro -> {}); // Get the onboard navX, no configuring
  * } else {
- *     gyro = Gyro.fromSim(() -> getSpeeds().omegaRadiansPerSecond); 
+ *     gyro = Gyro.fromSim(() -> getSpeeds().omegaRadiansPerSecond);
  *     // Tell the simulated gyro to turn how fast the robot is turning
  * }
  * double angle = gyro.getAngle().getDegrees();
  * double angularVelocity = gyro.getAngularVelocity().getDegrees();
  */
 public interface Gyro extends Loggable {
-    /**
-     * @return Returns the angle of the gyro. Note that this is continous, so it
-     * will go from 360 to 361, not back to 1. Also, counterclockwise is positive,
-     * in accordance with the WPI coordinate system.
-     */
-    public Rotation2d getAngle();
-    /**
-     * @return Returns the angular velocity of the gyro (per second). Counterclockwise positive
-     */
-    public Rotation2d getAngularVelocity();
+  /**
+   * @return Returns the angle of the gyro. Note that this is continous, so it will go from 360 to
+   *     361, not back to 1. Also, counterclockwise is positive, in accordance with the WPI
+   *     coordinate system.
+   */
+  public Rotation2d getAngle();
 
-    /**
-     * @param config Method to configure the navX
-     * @return the navX on the RIO wrapped as a {@link Gyro}
-     */
-    public static Gyro fromNavX(Consumer<AHRS> config) {
-        AHRS navx = new AHRS(NavXComType.kMXP_SPI);
-        config.accept(navx);
-        return new Gyro() {
-            @Override
-            public void log(String name) {
-                HoundLog.log(name + "/Connected", navx.isConnected());
-                HoundLog.log(name + "/Pitch", navx.getPitch());
-                HoundLog.log(name + "/Roll", navx.getRoll());
-                HoundLog.log(name + "/Angle", navx.getYaw());
-            }
+  /**
+   * @return Returns the angular velocity of the gyro (per second). Counterclockwise positive
+   */
+  public Rotation2d getAngularVelocity();
 
-            @Override
-            public Rotation2d getAngle() {
-                return navx.getRotation2d();
-            }
+  /**
+   * @param config Method to configure the navX
+   * @return the navX on the RIO wrapped as a {@link Gyro}
+   */
+  public static Gyro fromNavX(Consumer<AHRS> config) {
+    AHRS navx = new AHRS(NavXComType.kMXP_SPI);
+    config.accept(navx);
+    return new Gyro() {
+      @Override
+      public void log(String name) {
+        HoundLog.log(name + "/Connected", navx.isConnected());
+        HoundLog.log(name + "/Pitch", navx.getPitch());
+        HoundLog.log(name + "/Roll", navx.getRoll());
+        HoundLog.log(name + "/Angle", navx.getYaw());
+      }
 
-            @Override
-            public Rotation2d getAngularVelocity() {
-                return Rotation2d.fromDegrees(-navx.getRate());
-            }
-        };
+      @Override
+      public Rotation2d getAngle() {
+        return navx.getRotation2d();
+      }
+
+      @Override
+      public Rotation2d getAngularVelocity() {
+        return Rotation2d.fromDegrees(-navx.getRate());
+      }
+    };
+  }
+
+  /**
+   * @param radiansPerSecond A method that returns how fast the gyro should turn
+   * @return a simulated gyro
+   */
+  public static Gyro fromSim(DoubleSupplier radiansPerSecond) {
+    class GyroSim extends SubsystemBase implements Gyro {
+      double angle = 0;
+
+      @Override
+      public void log(String name) {
+        HoundLog.log(name + "/Angle", Math.toDegrees(angle));
+      }
+
+      @Override
+      public Rotation2d getAngle() {
+        return Rotation2d.fromRadians(angle);
+      }
+
+      @Override
+      public Rotation2d getAngularVelocity() {
+        return Rotation2d.fromRadians(radiansPerSecond.getAsDouble());
+      }
+
+      @Override
+      public void periodic() {
+        angle += radiansPerSecond.getAsDouble() * 0.02;
+      }
     }
-
-    /**
-     * @param radiansPerSecond A method that returns how fast the gyro should turn
-     * @return a simulated gyro
-     */
-    public static Gyro fromSim(DoubleSupplier radiansPerSecond) {
-        class GyroSim extends SubsystemBase implements Gyro {
-            double angle = 0;
-            @Override
-            public void log(String name) {
-                HoundLog.log(name + "/Angle", Math.toDegrees(angle));    
-            }
-
-            @Override
-            public Rotation2d getAngle() {
-                return Rotation2d.fromRadians(angle);
-            }
-
-            @Override
-            public Rotation2d getAngularVelocity() {
-                return Rotation2d.fromRadians(radiansPerSecond.getAsDouble());
-            }
-
-            @Override
-            public void periodic() {
-                angle += radiansPerSecond.getAsDouble() * 0.02;
-            }
-        }
-        return new GyroSim();
-    }
+    return new GyroSim();
+  }
 }

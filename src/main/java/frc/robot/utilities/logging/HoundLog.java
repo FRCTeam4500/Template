@@ -4,7 +4,7 @@ import dev.doglog.DogLog;
 
 /** A wrapper around DogLog to use for the sake of consistency and customizability */
 public class HoundLog extends DogLog {
-    public static void log(String key, Loggable value) {
-        value.log(key);
-    }
+  public static void log(String key, Loggable value) {
+    value.log(key);
+  }
 }
