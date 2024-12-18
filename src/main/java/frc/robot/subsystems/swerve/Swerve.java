@@ -96,8 +96,10 @@ public class Swerve extends SubsystemBase implements Loggable {
                     60, 
                     1
                 ), 
-                0.546,
-                0.546
+                FRONT_LEFT_TRANSLATION,
+                FRONT_RIGHT_TRANSLATION,
+                BACK_LEFT_TRANSLATION,
+                BACK_RIGHT_TRANSLATION
             );
         }
         AutoBuilder.configure(
@@ -140,8 +142,7 @@ public class Swerve extends SubsystemBase implements Loggable {
                 double forward = speedCoefficient * withHardDeadzone(xbox.getLeftY(), 0.1) * MAX_SPEEDS.vxMetersPerSecond;
                 double sideways = speedCoefficient * withHardDeadzone(xbox.getLeftX(), 0.1) * MAX_SPEEDS.vyMetersPerSecond;
                 ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
-                fieldRel.toRobotRelativeSpeeds(currentHeading);
-                drive(fieldRel);
+                drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, currentHeading));
             },
             this
         ).beforeStarting(
@@ -165,7 +166,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     }
 
     private ChassisSpeeds applySkewCorrection(ChassisSpeeds speeds) {
-        speeds.discretize(0.02);
+        speeds = ChassisSpeeds.discretize(speeds, 0.02);
         double angle = SKEW_COEFFICIENT * speeds.omegaRadiansPerSecond;
         return new ChassisSpeeds(
             Math.cos(angle) * speeds.vxMetersPerSecond - Math.sin(angle) * speeds.vyMetersPerSecond,
@@ -177,8 +178,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     public Command skewTest() {
         return run(() -> {
             ChassisSpeeds fieldRel = new ChassisSpeeds(3, 0, Math.PI);
-            fieldRel.toRobotRelativeSpeeds(estimator.getEstimatedPosition().getRotation());
-            drive(fieldRel);
+            drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, estimator.getEstimatedPosition().getRotation()));
         }).finallyDo(() -> drive(new ChassisSpeeds()));
     }
 
