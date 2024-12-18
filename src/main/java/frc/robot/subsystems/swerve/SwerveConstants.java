@@ -89,16 +89,16 @@ public class SwerveConstants {
               motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
-                    new CurrentLimitsConfigs()
+new CurrentLimitsConfigs()
                         .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
                 config.MotorOutput =
-                    new MotorOutputConfigs()
+         new MotorOutputConfigs()
                         .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.CounterClockwise_Positive);
                 config.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(12.1908);
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
-                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
                   status = motor.getConfigurator().apply(config);
                 }
               },
@@ -109,12 +109,11 @@ public class SwerveConstants {
           Motor.fromSparkMax(
               FRONT_RIGHT_ANGLE_ID,
               false,
-              motor -> {
+motor -> {
                 SparkMaxConfig config = new SparkMaxConfig();
                 config.inverted(false).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
-                config
-                    .encoder
-                    .positionConversionFactor(1.0 / 25)
+      config
+                    .encoder.positionConversionFactor(1.0 / 25)
                     .velocityConversionFactor(1.0 / 25 / 60);
                 motor.configure(config, kResetSafeParameters, kPersistParameters);
                 AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_RIGHT_ENCODER_ID);
