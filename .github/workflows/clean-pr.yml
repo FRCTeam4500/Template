@@ -15,6 +15,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ secrets.PAT }}
       # - name: Checkout PR (reg)
       #   if: ${{ github.event_name == 'pull_request' }}
       #   env:
