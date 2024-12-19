@@ -46,5 +46,3 @@ jobs:
         run: |
           git push -f origin HEAD
           echo "Push successful"
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
