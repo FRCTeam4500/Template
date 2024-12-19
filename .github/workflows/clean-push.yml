@@ -5,10 +5,7 @@ name: Clean
 
 on:
   push:
-    branches: [ "2025" ]
-  pull_request:
-    types: [ synchronize ]
-    branches: [ "2025" ]
+    branches: [ "**" ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -34,9 +31,8 @@ jobs:
           git config --global user.name 'Spotless Commiter'
           git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
           git commit -am "Clean '${{ github.event.head_commit.message }}'"
-      - name: Push
-      
-        if: steps.commit.outcome == 'success'
+      - name: Push Branch
+        if: ${{ steps.commit.outcome == 'success' }}
         run: |
           git push
           echo "Push successful"

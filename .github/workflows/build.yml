@@ -5,9 +5,8 @@ name: Build
 
 on:
   push:
-    branches: [ "2025" ]
+    branches: [ "**" ]
   pull_request:
-    types: [ synchronize ]
     branches: [ "2025" ]
 
 jobs:
