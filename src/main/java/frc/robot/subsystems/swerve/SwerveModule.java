@@ -19,7 +19,7 @@ public class SwerveModule implements Loggable {
     targetState =
         new SwerveModuleState(
             drive.getVelocity(),
-Rotation2d.fromRotations(MathUtil.inputModulus(angle.getPosition(), 0, 1)));
+            Rotation2d.fromRotations(MathUtil.inputModulus(angle.getPosition(), 0, 1)));
   }
 
   public void setTargetState(SwerveModuleState state) {
@@ -32,7 +32,7 @@ Rotation2d.fromRotations(MathUtil.inputModulus(angle.getPosition(), 0, 1)));
   public SwerveModuleState getCurrentState() {
     return new SwerveModuleState(
         drive.getVelocity(),
-Rotation2d.fromRotations(MathUtil.inputModulus(angle.getPosition(), 0, 1)));
+        Rotation2d.fromRotations(MathUtil.inputModulus(angle.getPosition(), 0, 1)));
   }
   ;
 
