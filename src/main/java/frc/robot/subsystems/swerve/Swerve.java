@@ -240,9 +240,11 @@ public class Swerve extends SubsystemBase implements Loggable {
     for (SwerveModule module : modules) {
       module.periodic();
     }
-    if (RobotBase.isSimulation()) {
-      GamePieceManager.updateNT(estimator.getEstimatedPosition());
-    }
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    GamePieceManager.updateNT(estimator.getEstimatedPosition());
   }
 
   @Override
