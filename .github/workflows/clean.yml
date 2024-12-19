@@ -35,7 +35,7 @@ jobs:
       - name: Push Branch
         if: ${{ steps.commit.outcome == 'success' }}
         run: |
-          git push
+          git push --force
           echo "Push successful"
       - name: Trigger repository dispatch
         if: ${{ steps.commit.outcome == 'success' }}
