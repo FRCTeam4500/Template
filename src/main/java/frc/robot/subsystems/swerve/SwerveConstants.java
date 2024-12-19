@@ -41,7 +41,7 @@ public class SwerveConstants {
                 config.CurrentLimits =
                     new CurrentLimitsConfigs()
                         .withSupplyCurrentLimit(40)
-                        .withSupplyCurrentLimitEnable(true);
+  .withSupplyCurrentLimitEnable(true);
                 config.MotorOutput =
                     new MotorOutputConfigs()
                         .withNeutralMode(NeutralModeValue.Brake)
