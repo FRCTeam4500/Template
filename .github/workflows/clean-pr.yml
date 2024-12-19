@@ -3,6 +3,7 @@ name: Clean
 on:
     pull_request:
         branches: [ "2025" ]
+    workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -39,3 +40,9 @@ jobs:
         run: |
           git push
           echo "Push successful"
+      - name: Trigger Workflow Again
+        if: ${{ steps.commit.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run clean-pr.yml
