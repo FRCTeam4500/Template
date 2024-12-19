@@ -71,13 +71,13 @@ public class Robot extends TimedRobot {
     Trigger atComp = new Trigger(() -> DriverStation.isFMSAttached());
     atComp.onTrue(Commands.runOnce(() -> HoundLog.setOptions(compOptions)));
     atComp.onFalse(Commands.runOnce(() -> HoundLog.setOptions(homeOptions)));
-   GamePieceManager.resetField();
+    GamePieceManager.resetField();
   }
 
   @Override
   public void robotPeriodic() {
     double start = Timer.getFPGATimestamp();
-HoundLog.log("Swerve", swerve);
+    HoundLog.log("Swerve", swerve);
     HoundLog.log("Superstrucutre", structure);
     double loggingLoop = Timer.getFPGATimestamp() - start;
 
