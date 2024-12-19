@@ -86,12 +86,12 @@ public class SwerveConstants {
       new SwerveModule(
           Motor.fromTalonFX(
               FRONT_RIGHT_DRIVE_ID,
-              motor -> {
+      motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
                     new CurrentLimitsConfigs()
                         .withSupplyCurrentLimit(40)
-                        .withSupplyCurrentLimitEnable(true);
+               .withSupplyCurrentLimitEnable(true);
                 config.MotorOutput =
                     new MotorOutputConfigs()
                         .withNeutralMode(NeutralModeValue.Brake)
@@ -100,7 +100,7 @@ public class SwerveConstants {
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
                 for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
                   status = motor.getConfigurator().apply(config);
-                }
+         }
      },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
