@@ -12,6 +12,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Checkout PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -32,5 +35,5 @@ jobs:
       - name: Push PR
         if: ${{ steps.commit.outcome == 'success' }}
         run: |
-          git push
+          git push -f origin HEAD
           echo "Push successful"
