@@ -54,7 +54,7 @@ public class SwerveConstants {
               },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
-              new FeedforwardConstants(
+new FeedforwardConstants(
                   0, 0.10624, 1.407, 0.16994), // Stolen from front right, sysID kA gain was wierd
               TargetType.Velocity),
           Motor.fromSparkMax(
