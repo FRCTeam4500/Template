@@ -44,7 +44,7 @@ public class SwerveConstants {
                         .withSupplyCurrentLimitEnable(true);
                 config.MotorOutput =
                     new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)
+                        .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.Clockwise_Positive);
                 config.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(12.1908);
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -61,10 +61,10 @@ public class SwerveConstants {
               FRONT_LEFT_ANGLE_ID,
               false,
               motor -> {
-    SparkMaxConfig config = new SparkMaxConfig();
+                SparkMaxConfig config = new SparkMaxConfig();
                 config.inverted(false).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
                 config
-           .encoder
+                    .encoder
                     .positionConversionFactor(1.0 / 25)
                     .velocityConversionFactor(1.0 / 25 / 60);
                 motor.configure(config, kResetSafeParameters, kPersistParameters);
