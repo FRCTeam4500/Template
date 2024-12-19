@@ -120,12 +120,12 @@ public class Swerve extends SubsystemBase implements Loggable {
                 speedCoefficient *= -1;
               }
               double forward =
-                  speedCoefficient
+         speedCoefficient
                       * withHardDeadzone(xbox.getLeftY(), 0.1)
                       * MAX_SPEEDS.vxMetersPerSecond;
               double sideways =
                   speedCoefficient
-                      * withHardDeadzone(xbox.getLeftX(), 0.1)
+        * withHardDeadzone(xbox.getLeftX(), 0.1)
                       * MAX_SPEEDS.vyMetersPerSecond;
               ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
               drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, currentHeading));
