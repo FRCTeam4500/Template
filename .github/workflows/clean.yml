@@ -23,8 +23,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.PAT }}
-          GITHUB_TOKEN: ${{ secrets.PAT }}
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -34,16 +32,13 @@ jobs:
       - name: Commit
         id: commit
         continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
           git config --global user.name 'Spotless Commiter'
           git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
-          git commit -am "Clean '${{ github.event.head_commit.message }}'"
+          git config user.signingkey "${{ secrets.GPG }}"
+          git commit -S -am "Clean '${{ github.event.head_commit.message }}'"
       - name: Push Branch
         if: ${{ steps.commit.outcome == 'success' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git push
           echo "Push successful"
