@@ -65,10 +65,10 @@ public class SwerveConstants {
                 config.inverted(false).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
                 config
                     .encoder
-                    .positionConversionFactor(1.0 / 25)
+      .positionConversionFactor(1.0 / 25)
                     .velocityConversionFactor(1.0 / 25 / 60);
                 motor.configure(config, kResetSafeParameters, kPersistParameters);
-                AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_LEFT_ENCODER_ID);
+          AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_LEFT_ENCODER_ID);
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.805);
                 absoluteEncoder.close();
               },
