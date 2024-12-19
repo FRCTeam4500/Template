@@ -59,7 +59,7 @@ public class SwerveConstants {
               TargetType.Velocity),
           Motor.fromSparkMax(
               FRONT_LEFT_ANGLE_ID,
-              false,
+    false,
               motor -> {
                 SparkMaxConfig config = new SparkMaxConfig();
                 config.inverted(false).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
@@ -76,7 +76,7 @@ public class SwerveConstants {
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
                   controller -> {
-                    controller.enableContinuousInput(0, 1);
+     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
               new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
@@ -101,7 +101,7 @@ public class SwerveConstants {
                 for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
                   status = motor.getConfigurator().apply(config);
                 }
-              },
+     },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
               new FeedforwardConstants(0, 0.10624, 1.407, 0.16994),
