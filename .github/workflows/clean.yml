@@ -34,8 +34,12 @@ jobs:
           git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
           git commit -am "Clean '${{ github.event.head_commit.message }}'"
       - name: Push
-      
         if: steps.commit.outcome == 'success'
+        if: steps.event_name != 'pull_request'
         run: |
           git push
+          echo "Push successful"
+        if: steps.event_name == 'pull_request'
+        run: |
+          git push -f origin HEAD
           echo "Push successful"
