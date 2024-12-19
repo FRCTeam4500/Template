@@ -1,0 +1,12 @@
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [succession_trigger]
+
+jobs:
+  do_nothing:
+    - name: "As I said"
+      run:
+        echo "hehe"
+

@@ -7,11 +7,6 @@ on:
   push:
     branches: [ "**" ]
 
-permissions:
-  pull-requests: write
-  issues: write
-  repository-projects: write
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   spotless:
@@ -29,21 +24,22 @@ jobs:
           java-version: 17
       - name: Spotless Apply
         run: ./gradlew spotlessApply
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG }}
-          passphrase: ${{ secrets.GPG_PASS }}
-          git_user_signingkey: true
-          git_commit_gpgsign: true
       - name: Commit
         id: commit
         continue-on-error: true
         run: |
           git add .
-          git commit -S -m "Clean '${{ github.event.head_commit.message }}'"
+          git commit -m "Clean '${{ github.event.head_commit.message }}'"
       - name: Push Branch
         if: ${{ steps.commit.outcome == 'success' }}
         run: |
           git push
           echo "Push successful"
+      - name: Trigger repository dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+            token: ${{ secrets.PAT }}
+            repository: FRCTeam4500/Template
+            event-type: succession_trigger
+            client-payload: '{"triggered_by": "${{ github.repository }}, on push event", "commit_sha": "${{ github.sha }}", "branch": "${{ github.ref }}"}'
+
