@@ -36,7 +36,7 @@ public class SwerveConstants {
       new SwerveModule(
        Motor.fromTalonFX(
       FRONT_LEFT_DRIVE_ID,
-              motor -> {
+       motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
                     new CurrentLimitsConfigs()
