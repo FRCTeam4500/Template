@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.hardware.Gyro;
 import frc.robot.hardware.Limelight;
 import frc.robot.hardware.Limelight.PoseEstimate;
@@ -35,6 +36,7 @@ import frc.robot.utilities.GamePieceManager;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
+/** The subsystem that controls our drivetrain, which is known as a swerve drive. */
 public class Swerve extends SubsystemBase implements Loggable {
   private Gyro gyro;
   private SwerveModule[] modules;
@@ -44,6 +46,7 @@ public class Swerve extends SubsystemBase implements Loggable {
   private Rotation2d targetHeading;
   private PIDController headingPID;
 
+  /** Creates a new {@link Swerve} using the constants defined in {@link SwerveConstants} */
   public Swerve() {
     if (RobotBase.isReal()) {
       gyro = Gyro.fromNavX(navx -> {});
@@ -102,6 +105,16 @@ public class Swerve extends SubsystemBase implements Loggable {
         this);
   }
 
+  /**
+   * @param xbox The {@link XboxController that will control the driving}
+   * @return a {@link Command} that drives the robot using a {@link XboxController}.
+   *     <ul>
+   *       <li>Translation of the robot is controlled with the left stick, field relative
+   *       <li>Rotation of the robot is controlled with the right stick
+   *       <li>A target angle can be set using {@link #setTargetHeading}, which the robot will then
+   *           turn to.
+   *     </ul>
+   */
   public Command angleCentric(XboxController xbox) {
     return Commands.run(
             () -> {
@@ -134,6 +147,12 @@ public class Swerve extends SubsystemBase implements Loggable {
         .beforeStarting(() -> targetHeading = estimator.getEstimatedPosition().getRotation());
   }
 
+  /**
+   * Updates the heading of the robot
+   *
+   * @param newHeading The robots new heading
+   * @return A {@link Command} that can be bound to a {@link Trigger}
+   */
   public Command resetHeading(Rotation2d newHeading) {
     return Commands.runOnce(
         () -> {
@@ -142,6 +161,12 @@ public class Swerve extends SubsystemBase implements Loggable {
         });
   }
 
+  /**
+   * Sets the target heading for the robot in tele-op only
+   *
+   * @param targetHeading The target heading
+   * @return A {@link Command} that can be bound to a {@link Trigger}
+   */
   public Command setTargetHeading(Rotation2d targetHeading) {
     return Commands.runOnce(() -> this.targetHeading = targetHeading);
   }
