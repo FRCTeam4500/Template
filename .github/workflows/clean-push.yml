@@ -27,12 +27,16 @@ jobs:
       - name: Commit
         id: commit
         continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
           git config --global user.name 'Spotless Commiter'
           git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
           git commit -am "Clean '${{ github.event.head_commit.message }}'"
       - name: Push Branch
         if: ${{ steps.commit.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
           git push
           echo "Push successful"
