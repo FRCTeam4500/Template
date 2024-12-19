@@ -43,7 +43,7 @@ jobs:
       - name: Push Branch
         if: ${{ steps.commit.outcome == 'success' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git push
           echo "Push successful"
