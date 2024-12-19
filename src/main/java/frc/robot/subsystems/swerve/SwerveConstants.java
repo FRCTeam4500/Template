@@ -34,7 +34,7 @@ public class SwerveConstants {
 
   public static final SwerveModule FRONT_LEFT_MODULE =
       new SwerveModule(
-          Motor.fromTalonFX(
+       Motor.fromTalonFX(
       FRONT_LEFT_DRIVE_ID,
               motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
