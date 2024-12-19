@@ -14,10 +14,17 @@ jobs:
     runs-on: ubuntu-22.04
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Generate Token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_KEY }}
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -26,6 +33,8 @@ jobs:
         run: ./gradlew spotlessApply
       - name: Commit
         id: commit
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         continue-on-error: true
         run: |
           git config --global user.email "spoovathumkadavil16@claytonschools.net"
@@ -34,15 +43,8 @@ jobs:
           git commit -m "Clean '${{ github.event.head_commit.message }}'"
       - name: Push Branch
         if: ${{ steps.commit.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           git push --force
           echo "Push successful"
-      - name: Trigger repository dispatch
-        if: ${{ steps.commit.outcome == 'success' }}
-        uses: peter-evans/repository-dispatch@v3
-        with:
-            token: ${{ secrets.PAT }}
-            repository: FRCTeam4500/Template
-            event-type: succession_trigger
-            client-payload: '{"triggered_by": "${{ github.repository }}, on push event", "commit_sha": "${{ github.sha }}", "branch": "${{ github.ref }}"}'
-
