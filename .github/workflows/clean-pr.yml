@@ -28,12 +28,11 @@ jobs:
         run: |
           git config --global user.name 'Spotless Commiter'
           git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}
           git commit -am "Clean '${{ github.event.head_commit.message }}'"
       - name: Push PR
         if: ${{ steps.commit.outcome == 'success' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
           git push
           echo "Push successful"
