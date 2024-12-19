@@ -41,7 +41,7 @@ import frc.robot.utilities.logging.Loggable;
 /** The subsystem that controls our drivetrain, which is known as a swerve drive. */
 public class Swerve extends SubsystemBase implements Loggable {
   private Gyro gyro;
-  private SwerveModule[] modules;
+     private SwerveModule[] modules;
   private SwerveDriveKinematics kinematics;
   private SwerveDrivePoseEstimator estimator;
   private Limelight[] limelights;
