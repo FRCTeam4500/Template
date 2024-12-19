@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
