@@ -14,12 +14,12 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Checkout PR (reg)
-        if: ${{ github.event_name == 'pull_request' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr checkout ${{ github.event.pull_request.number }}
+          ref: ${{ github.head_ref }}
+      # - name: Checkout PR (reg)
+      #   if: ${{ github.event_name == 'pull_request' }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: gh pr checkout ${{ github.event.pull_request.number }}
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
