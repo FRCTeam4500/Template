@@ -45,7 +45,7 @@ public class SwerveConstants {
                 config.MotorOutput =
                     new MotorOutputConfigs()
                         .withNeutralMode(NeutralModeValue.Brake)
-        .withInverted(InvertedValue.Clockwise_Positive);
+                        .withInverted(InvertedValue.Clockwise_Positive);
                 config.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(12.1908);
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
                 for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
@@ -53,7 +53,7 @@ public class SwerveConstants {
                 }
               },
               0,
-        FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
+              FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
               new FeedforwardConstants(
                   0, 0.10624, 1.407, 0.16994), // Stolen from front right, sysID kA gain was wierd
               TargetType.Velocity),
