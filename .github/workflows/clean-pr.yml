@@ -37,6 +37,6 @@ jobs:
       #     git push
       #     echo "Push successful"
       - name: Commit file
-        uses: swinton/commit@v2.x
+        uses: stefanzweifel/git-auto-commit-action@v4
         env:
-            GH_TOKEN: ${{ secrets.PAT }}
+            GITHUB_TOKEN: ${{ secrets.PAT }}
