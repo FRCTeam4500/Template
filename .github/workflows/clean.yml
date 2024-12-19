@@ -43,6 +43,10 @@ jobs:
           echo "Push successful"
       - name: Push PR
         if: ${{ steps.commit.outcome == 'success' && github.event_name == 'pull_request' }}
-        run: |
-          git push -f origin HEAD
-          echo "Push successful"
+        # run: |
+        #   git push -f origin HEAD
+        #   echo "Push successful"
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
