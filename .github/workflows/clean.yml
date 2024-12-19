@@ -8,6 +8,9 @@ on:
     branches: [ "2025" ]
   pull_request:
     branches: [ "2025" ]
+  permissions:
+    contents: write
+    pull-requests: write
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -43,3 +46,5 @@ jobs:
         run: |
           git push -f origin HEAD
           echo "Push successful"
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
