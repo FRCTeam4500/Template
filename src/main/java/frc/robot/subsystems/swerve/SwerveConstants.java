@@ -44,7 +44,7 @@ public class SwerveConstants {
                         .withSupplyCurrentLimitEnable(true);
                 config.MotorOutput =
                     new MotorOutputConfigs()
-     .withNeutralMode(NeutralModeValue.Brake)
+                        .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.Clockwise_Positive);
                 config.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(12.1908);
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
