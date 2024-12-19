@@ -39,17 +39,17 @@ public class SwerveConstants {
               motor -> {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
-                    new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(40)
+     new CurrentLimitsConfigs()
+        .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
                 config.MotorOutput =
                     new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
+            .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.Clockwise_Positive);
                 config.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(12.1908);
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
                 for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                  status = motor.getConfigurator().apply(config);
+          status = motor.getConfigurator().apply(config);
                 }
               },
               0,
@@ -61,10 +61,10 @@ public class SwerveConstants {
               FRONT_LEFT_ANGLE_ID,
               false,
               motor -> {
-                SparkMaxConfig config = new SparkMaxConfig();
+           SparkMaxConfig config = new SparkMaxConfig();
                 config.inverted(false).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
                 config
-                    .encoder
+       .encoder
                     .positionConversionFactor(1.0 / 25)
                     .velocityConversionFactor(1.0 / 25 / 60);
                 motor.configure(config, kResetSafeParameters, kPersistParameters);
@@ -76,7 +76,7 @@ public class SwerveConstants {
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
                   controller -> {
-                    controller.enableContinuousInput(0, 1);
+         controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
               new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
@@ -90,9 +90,9 @@ public class SwerveConstants {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
                     new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(40)
+                 .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
-                config.MotorOutput =
+ config.MotorOutput =
                     new MotorOutputConfigs()
                         .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.CounterClockwise_Positive);
