@@ -33,12 +33,15 @@ jobs:
           git config --global user.name 'Spotless Commiter'
           git config --global user.email 'SPoovathumkadavil@users.noreply.github.com'
           git commit -am "Clean '${{ github.event.head_commit.message }}'"
-      - name: Push
+      - name: Check Successful Commit
         if: steps.commit.outcome == 'success'
+
+      - name: Push Branch
         if: steps.event_name != 'pull_request'
         run: |
           git push
           echo "Push successful"
+      - name: Push PR
         if: steps.event_name == 'pull_request'
         run: |
           git push -f origin HEAD
