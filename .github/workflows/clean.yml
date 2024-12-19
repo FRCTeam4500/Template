@@ -41,5 +41,5 @@ jobs:
       - name: Push PR
         if: ${{ steps.commit.outcome == 'success' && steps.event_name == 'pull_request' }}
         run: |
-          git push -f origin HEAD
+          git push -f origin HEAD:2025
           echo "Push successful"
