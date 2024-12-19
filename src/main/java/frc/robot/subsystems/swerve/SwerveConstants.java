@@ -40,7 +40,7 @@ public class SwerveConstants {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
                     new CurrentLimitsConfigs()
-         .withSupplyCurrentLimit(40)
+                        .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
                 config.MotorOutput =
                     new MotorOutputConfigs()
