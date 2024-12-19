@@ -6,7 +6,10 @@ on:
 
 jobs:
   do_nothing:
-    - name: "As I said"
-      run:
-        echo "hehe"
+  # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    steps:
+      - name: "As I said"
+        run:
+          echo "hehe"
 
