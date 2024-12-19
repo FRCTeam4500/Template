@@ -40,11 +40,11 @@ public class SwerveConstants {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
                     new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(40)
+ .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
-                config.MotorOutput =
+        config.MotorOutput =
                     new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
+            .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.Clockwise_Positive);
                 config.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(12.1908);
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
