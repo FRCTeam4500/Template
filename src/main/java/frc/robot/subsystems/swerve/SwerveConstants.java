@@ -40,11 +40,11 @@ public class SwerveConstants {
                 TalonFXConfiguration config = new TalonFXConfiguration();
                 config.CurrentLimits =
                     new CurrentLimitsConfigs()
- .withSupplyCurrentLimit(40)
+                        .withSupplyCurrentLimit(40)
                         .withSupplyCurrentLimitEnable(true);
-        config.MotorOutput =
+                config.MotorOutput =
                     new MotorOutputConfigs()
-     .withNeutralMode(NeutralModeValue.Brake)
+                        .withNeutralMode(NeutralModeValue.Brake)
                         .withInverted(InvertedValue.Clockwise_Positive);
                 config.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(12.1908);
                 StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -54,7 +54,7 @@ public class SwerveConstants {
               },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
-new FeedforwardConstants(
+              new FeedforwardConstants(
                   0, 0.10624, 1.407, 0.16994), // Stolen from front right, sysID kA gain was wierd
               TargetType.Velocity),
           Motor.fromSparkMax(
@@ -65,10 +65,10 @@ new FeedforwardConstants(
                 config.inverted(false).smartCurrentLimit(20).idleMode(IdleMode.kBrake);
                 config
                     .encoder
-      .positionConversionFactor(1.0 / 25)
+                    .positionConversionFactor(1.0 / 25)
                     .velocityConversionFactor(1.0 / 25 / 60);
                 motor.configure(config, kResetSafeParameters, kPersistParameters);
-          AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_LEFT_ENCODER_ID);
+                AnalogEncoder absoluteEncoder = new AnalogEncoder(FRONT_LEFT_ENCODER_ID);
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.805);
                 absoluteEncoder.close();
               },
