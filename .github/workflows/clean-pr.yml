@@ -35,5 +35,5 @@ jobs:
       - name: Push PR
         if: ${{ steps.commit.outcome == 'success' }}
         run: |
-          git push -f origin HEAD
+          git push -f origin HEAD:${{ github.ref }}
           echo "Push successful"
