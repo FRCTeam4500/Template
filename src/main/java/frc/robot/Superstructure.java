@@ -9,7 +9,7 @@ public class Superstructure implements Loggable {
   private LoggedMechanism2d robotMech;
 
   public Superstructure() {
-    robotMech = new LoggedMechanism2d(1.5, 1.5);
+robotMech = new LoggedMechanism2d(1.5, 1.5);
     configureMech();
   }
 
