@@ -47,12 +47,13 @@ jobs:
         run: |
           git push --force
           echo "Push successful"
-          exit 0
   build:
     needs: spotless
     if: |
       always() && 
-      (needs.spotless.result == 'success' || needs.spotless.result == 'skipped')
+      ((needs.spotless.result == 'success' && contains(github.event.head_commit.message, '[clean push]')) || needs.spotless.result == 'skipped') &&
+
+      
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
     # This grabs the WPILib docker container
