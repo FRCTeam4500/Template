@@ -46,4 +46,6 @@ jobs:
           git commit -m "[clean push] '${{ github.event.head_commit.message }}'"
       - name: Push
         if: ${{ steps.commit.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: git push --force
