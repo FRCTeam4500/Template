@@ -24,7 +24,7 @@ public class ExtendedMath {
   }
 
   /**
-   * Returns the length of a in the direction of b. Calculated as a·b/|b|, or 0 if b is 0.
+   * Returns the length of a in the direction of b. Calculated as a*b/|b|, or 0 if b is 0.
    *
    * @param a the vector to be measured
    * @param b the direction in which to measure it

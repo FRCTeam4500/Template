@@ -1,0 +1,54 @@
+
+name: Build and Clean
+
+on:
+  push:
+    branches: [ "**" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  clean-build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04
+    container: wpilib/roborio-cross-ubuntu:2024-22.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Generate Token
+        if: "!contains(github.event.commits[0].message, '[clean push]')"
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_KEY }}
+      - name: Checkout Repo
+        if: "!contains(github.event.commits[0].message, '[clean push]')"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
+      - name: Add repository to git safe directories
+        if: "!contains(github.event.commits[0].message, '[clean push]')"
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+      - name: Apply Formatting
+        if: "!contains(github.event.commits[0].message, '[clean push]')"
+        run: ./gradlew spotlessApply
+      - name: Build
+        if: "!contains(github.event.commits[0].message, '[clean push]')"
+        run: ./gradlew build
+      - name: Commit
+        if: "!contains(github.event.commits[0].message, '[clean push]')"
+        id: commit
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+        continue-on-error: true
+        run: |
+          git config --global user.name "gh-commiter[bot]"
+          git config --global user.email 192268280+gh-commiter[bot]@users.noreply.github.com
+          git add .
+          git commit -m "[clean push] '${{ github.event.head_commit.message }}'"
+      - name: Push
+        if: ${{ steps.commit.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: git push --force
