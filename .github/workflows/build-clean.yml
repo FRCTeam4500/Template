@@ -47,7 +47,7 @@ jobs:
         run: |
           git push --force
           echo "Push successful"
-          exit 1
+          exit 0
   build:
     needs: spotless
     if: |

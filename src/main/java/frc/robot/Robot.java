@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
   private DogLogOptions compOptions = new DogLogOptions(false, true, true, true, true, 1000);
   private Swerve swerve = new Swerve();
   private Superstructure structure = new Superstructure();
-  private CommandXboxController xbox = new CommandXboxController(2);
+    private CommandXboxController xbox = new CommandXboxController(2);
 
   public Robot() {
     DriverStation.silenceJoystickConnectionWarning(true);
