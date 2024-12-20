@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
     swerve.setDefaultCommand(swerve.angleCentric(xbox.getHID()));
 
     setupLogging();
-    setupDriveController();
+setupDriveController();
     setupAuto();
   }
 
