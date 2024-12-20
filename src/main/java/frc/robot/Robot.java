@@ -28,7 +28,7 @@ import java.util.Set;
 public class Robot extends TimedRobot {
   private DogLogOptions homeOptions = new DogLogOptions(true, true, true, true, true, 1000);
   private DogLogOptions compOptions = new DogLogOptions(false, true, true, true, true, 1000);
-  private Swerve swerve = new Swerve();
+private Swerve swerve = new Swerve();
   private Superstructure structure = new Superstructure();
   private CommandXboxController xbox = new CommandXboxController(2);
 
