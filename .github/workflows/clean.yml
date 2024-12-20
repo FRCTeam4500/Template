@@ -37,8 +37,8 @@ jobs:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         continue-on-error: true
         run: |
-          git config --global user.name "GH Commiter[bot]"
-          git config --global user.email Iv23liay3hWDuYdrHJVm+GH Commiter[bot]@users.noreply.github.com
+          git config --global user.name "gh-commiter[bot]"
+          git config --global user.email 192268280+gh-commiter[bot]@users.noreply.github.com
           git add .
           git commit -m "Clean '${{ github.event.head_commit.message }}'"
       - name: Push Branch
