@@ -58,7 +58,7 @@ jobs:
     needs: spotless
     if: |
       always() &&
-      needs.spotless.outputs.should_build == true
+      (needs.spotless.outputs.should_build == true || needs.spotless.result == 'skipped')
       
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
