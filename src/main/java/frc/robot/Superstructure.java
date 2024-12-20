@@ -17,7 +17,7 @@ public class Superstructure implements Loggable {
     configureMech();
   }
 
-private void configureMech() {
+  private void configureMech() {
     // Append subsystem mechs
   }
 
