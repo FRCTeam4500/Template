@@ -9,8 +9,6 @@ on:
 jobs:
   spotless:
     if: "!contains(github.event.commits[0].message, '[clean push]')"
-    outputs:
-      should_build: ${{ steps.commit.outputs.should_build}}
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -41,11 +39,6 @@ jobs:
           git config --global user.name "gh-commiter[bot]"
           git config --global user.email 192268280+gh-commiter[bot]@users.noreply.github.com
           git add .
-          if [[ -z "$(git status -s)" ]]; then
-            echo "should_build=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_build=false" >> "$GITHUB_OUTPUT"
-          fi
           git commit -m "[clean push] '${{ github.event.head_commit.message }}'"
       - name: Push Branch
         if: ${{ steps.commit.outcome == 'success' }}
@@ -54,11 +47,12 @@ jobs:
         run: |
           git push --force
           echo "Push successful"
+          exit 1
   build:
     needs: spotless
     if: |
       always() &&
-      (needs.spotless.outputs.should_build == true || needs.spotless.result == 'skipped')
+      (needs.spotless.result == 'success' || needs.spotless.result == 'skipped')
       
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
