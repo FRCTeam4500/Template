@@ -14,7 +14,7 @@ public class Superstructure implements Loggable {
 
   public Superstructure() {
     robotMech = new LoggedMechanism2d(1.5, 1.5);
-configureMech();
+    configureMech();
   }
 
   private void configureMech() {
