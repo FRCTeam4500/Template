@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
 
     setupLogging();
     setupDriveController();
-      setupAuto();
+    setupAuto();
   }
 
   public void setupDriveController() {
