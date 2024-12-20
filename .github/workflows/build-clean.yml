@@ -50,8 +50,8 @@ jobs:
   build:
     needs: spotless
     if: |
-      always() && 
-      ((needs.spotless.result == 'success' && contains(github.event.head_commit.message, '[clean push]')) || needs.spotless.result == 'skipped')
+      always() &&
+      needs.spotless.steps.commit.outcome != 'success'
       
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
