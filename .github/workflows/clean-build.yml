@@ -27,6 +27,8 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.generate-token.outputs.token }}
+      - name: Add repository to git safe directories
+          run: git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Apply Formatting
         if: "!contains(github.event.commits[0].message, '[clean push]')"
         run: ./gradlew spotlessApply
