@@ -5,7 +5,7 @@ on:
     branches: ["**"]
 
 env:
-  Cleaned: startsWith(github.event.head_commit.message, 'Cleaned:')
+  Cleaned: ${{ startsWith(github.event.head_commit.message, 'Cleaned:') }}
 
 jobs:
   build:
