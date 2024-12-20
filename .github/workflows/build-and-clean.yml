@@ -23,11 +23,11 @@ jobs:
           distribution: 'zulu'
           java-version: 17
       - name: Spotless Apply
-        if: !$Cleaned
+        if: ${{ !startsWith(github.event.head_commit.message, 'Cleaned:') }}
         run: ./gradlew spotlessApply
       - name: Commit
         id: commit
-        if: !$Cleaned
+        if: ${{ !startsWith(github.event.head_commit.message, 'Cleaned:') }}
         continue-on-error: true
         run: |
           git config --global user.name "gh-commiter[bot]"
@@ -38,7 +38,7 @@ jobs:
         if: ${{ steps.commit.outcome == 'success' }}
         run: git push --force
       - name: Build
-        if: $Cleaned
+        if: ${{ startsWith(github.event.head_commit.message, 'Cleaned:') }}
         if: ${{ steps.commit.outcome != 'success' }}
         run: ./gradlew build
 
