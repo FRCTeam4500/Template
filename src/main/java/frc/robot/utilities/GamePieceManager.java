@@ -51,16 +51,15 @@ public class GamePieceManager {
   public static void updateNT(Pose2d robotPose) {
     for (Map.Entry<NetworkTable, Pose3d> cameraEntry : cameras.entrySet()) {
       Pose3d offset = cameraEntry.getValue();
-      Pose3d camera = new Pose3d(
-        robotPose.getX() + offset.getX(),
-        robotPose.getY() + offset.getY(),
-        offset.getZ(),
-        new Rotation3d(
-          offset.getRotation().getX(),
-          offset.getRotation().getY(),
-          robotPose.getRotation().getRadians() + offset.getRotation().getZ()
-        )
-      );
+      Pose3d camera =
+          new Pose3d(
+              robotPose.getX() + offset.getX(),
+              robotPose.getY() + offset.getY(),
+              offset.getZ(),
+              new Rotation3d(
+                  offset.getRotation().getX(),
+                  offset.getRotation().getY(),
+                  robotPose.getRotation().getRadians() + offset.getRotation().getZ()));
       boolean seenPiece = false;
       double upAngle = 0;
       double sideAngle = 0;
