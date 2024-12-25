@@ -3,7 +3,7 @@ package frc.robot.utilities;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -50,8 +50,17 @@ public class GamePieceManager {
 
   public static void updateNT(Pose2d robotPose) {
     for (Map.Entry<NetworkTable, Pose3d> cameraEntry : cameras.entrySet()) {
-      Pose3d camera =
-          new Pose3d(robotPose).plus(new Transform3d(new Pose3d(), cameraEntry.getValue()));
+      Pose3d offset = cameraEntry.getValue();
+      Pose3d camera = new Pose3d(
+        robotPose.getX() + offset.getX(),
+        robotPose.getY() + offset.getY(),
+        offset.getZ(),
+        new Rotation3d(
+          offset.getRotation().getX(),
+          offset.getRotation().getY(),
+          robotPose.getRotation().getRadians() + offset.getRotation().getZ()
+        )
+      );
       boolean seenPiece = false;
       double upAngle = 0;
       double sideAngle = 0;
@@ -59,6 +68,9 @@ public class GamePieceManager {
         Pose3d poseVer = new Pose3d(new Pose2d(piece, new Rotation2d()));
         Pose3d thisPiece = poseVer.relativeTo(camera);
         double thisDist = thisPiece.getTranslation().getNorm();
+        if (thisPiece.getX() < 0) {
+          continue;
+        }
         double thisUp = thisPiece.getZ();
         double thisSide = thisPiece.getY();
         double thisUpAngle = Math.toDegrees(Math.asin(thisUp / thisDist));

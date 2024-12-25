@@ -50,12 +50,12 @@ public class Swerve extends SubsystemBase implements Loggable {
 
   /** Creates a new {@link Swerve} using the constants defined in {@link SwerveConstants} */
   public Swerve() {
+    limelights = new Limelight[] {new Limelight("limelight-hehehe", 0)};
     if (RobotBase.isReal()) {
       gyro = Gyro.fromNavX(navx -> {});
     } else {
       gyro = Gyro.fromSim(() -> getSpeeds().omegaRadiansPerSecond);
     }
-    limelights = new Limelight[] {new Limelight("limelight-hehehe", 0)};
     modules =
         new SwerveModule[] {
           FRONT_LEFT_MODULE, FRONT_RIGHT_MODULE, BACK_LEFT_MODULE, BACK_RIGHT_MODULE
