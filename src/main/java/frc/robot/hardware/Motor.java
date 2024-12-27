@@ -508,23 +508,17 @@ public class Motor extends SubsystemBase implements Loggable {
     if (ff == null || ff.kV() == 0 || ff.kA() == 0) {
       return fromIdealSim(fb, type, inititalPosition);
     }
-    FeedforwardSim sim;
-    if (type == TargetType.Rotation) {
-      sim = FeedforwardSim.withScalingGravity(ff, new State());
-    } else {
-      sim = FeedforwardSim.withConstantGravity(ff, new State());
-    }
-    sim.resetPosition(inititalPosition);
+    FeedforwardSim sim = new FeedforwardSim(ff, inititalPosition, type == TargetType.Rotation);
     return new Motor(
         type,
         sim::resetPosition,
         sim::setVoltage,
-        sim::getPosition,
-        sim::getVelocity,
+        () -> sim.getState().position(),
+        () -> sim.getState().velocity(),
         fb,
         ff,
         name -> {
-          HoundLog.log(name + "/Voltage", sim.getVoltage());
+          HoundLog.log(name + "/Sim", sim);
         });
   }
 

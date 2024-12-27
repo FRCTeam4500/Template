@@ -1,29 +1,33 @@
 package frc.robot.utilities;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.hardware.Motor.FeedforwardConstants;
-import java.util.function.BiConsumer;
+import frc.robot.utilities.logging.HoundLog;
+import frc.robot.utilities.logging.Loggable;
 
-public class FeedforwardSim extends SubsystemBase {
-  /** function that modifies the State argument, stepping forward in time by 20 ms */
-  private BiConsumer<State, Double> calc;
-
-  /** position and velocity */
-  private State state;
-
-  /** current voltage */
+/**
+ * Models a single motor mechanism described by the given {@link FeedforwardConstants}
+ */
+public class FeedforwardSim extends SubsystemBase implements Loggable {
+  private MechanismState state;
+  private FeedforwardConstants feedforward;
+  private boolean scaleGravity;
   private double volts;
 
   /**
-   * @param calc A function that steps the state forward in time (by 20 ms)
-   * @param initalState The inital state of the mechanism
-   * @apiNote calc should modify its arguments
+   * Creates a simulated mechanism, using the given {@link FeedforwardConstants}
+   *
+   * @param feedforward The feedforward constants used to model the mechansim
+   * @param initialPosition The initial position of the mechanism
+   * @param scaleGravity Whether to scale kG based on the angle of the mechanism. If this is true,
+   *     units are assumed to be rotations, with 0 being horizontal, and 0.25 pointing straight up.
    */
-  public FeedforwardSim(BiConsumer<State, Double> calc, State initalState) {
-    this.calc = calc;
-    this.state = initalState;
+  public FeedforwardSim(
+      FeedforwardConstants feedforward, double initialPosition, boolean scaleGravity) {
+    this.feedforward = feedforward;
+    this.state = new MechanismState(initialPosition, 0, 0);
+    this.scaleGravity = scaleGravity;
   }
 
   /** Simulates the next 0.02s. If the robot is disabled, voltage is set to 0 */
@@ -31,91 +35,59 @@ public class FeedforwardSim extends SubsystemBase {
     if (DriverStation.isDisabled()) {
       volts = 0;
     }
-    calc.accept(state, volts);
+    double gravityVolts = feedforward.kG();
+    if (scaleGravity) {
+      gravityVolts *= Math.cos(state.position * 2 * Math.PI);
+    }
+    double staticVolts = Math.signum(state.velocity) * feedforward.kS();
+    double velocityVolts = state.velocity * feedforward.kV();
+    double acceleration = (volts - gravityVolts - staticVolts - velocityVolts) / feedforward.kA();
+    double velocity = 0.02 * acceleration + state.velocity();
+    double position = 0.02 * velocity + state.position();
+    state = new MechanismState(position, velocity, acceleration);
+  }
+
+  @Override
+  public void log(String name) {
+    HoundLog.log(name + "/Voltage", volts);
+    HoundLog.log(name + "/State", state);
   }
 
   /**
-   * setter function
-   *
-   * @param volts new voltage
+   * @param volts The motor's new voltage
    */
   public void setVoltage(double volts) {
     this.volts = volts;
   }
 
-  /** voltage getter */
+  /**
+   * @return The voltage applied to the motor
+   */
   public double getVoltage() {
     return volts;
   }
 
-  /** position getter */
-  public double getPosition() {
-    return state.position;
+  /**
+   * @return The mechanism's current state (position, velocity, acceleration)
+   */
+  public MechanismState getState() {
+    return state;
   }
 
-  /** velocity getter */
-  public double getVelocity() {
-    return state.velocity;
-  }
-
-  /** changes position */
+  /**
+   * @param newPosition The updated position of the mechanism
+   */
   public void resetPosition(double newPosition) {
-    state.position = newPosition;
+    state = new MechanismState(newPosition, state.velocity(), state.acceleration());
   }
 
-  /**
-   * Creates a feedforward sim for a mechanism which gravity acts on with a constant (possibly 0)
-   * force
-   *
-   * <p>The feedforward constants should be obtained via SysId
-   *
-   * @param ff The feedforward constants
-   * @param initialState The inital position and velocity of the mechanism.
-   * @throws IllegalArgumentException if kA or kV are 0
-   */
-  public static FeedforwardSim withConstantGravity(FeedforwardConstants ff, State initialState) {
-    if (ff.kA() == 0 || ff.kV() == 0) {
-      throw new IllegalArgumentException("kA and kV can not be 0 when making a feedforward sim!!");
+  public static record MechanismState(double position, double velocity, double acceleration)
+      implements Loggable {
+    @Override
+    public void log(String name) {
+      HoundLog.log(name + "/Position", position);
+      HoundLog.log(name + "/Velocity", velocity);
+      HoundLog.log(name + "/Acceleration", acceleration);
     }
-    return new FeedforwardSim(
-        (state, volts) -> {
-          double staticVolts = Math.signum(state.velocity) * ff.kS();
-          double velocityVolts = state.velocity * ff.kV();
-          double deltaVel = 0.02 * (volts - ff.kG() - staticVolts - velocityVolts) / ff.kA();
-          double averageVel = state.velocity + deltaVel / 2;
-          state.position += 0.02 * averageVel;
-          state.velocity += deltaVel;
-        },
-        initialState);
-  }
-
-  /**
-   * Creates a feedforward sim for a mechanism which gravity acts on with a force that is
-   * proportional to the angle of the mechansim
-   *
-   * <p>The feedforward constants should be obtained via SysId
-   *
-   * <p><strong>Units for using this sim must be rotations and rotations/second</strong>
-   *
-   * @param ff The feedforward constants
-   * @param initialState The inital position and velocity of the mechanism in rotations and
-   *     rotations/second.
-   * @throws IllegalArgumentException if kA or kV are 0
-   */
-  public static FeedforwardSim withScalingGravity(FeedforwardConstants ff, State initialState) {
-    if (ff.kA() == 0 || ff.kV() == 0) {
-      throw new IllegalArgumentException("kA and kV can not be 0 when making a feedforward sim!!");
-    }
-    return new FeedforwardSim(
-        (state, volts) -> {
-          double gravityVolts = Math.cos(state.position * 2 * Math.PI) * ff.kG();
-          double staticVolts = Math.signum(state.velocity) * ff.kS();
-          double velocityVolts = state.velocity * ff.kV();
-          double deltaVel = 0.02 * (volts - gravityVolts - staticVolts - velocityVolts) / ff.kA();
-          double averageVel = state.velocity + deltaVel / 2;
-          state.position += 0.02 * averageVel;
-          state.velocity += deltaVel;
-        },
-        initialState);
   }
 }
