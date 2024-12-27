@@ -20,9 +20,13 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
    * @param initialPosition The initial position of the mechanism
    * @param scaleGravity Whether to scale kG based on the angle of the mechanism. If this is true,
    *     units are assumed to be rotations, with 0 being horizontal, and 0.25 pointing straight up.
+   * @throws IllegalArgumentException if the feedforward's kV or kA is 0
    */
   public FeedforwardSim(
       FeedforwardConstants feedforward, double initialPosition, boolean scaleGravity) {
+    if (feedforward.kV() == 0 || feedforward.kA() == 0) {
+      throw new IllegalArgumentException("kV and/or kA can not be 0!!");
+    }
     this.feedforward = feedforward;
     this.state = new MechanismState(initialPosition, 0, 0);
     this.scaleGravity = scaleGravity;
