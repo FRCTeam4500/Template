@@ -6,9 +6,7 @@ import frc.robot.hardware.Motor.FeedforwardConstants;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
-/**
- * Models a single motor mechanism described by the given {@link FeedforwardConstants}
- */
+/** Models a single motor mechanism described by the given {@link FeedforwardConstants} */
 public class FeedforwardSim extends SubsystemBase implements Loggable {
   private MechanismState state;
   private FeedforwardConstants feedforward;
@@ -48,9 +46,9 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
   }
 
   @Override
-  public void log(String name) {
-    HoundLog.log(name + "/Voltage", volts);
-    HoundLog.log(name + "/State", state);
+  public void log(String path) {
+    HoundLog.log(path, "Voltage", volts);
+    HoundLog.log(path, "State", state);
   }
 
   /**
@@ -81,13 +79,14 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
     state = new MechanismState(newPosition, state.velocity(), state.acceleration());
   }
 
+  /** Represents the state of a mechanism */
   public static record MechanismState(double position, double velocity, double acceleration)
       implements Loggable {
     @Override
-    public void log(String name) {
-      HoundLog.log(name + "/Position", position);
-      HoundLog.log(name + "/Velocity", velocity);
-      HoundLog.log(name + "/Acceleration", acceleration);
+    public void log(String path) {
+      HoundLog.log(path, "Position", position);
+      HoundLog.log(path, "Velocity", velocity);
+      HoundLog.log(path, "Acceleration", acceleration);
     }
   }
 }

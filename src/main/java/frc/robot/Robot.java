@@ -86,8 +86,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     double commandsLoop = Timer.getFPGATimestamp() - start;
 
-    HoundLog.log("HoundLog/Logging Loop Time", loggingLoop * 1000);
-    HoundLog.log("HoundLog/Commands Loop Time", commandsLoop * 1000);
-    HoundLog.log("HoundLog/Total Loop Time", 1000 * (commandsLoop + loggingLoop));
+    HoundLog.log("DogLog", "Logging Loop Time", loggingLoop * 1000);
+    HoundLog.log("DogLog", "Commands Loop Time", commandsLoop * 1000);
+    HoundLog.log("DogLog", "Total Loop Time", 1000 * (commandsLoop + loggingLoop));
   }
 }

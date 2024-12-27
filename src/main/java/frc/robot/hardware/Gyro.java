@@ -14,7 +14,7 @@ import java.util.function.DoubleSupplier;
  * <pre>
  * // Example Usage
  * Gyro gyro;
- * if (RobotBase.isReal) {
+ * if (RobotBase.isReal()) {
  *     gyro = Gyro.fromNavX(gyro -> {}); // Get the onboard navX, no configuring
  * } else {
  *     gyro = Gyro.fromSim(() -> getSpeeds().omegaRadiansPerSecond);
@@ -45,11 +45,11 @@ public interface Gyro extends Loggable {
     config.accept(navx);
     return new Gyro() {
       @Override
-      public void log(String name) {
-        HoundLog.log(name + "/Connected", navx.isConnected());
-        HoundLog.log(name + "/Pitch", navx.getPitch());
-        HoundLog.log(name + "/Roll", navx.getRoll());
-        HoundLog.log(name + "/Angle", navx.getYaw());
+      public void log(String path) {
+        HoundLog.log(path, "Connected", navx.isConnected());
+        HoundLog.log(path, "Pitch", navx.getPitch());
+        HoundLog.log(path, "Roll", navx.getRoll());
+        HoundLog.log(path, "Angle", navx.getYaw());
       }
 
       @Override
@@ -73,8 +73,8 @@ public interface Gyro extends Loggable {
       double angle = 0;
 
       @Override
-      public void log(String name) {
-        HoundLog.log(name + "/Angle", Math.toDegrees(angle));
+      public void log(String path) {
+        HoundLog.log(path, "Angle", Math.toDegrees(angle));
       }
 
       @Override

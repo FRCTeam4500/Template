@@ -23,11 +23,11 @@ public class LoggedField2d implements Loggable {
 
   @Override
   public void log(String name) {
-    HoundLog.log(name + "/.controllable", true);
-    HoundLog.log(name + "/.type", "Field2d");
-    HoundLog.log(name + "/.name", name);
+    HoundLog.log(name, ".controllable", true);
+    HoundLog.log(name, ".type", "Field2d");
+    HoundLog.log(name, ".name", name);
     for (String object : objects.keySet()) {
-      HoundLog.log(name + "/" + object, objects.get(object));
+      HoundLog.log(name, object, objects.get(object));
     }
   }
 }

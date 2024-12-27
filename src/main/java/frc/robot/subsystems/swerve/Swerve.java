@@ -250,17 +250,17 @@ public class Swerve extends SubsystemBase implements Loggable {
   }
 
   @Override
-  public void log(String name) {
-    HoundLog.log(name + "/Modules", getModuleStates());
-    HoundLog.log(name + "/Speeds", getSpeeds());
-    HoundLog.log(name + "/Pose", estimator.getEstimatedPosition());
-    HoundLog.log(name + "/Target Heading", targetHeading);
-    HoundLog.log(name + "/Gyro Angle", gyro.getAngle());
-    HoundLog.log(name + "/Sideways", estimator.getEstimatedPosition().getY());
-    HoundLog.log(name + "/Front Left Module", modules[0]);
-    HoundLog.log(name + "/Front Right Module", modules[1]);
-    HoundLog.log(name + "/Back Left Module", modules[2]);
-    HoundLog.log(name + "/Back Right Module", modules[3]);
-    HoundLog.log(name + "/Gyro", gyro);
+  public void log(String path) {
+    HoundLog.log(path, "Modules", getModuleStates());
+    HoundLog.log(path, "Speeds", getSpeeds());
+    HoundLog.log(path, "Pose", estimator.getEstimatedPosition());
+    HoundLog.log(path, "Target Heading", targetHeading);
+    HoundLog.log(path, "Gyro Angle", gyro.getAngle());
+    HoundLog.log(path, "Sideways", estimator.getEstimatedPosition().getY());
+    HoundLog.log(path, "Front Left Module", modules[0]);
+    HoundLog.log(path, "Front Right Module", modules[1]);
+    HoundLog.log(path, "Back Left Module", modules[2]);
+    HoundLog.log(path, "Back Right Module", modules[3]);
+    HoundLog.log(path, "Gyro", gyro);
   }
 }

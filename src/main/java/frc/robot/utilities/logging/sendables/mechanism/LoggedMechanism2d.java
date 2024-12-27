@@ -23,13 +23,13 @@ public class LoggedMechanism2d implements Loggable {
   }
 
   @Override
-  public void log(String name) {
-    HoundLog.log(name + "/.type", "Mechanism2d");
-    HoundLog.log(name + "/backgroundColor", "#00020");
-    HoundLog.log(name + "/.controllable", true);
-    HoundLog.log(name + "/dims", dims);
+  public void log(String path) {
+    HoundLog.log(path, ".type", "Mechanism2d");
+    HoundLog.log(path, "backgroundColor", "#00020");
+    HoundLog.log(path, ".controllable", true);
+    HoundLog.log(path, "dims", dims);
     for (String rootName : roots.keySet()) {
-      HoundLog.log(name + "/" + rootName, roots.get(rootName));
+      HoundLog.log(path, rootName, roots.get(rootName));
     }
   }
 }

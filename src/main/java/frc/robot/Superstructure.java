@@ -23,7 +23,7 @@ public class Superstructure implements Loggable {
 
   public void log(String name) {
     // Call log() methods for contained subsystems
-    HoundLog.log("Robot Mech", robotMech);
+    HoundLog.log(name, "Robot Mech", robotMech);
   }
 
   // Put Command Factories Here

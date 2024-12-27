@@ -28,14 +28,14 @@ public class LoggedMechanismLigment2d implements Loggable {
   }
 
   @Override
-  public void log(String name) {
-    HoundLog.log(name + "/.type", "line");
-    HoundLog.log(name + "/angle", angle);
-    HoundLog.log(name + "/color", "#EB8934");
-    HoundLog.log(name + "/length", length);
-    HoundLog.log(name + "/weight", 10);
+  public void log(String path) {
+    HoundLog.log(path, ".type", "line");
+    HoundLog.log(path, "angle", angle);
+    HoundLog.log(path, "color", "#EB8934");
+    HoundLog.log(path, "length", length);
+    HoundLog.log(path, "weight", 10);
     for (String ligmentName : ligments.keySet()) {
-      HoundLog.log(name + "/" + ligmentName, ligments.get(ligmentName));
+      HoundLog.log(path, ligmentName, ligments.get(ligmentName));
     }
   }
 }

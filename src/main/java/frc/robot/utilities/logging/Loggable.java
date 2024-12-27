@@ -14,7 +14,7 @@ public interface Loggable {
    * }
    * </pre>
    *
-   * @param name The file path of the logged data
+   * @param path The file path of the logged data
    */
-  public void log(String name);
+  public void log(String path);
 }

@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.utilities.GamePieceManager;
+import frc.robot.utilities.logging.HoundLog;
+import frc.robot.utilities.logging.Loggable;
 
 /**
  * Wrapper class for limelights. An object of this class doesn't own the underlying hardware. In
@@ -26,7 +28,7 @@ import frc.robot.utilities.GamePieceManager;
  * }
  * </pre>
  */
-public class Limelight {
+public class Limelight implements Loggable {
   private NetworkTable table;
 
   /**
@@ -123,6 +125,15 @@ public class Limelight {
         raw[9],
         raw[10],
         hasTargets());
+  }
+
+  @Override
+  public void log(String path) {
+    HoundLog.log(path, "Has Targets", hasTargets());
+    HoundLog.log(path, "Horizontal Angle", getTX());
+    HoundLog.log(path, "Vertical Angle", getTY());
+    HoundLog.log(path, "Area", getTA());
+    HoundLog.log(path, "Latency", getLatency());
   }
 
   /** Holds an estimated position from a vison system. */
