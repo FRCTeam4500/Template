@@ -21,9 +21,7 @@ public class GamePieceManager {
   private static HashMap<NetworkTable, Pose3d> cameras = new HashMap<>();
   private static Set<Translation2d> pieces = new HashSet<>();
 
-  /**
-   * Resets the field to a match start state
-   */
+  /** Resets the field to a match start state */
   public static void resetField() {
     pieces.clear();
     // TODO: Add starting translations of the pieces here!!
@@ -33,6 +31,7 @@ public class GamePieceManager {
 
   /**
    * Adds a piece to the field
+   *
    * @param translation The position of the piece
    */
   public static void addPiece(Translation2d translation) {
@@ -42,6 +41,7 @@ public class GamePieceManager {
 
   /**
    * Removes a piece from the field
+   *
    * @param translation The position of the piece
    */
   public static void removePiece(Translation2d translation) {
@@ -51,6 +51,7 @@ public class GamePieceManager {
 
   /**
    * Registers a game piece camera with the simulation. It's nt values will now be updated
+   *
    * @param name The name of the camera. For example: "limelight-hehehe"
    * @param offset The position of the camera relative to the bottom center of the robot
    */
@@ -69,9 +70,9 @@ public class GamePieceManager {
   }
 
   /**
-   * Updates the network tables off all cameras registered from {@link #addCamera}.
-   * Note that calls on a real robot will be silently ignorned, since this 
-   * method can be very expensive!!
+   * Updates the network tables off all cameras registered from {@link #addCamera}. Note that calls
+   * on a real robot will be silently ignorned, since this method can be very expensive!!
+   *
    * @param robotPose The current position of the robot
    */
   public static void updateNT(Pose2d robotPose) {
