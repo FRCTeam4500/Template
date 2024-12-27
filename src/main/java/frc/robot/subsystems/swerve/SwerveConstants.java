@@ -23,13 +23,21 @@ import frc.robot.hardware.Motor.TargetType;
 import frc.robot.utilities.FeedbackController;
 
 public class SwerveConstants {
+  /** The max speed the robot should travel at */
   public static final ChassisSpeeds MAX_SPEEDS = new ChassisSpeeds(6, 6, 4);
+  /** The minimum coefficient for slowmode */
   public static final double MIN_COEFFICIENT = 0.2;
+  /** The absolute max acheivable module speed */
   public static final double MAX_MODULE_SPEED = 6;
+  /** A coefficient used to correct from translation while rotating */
   public static final double SKEW_COEFFICIENT = -0.129;
+  /** The position of the front left module from the robot's center */
   public static final Translation2d FRONT_LEFT_TRANSLATION = new Translation2d(0.2974, 0.2974);
+  /** The position of the front right module from the robot's center */
   public static final Translation2d FRONT_RIGHT_TRANSLATION = new Translation2d(0.2974, -0.2974);
+  /** The position of the back left module from the robot's center */
   public static final Translation2d BACK_LEFT_TRANSLATION = new Translation2d(-0.2974, 0.2974);
+  /** The position of the back right module from the robot's center */
   public static final Translation2d BACK_RIGHT_TRANSLATION = new Translation2d(-0.2974, -0.2974);
 
   public static final SwerveModule FRONT_LEFT_MODULE =

@@ -546,25 +546,31 @@ public class Motor extends SubsystemBase implements Loggable {
    *     realistic can be cobbled together if fb is wrapping a ProfiledPIDController
    */
   public static Motor fromIdealSim(FeedbackController fb, TargetType type, double initalPosition) {
+    /*
+      In lambdas, variables much be "effectivly final", so the state of the motor is
+      stored in this double array, where element 0 is position, element 1 is velocity,
+      and element 2 is acceleration
+    */
     double[] stateHolder = new double[] {initalPosition, 0, 0};
     return new Motor(
         type,
         position -> stateHolder[0] = position,
         voltage -> {
+          if (voltage == 0) {
+            stateHolder[1] = 0;
+            stateHolder[2] = 0;
+            return;
+          }
           switch (type) {
             case Velocity:
-              if (voltage == 0) {
-                stateHolder[1] = 0;
-                stateHolder[2] = 0;
-              } else {
-                State nextState = fb.getSetpoint();
-                stateHolder[1] = nextState.position;
-                stateHolder[2] = nextState.velocity;
-              }
+              State nextStateVel = fb.getSetpoint();
+              stateHolder[1] = nextStateVel.position;
+              stateHolder[2] = nextStateVel.velocity;
               stateHolder[0] += 0.02 * stateHolder[1];
               break;
             default:
               State nextState = fb.getSetpoint();
+              stateHolder[2] = (nextState.velocity - stateHolder[1]) / 0.02;
               stateHolder[0] = nextState.position;
               stateHolder[1] = nextState.velocity;
               break;
@@ -574,6 +580,6 @@ public class Motor extends SubsystemBase implements Loggable {
         () -> stateHolder[1],
         fb,
         null,
-        path -> {});
+        path -> HoundLog.log(path, "Acceleration", stateHolder[2]));
   }
 }
