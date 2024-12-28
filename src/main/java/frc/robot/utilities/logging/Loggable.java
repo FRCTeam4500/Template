@@ -8,9 +8,9 @@ public interface Loggable {
    *
    * <pre>
    * // Example log body
-   * public void log(String name) {
-   *   HoundLog.log(name + "/MyDouble", 5);
-   *   HoundLog.log(name + "/MyString", "hi");
+   * public void log(String path) {
+   *   HoundLog.log(path, "MyDouble", 5);
+   *   HoundLog.log(path, "MyString", "hi");
    * }
    * </pre>
    *

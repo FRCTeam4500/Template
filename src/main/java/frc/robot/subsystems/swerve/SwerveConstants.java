@@ -4,6 +4,8 @@ import static com.revrobotics.spark.SparkBase.PersistMode.*;
 import static com.revrobotics.spark.SparkBase.ResetMode.*;
 import static frc.robot.WiringConstants.SwerveWiring.*;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -69,8 +71,8 @@ public class SwerveConstants {
               },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
-              new FeedforwardConstants(
-                  0, 0.10624, 1.407, 0.16994), // Stolen from front right, sysID kA gain was wierd
+              // Stolen from front right, sysID kA gain was wierd
+              Optional.of(new FeedforwardConstants(0, 0.10624, 1.407, 0.16994)), 
               TargetType.Velocity),
           Motor.fromSparkMax(
               FRONT_LEFT_ANGLE_ID,
@@ -94,7 +96,7 @@ public class SwerveConstants {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
-              new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+              Optional.of(new FeedforwardConstants(0, 0.18487, 2.953, 0.22385)),
               TargetType.Position));
 
   public static final SwerveModule FRONT_RIGHT_MODULE =
@@ -119,7 +121,7 @@ public class SwerveConstants {
               },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
-              new FeedforwardConstants(0, 0.10624, 1.407, 0.16994),
+              Optional.of(new FeedforwardConstants(0, 0.10624, 1.407, 0.16994)),
               TargetType.Velocity),
           Motor.fromSparkMax(
               FRONT_RIGHT_ANGLE_ID,
@@ -143,7 +145,7 @@ public class SwerveConstants {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
-              new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+              Optional.of(new FeedforwardConstants(0, 0.18487, 2.953, 0.22385)),
               TargetType.Position));
 
   public static final SwerveModule BACK_LEFT_MODULE =
@@ -168,7 +170,7 @@ public class SwerveConstants {
               },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
-              new FeedforwardConstants(0, 0.11833, 1.3984, 0.16306),
+              Optional.of(new FeedforwardConstants(0, 0.11833, 1.3984, 0.16306)),
               TargetType.Velocity),
           Motor.fromSparkMax(
               BACK_LEFT_ANGLE_ID,
@@ -192,7 +194,7 @@ public class SwerveConstants {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
-              new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+              Optional.of(new FeedforwardConstants(0, 0.18487, 2.953, 0.22385)),
               TargetType.Position));
 
   public static final SwerveModule BACK_RIGHT_MODULE =
@@ -217,7 +219,7 @@ public class SwerveConstants {
               },
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
-              new FeedforwardConstants(0, 0.10512, 1.3954, 0.19264),
+              Optional.of(new FeedforwardConstants(0, 0.10512, 1.3954, 0.19264)),
               TargetType.Velocity),
           Motor.fromSparkMax(
               BACK_RIGHT_ANGLE_ID,
@@ -241,6 +243,6 @@ public class SwerveConstants {
                     controller.enableContinuousInput(0, 1);
                     controller.setTolerance(0.01);
                   }),
-              new FeedforwardConstants(0, 0.18487, 2.953, 0.22385),
+              Optional.of(new FeedforwardConstants(0, 0.18487, 2.953, 0.22385)),
               TargetType.Position));
 }
