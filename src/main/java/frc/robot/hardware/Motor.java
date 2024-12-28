@@ -21,7 +21,6 @@ import frc.robot.utilities.FeedforwardSim;
 import frc.robot.utilities.SysIDCommands;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
-
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
@@ -285,21 +284,13 @@ public class Motor extends SubsystemBase implements Loggable {
     return commands;
   }
 
-  /**
-   * The types of targets a motor can have as its goal
-   */
+  /** The types of targets a motor can have as its goal */
   public static enum TargetType {
-    /**
-     * Targets a position
-     */
+    /** Targets a position */
     Position,
-    /**
-     * Targets a velocity
-     */
+    /** Targets a velocity */
     Velocity,
-    /**
-     * Targets a vertical rotation, taking into account the changing gravitational force
-     */
+    /** Targets a vertical rotation, taking into account the changing gravitational force */
     Rotation;
   }
 
@@ -309,8 +300,8 @@ public class Motor extends SubsystemBase implements Loggable {
    * <p>{@link #getSysIDCommands} can be used to obtain values for gains
    *
    * @param kG The voltage needed to hold the mechanism in place against gravity. For most
-   *     mechanisms, this is a constant value, but for mechanisms rotating vertically, this should be the
-   *     voltage to hold it up parallel to the ground
+   *     mechanisms, this is a constant value, but for mechanisms rotating vertically, this should
+   *     be the voltage to hold it up parallel to the ground
    * @param kS The voltage needed to overcome static friction.
    * @param kV The voltage needed to maintain a velocity of 1 unit/s
    * @param kA The voltage needed to induce an acceleration of 1 unit/s^
@@ -321,7 +312,8 @@ public class Motor extends SubsystemBase implements Loggable {
   public static record FeedforwardConstants(double kG, double kS, double kV, double kA) {}
 
   /**
-   * 
+   *
+   *
    * <pre>
    * // Example
    * Motor motor = Motor.fromTalonFX( // Make a TalonFX motor
@@ -336,7 +328,7 @@ public class Motor extends SubsystemBase implements Loggable {
    *       new MotorOutputConfigs()
    *         .withNeutralMode(NeutralModeValue.Brake) // If zero voltage, the motor will brake
    *         .withInterted(InvertedValue.CounterClockwise_Positive); // The positive direction is CCW
-   *     config.Feedback = 
+   *     config.Feedback =
    *       new FeedbackConfigs()
    *         .withSensorToMechanismRatio(12.1908); // 12.1908 Mechanism Units : 1 Sensor Unit
    *     motor.getConfigurator().apply(config); // Apply the config
@@ -352,7 +344,7 @@ public class Motor extends SubsystemBase implements Loggable {
    *   TargetType.Position // This motor goes to a position
    * );
    * </pre>
-   * 
+   *
    * @param canID The canID of the controller
    * @param config A function that takes in a {@link TalonFX} and configures it
    * @param initialPosition The starting position of the mechanism. This is set after the config has
@@ -401,8 +393,8 @@ public class Motor extends SubsystemBase implements Loggable {
   }
 
   /**
-   * 
-   * 
+   *
+   *
    * <pre>
    * // Example
    * Motor motor = Motor.fromSparkMax( // Make a SparkMax motor
@@ -430,7 +422,7 @@ public class Motor extends SubsystemBase implements Loggable {
    *   TargetType.Position // This motor goes to a position
    * );
    * </pre>
-   * 
+   *
    * @param canID The canID of the controller
    * @param brushed Whether the motor controlled by the controller is brushed or not. This is
    *     probably false!!

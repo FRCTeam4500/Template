@@ -4,8 +4,6 @@ import static com.revrobotics.spark.SparkBase.PersistMode.*;
 import static com.revrobotics.spark.SparkBase.ResetMode.*;
 import static frc.robot.WiringConstants.SwerveWiring.*;
 
-import java.util.Optional;
-
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -23,6 +21,7 @@ import frc.robot.hardware.Motor;
 import frc.robot.hardware.Motor.FeedforwardConstants;
 import frc.robot.hardware.Motor.TargetType;
 import frc.robot.utilities.FeedbackController;
+import java.util.Optional;
 
 public class SwerveConstants {
   /** The max speed the robot should travel at */
@@ -72,7 +71,7 @@ public class SwerveConstants {
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
               // Stolen from front right, sysID kA gain was wierd
-              Optional.of(new FeedforwardConstants(0, 0.10624, 1.407, 0.16994)), 
+              Optional.of(new FeedforwardConstants(0, 0.10624, 1.407, 0.16994)),
               TargetType.Velocity),
           Motor.fromSparkMax(
               FRONT_LEFT_ANGLE_ID,
