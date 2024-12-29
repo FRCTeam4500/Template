@@ -333,6 +333,9 @@ public class Motor extends SubsystemBase implements Loggable {
    *         .withSensorToMechanismRatio(12.1908); // 12.1908 Mechanism Units : 1 Sensor Unit
    *     motor.getConfigurator().apply(config); // Apply the config
    *   },
+   *   sim -> {
+   *     sim.withHardstops(0, 30); // The mechanism has hardstops at 0 and 30 units
+   *   },
    *   0, // The starting position of the motor is 0 units
    *   FeedbackController.fromPID( // Using PID for our feedback
    *     new PIDController(5, 0, 0), // Our PID values
@@ -347,6 +350,7 @@ public class Motor extends SubsystemBase implements Loggable {
    *
    * @param canID The canID of the controller
    * @param config A function that takes in a {@link TalonFX} and configures it
+   * @param simConfig A function that takes in a {@link FeedforwardSim} and configures it
    * @param initialPosition The starting position of the mechanism. This is set after the config has
    *     been applied, so any gear ratios applied in the config are used
    * @param fb The feedback controller used
@@ -359,6 +363,7 @@ public class Motor extends SubsystemBase implements Loggable {
   public static Motor fromTalonFX(
       int canID,
       Consumer<TalonFX> config,
+      Consumer<FeedforwardSim> simConfig,
       double initialPosition,
       FeedbackController fb,
       Optional<FeedforwardConstants> ff,
@@ -367,7 +372,7 @@ public class Motor extends SubsystemBase implements Loggable {
       if (ff.isEmpty()) {
         return fromIdealSim(fb, type, initialPosition);
       } else {
-        return fromRealisticSim(fb, ff.get(), type, initialPosition);
+        return fromRealisticSim(simConfig, fb, ff.get(), type, initialPosition);
       }
     }
     TalonFX motor = new TalonFX(canID);
@@ -411,6 +416,9 @@ public class Motor extends SubsystemBase implements Loggable {
    *       .velocityConversionFactor(1.0 / 25/ 60) // Divide by 60 so rpm -> rps
    *     spark.configure(config, kResetSafeParameters, kPersistParameters)
    *   },
+   *   sim -> {
+   *     sim.withHardstops(0, 30); // The mechanism has hardstops at 0 and 30 units
+   *   },
    *   0, // The starting position of the motor is 0 units
    *   FeedbackController.fromPID( // Using PID for our feedback
    *     new PIDController(5, 0, 0), // Our PID values
@@ -427,6 +435,7 @@ public class Motor extends SubsystemBase implements Loggable {
    * @param brushed Whether the motor controlled by the controller is brushed or not. This is
    *     probably false!!
    * @param config A function that takes in a {@link SparkMax} and configures it
+   * @param simConfig A function that takes in a {@link FeedforwardSim} and configures it
    * @param initialPosition The starting position of the mechanism. This is set after the config has
    *     been applied, so any gear ratios applied in the config are used
    * @param fb The feedback controller used
@@ -440,6 +449,7 @@ public class Motor extends SubsystemBase implements Loggable {
       int canID,
       boolean brushed,
       Consumer<SparkMax> config,
+      Consumer<FeedforwardSim> simConfig,
       double initialPosition,
       FeedbackController fb,
       Optional<FeedforwardConstants> ff,
@@ -448,7 +458,7 @@ public class Motor extends SubsystemBase implements Loggable {
       if (ff.isEmpty()) {
         return fromIdealSim(fb, type, initialPosition);
       } else {
-        return fromRealisticSim(fb, ff.get(), type, initialPosition);
+        return fromRealisticSim(simConfig, fb, ff.get(), type, initialPosition);
       }
     }
     SparkMax motor = new SparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless);
@@ -484,6 +494,9 @@ public class Motor extends SubsystemBase implements Loggable {
    *       0 // Don't wait for confirmation from the controller
    *     );
    *   },
+   *   sim -> {
+   *     sim.withHardstops(0, 30); // The mechanism has hardstops at 0 and 30 units
+   *   },
    *   1.0 / 1000, // One mechanism unit is equal to 1000 sensor units
    *   0, // The starting position of the motor is 0 units
    *   FeedbackController.fromPID( // Using PID for our feedback
@@ -499,6 +512,7 @@ public class Motor extends SubsystemBase implements Loggable {
    *
    * @param canID The canID of the controller
    * @param config A function that takes in a {@link TalonSRX} and configures it
+   * @param simConfig A function that takes in a {@link FeedforwardSim} and configures it
    * @param conversionFactor The gear ratio before the encoder, in mechanism units per sensor unit
    * @param initialPosition The starting position of the mechanism
    * @param fb The feedback controller used
@@ -511,6 +525,7 @@ public class Motor extends SubsystemBase implements Loggable {
   public static Motor fromTalonSRX(
       int canID,
       Consumer<TalonSRX> config,
+      Consumer<FeedforwardSim> simConfig,
       double conversionFactor,
       double initialPosition,
       FeedbackController fb,
@@ -520,7 +535,7 @@ public class Motor extends SubsystemBase implements Loggable {
       if (ff.isEmpty()) {
         return fromIdealSim(fb, type, initialPosition);
       } else {
-        return fromRealisticSim(fb, ff.get(), type, initialPosition);
+        return fromRealisticSim(simConfig, fb, ff.get(), type, initialPosition);
       }
     }
     TalonSRX motor = new TalonSRX(canID);
@@ -550,6 +565,9 @@ public class Motor extends SubsystemBase implements Loggable {
    * <pre>
    * // Example
    * Motor motor = Motor.fromRealisticSim( // Make a realistic sim
+   *   sim -> {
+   *     sim.withHardstops(0, 30); // The mechanism has hardstops at 0 and 30 units
+   *   },
    *   FeedbackController.fromPID( // Using PID for our feedback
    *     new PIDController(5, 0, 0), // Our PID values
    *     pid -> { // Configuring the pid controller
@@ -562,6 +580,7 @@ public class Motor extends SubsystemBase implements Loggable {
    * );
    * </pre>
    *
+   * @param config A function that takes in a {@link FeedforwardSim} and configures it
    * @param fb The feedback controller used
    * @param ff The feedforward controller used
    *     <p><strong>If kV or kA is 0, or ff is null, {@link #fromIdealSim} will be used
@@ -571,11 +590,16 @@ public class Motor extends SubsystemBase implements Loggable {
    * @return A simulated {@link Motor}, using the constants from ff to predict movement
    */
   public static Motor fromRealisticSim(
-      FeedbackController fb, FeedforwardConstants ff, TargetType type, double inititalPosition) {
+      Consumer<FeedforwardSim> config,
+      FeedbackController fb,
+      FeedforwardConstants ff,
+      TargetType type,
+      double inititalPosition) {
     if (ff == null || ff.kV() == 0 || ff.kA() == 0) {
       return fromIdealSim(fb, type, inititalPosition);
     }
     FeedforwardSim sim = new FeedforwardSim(ff, inititalPosition, type == TargetType.Rotation);
+    config.accept(sim);
     return new Motor(
         type,
         sim::resetPosition,

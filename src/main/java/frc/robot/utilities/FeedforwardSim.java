@@ -12,6 +12,8 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
   private FeedforwardConstants feedforward;
   private boolean scaleGravity;
   private double volts;
+  private double max = Double.MAX_VALUE;
+  private double min = Double.MIN_VALUE;
 
   /**
    * Creates a simulated mechanism, using the given {@link FeedforwardConstants}
@@ -46,7 +48,30 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
     double acceleration = (volts - gravityVolts - staticVolts - velocityVolts) / feedforward.kA();
     double velocity = 0.02 * acceleration + state.velocity();
     double position = 0.02 * velocity + state.position();
+    if (position > max) {
+      position = max;
+      velocity = 0;
+      acceleration = 0;
+    }
+    if (position < min) {
+      position = min;
+      velocity = 0;
+      acceleration = 0;
+    }
     state = new MechanismState(position, velocity, acceleration);
+  }
+
+  /**
+   * Sets hardstops for the motor
+   *
+   * @param min The minimum position of the mechanism
+   * @param max The maximum position of the mechanism
+   * @return this motor, for call chaining
+   */
+  public FeedforwardSim withHardstops(double min, double max) {
+    this.min = min;
+    this.max = max;
+    return this;
   }
 
   @Override

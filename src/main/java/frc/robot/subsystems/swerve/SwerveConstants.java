@@ -68,6 +68,7 @@ public class SwerveConstants {
                   status = motor.getConfigurator().apply(config);
                 }
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
               // Stolen from front right, sysID kA gain was wierd
@@ -88,6 +89,7 @@ public class SwerveConstants {
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.805);
                 absoluteEncoder.close();
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
@@ -118,6 +120,7 @@ public class SwerveConstants {
                   status = motor.getConfigurator().apply(config);
                 }
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
               Optional.of(new FeedforwardConstants(0, 0.10624, 1.407, 0.16994)),
@@ -137,6 +140,7 @@ public class SwerveConstants {
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.394);
                 absoluteEncoder.close();
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
@@ -167,6 +171,7 @@ public class SwerveConstants {
                   status = motor.getConfigurator().apply(config);
                 }
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
               Optional.of(new FeedforwardConstants(0, 0.11833, 1.3984, 0.16306)),
@@ -186,6 +191,7 @@ public class SwerveConstants {
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.511);
                 absoluteEncoder.close();
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
@@ -216,6 +222,7 @@ public class SwerveConstants {
                   status = motor.getConfigurator().apply(config);
                 }
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(new PIDController(0.004, 0, 0), controller -> {}),
               Optional.of(new FeedforwardConstants(0, 0.10512, 1.3954, 0.19264)),
@@ -235,6 +242,7 @@ public class SwerveConstants {
                 motor.getEncoder().setPosition(absoluteEncoder.get() - 0.061);
                 absoluteEncoder.close();
               },
+              sim -> {},
               0,
               FeedbackController.fromPID(
                   new PIDController(27, 0, 0),
