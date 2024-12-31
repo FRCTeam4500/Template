@@ -12,8 +12,8 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
   private FeedforwardConstants feedforward;
   private boolean scaleGravity;
   private double volts;
-  private double max = Double.MAX_VALUE;
-  private double min = Double.MIN_VALUE;
+  private double max = Double.POSITIVE_INFINITY;
+  private double min = Double.NEGATIVE_INFINITY;
 
   /**
    * Creates a simulated mechanism, using the given {@link FeedforwardConstants}
