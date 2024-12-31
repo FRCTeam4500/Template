@@ -132,16 +132,15 @@ public class Swerve extends SubsystemBase implements Loggable {
 
   public Command pieceCentric(XboxController xbox) {
     return Commands.run(
-      () -> {
-        ChassisSpeeds original = calculateVelRobotRel(xbox);
-        drive(new ChassisSpeeds(
-          original.vxMetersPerSecond,
-          piecePID.calculate(-pieceCamera.getTX(), 0),
-          original.omegaRadiansPerSecond
-        ));
-      },
-      this
-    );
+        () -> {
+          ChassisSpeeds original = calculateVelRobotRel(xbox);
+          drive(
+              new ChassisSpeeds(
+                  original.vxMetersPerSecond,
+                  piecePID.calculate(-pieceCamera.getTX(), 0),
+                  original.omegaRadiansPerSecond));
+        },
+        this);
   }
 
   /**
@@ -184,13 +183,9 @@ public class Swerve extends SubsystemBase implements Loggable {
       speedCoefficient *= -1;
     }
     double forward =
-        speedCoefficient
-            * withHardDeadzone(xbox.getLeftY(), 0.1)
-            * MAX_SPEEDS.vxMetersPerSecond;
+        speedCoefficient * withHardDeadzone(xbox.getLeftY(), 0.1) * MAX_SPEEDS.vxMetersPerSecond;
     double sideways =
-        speedCoefficient
-            * withHardDeadzone(xbox.getLeftX(), 0.1)
-            * MAX_SPEEDS.vyMetersPerSecond;
+        speedCoefficient * withHardDeadzone(xbox.getLeftX(), 0.1) * MAX_SPEEDS.vyMetersPerSecond;
     ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
     return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, currentHeading);
   }

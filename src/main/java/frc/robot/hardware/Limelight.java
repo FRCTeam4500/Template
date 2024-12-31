@@ -52,8 +52,8 @@ public class Limelight implements Loggable {
   }
 
   /**
-   * Make a gamepiece tracking limelight. This camera is automatically added to the
-   * {@link GamePieceManager}
+   * Make a gamepiece tracking limelight. This camera is automatically added to the {@link
+   * GamePieceManager}
    *
    * @param name The name of the limelight. Should be "limelight-xxx"
    * @param pipeline The pipeline to be used. These are configured in a web browser.
@@ -67,8 +67,8 @@ public class Limelight implements Loggable {
   }
 
   /**
-   * Make a gamepiece tracking limelight with the pipeline 0. This camera is automatically added to the
-   * {@link GamePieceManager}
+   * Make a gamepiece tracking limelight with the pipeline 0. This camera is automatically added to
+   * the {@link GamePieceManager}
    *
    * @param name The name of the limelight. Should be "limelight-xxx"
    * @param pose The pose of this limelight relative to the bottom center of the robot. This pose is
