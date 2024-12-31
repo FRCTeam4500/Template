@@ -55,7 +55,7 @@ public class Motor extends SubsystemBase implements Loggable {
    * @param fb A feedback controller, which drives the motor to its goal
    * @param ff An optional set of feedforward constants, used to help the feedback controller
    * @param motorInfo A {@link Loggable} which logs information about the motor, such as applied
-   *     voltage, tempreture, and current
+   *     voltage, temperature, and current
    */
   public Motor(
       TargetType type,
