@@ -116,8 +116,8 @@ public class GamePieceManager {
         double thisUpAngle = Math.toDegrees(Math.asin(thisUp / thisDist));
         double thisSideAngle = Math.toDegrees(Math.asin(thisSide / thisDist));
         if (seenPiece) {
-          double thisCenterOffset = Math.hypot(thisSideAngle, thisUpAngle);
-          double seenCenterOffset = Math.hypot(sideAngle, upAngle);
+          double thisCenterOffset = Math.hypot(thisSideAngle, thisUpAngle + 30);
+          double seenCenterOffset = Math.hypot(sideAngle, upAngle + 30);
           if (thisCenterOffset < seenCenterOffset) {
             upAngle = thisUpAngle;
             sideAngle = thisSideAngle;
