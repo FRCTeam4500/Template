@@ -210,7 +210,10 @@ public class Swerve extends SubsystemBase implements Loggable {
   }
 
   private void drive(ChassisSpeeds speeds) {
-    SwerveModuleState[] states = kinematics.toSwerveModuleStates(applySkewCorrection(speeds));
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_MODULE_SPEED);
+    speeds = kinematics.toChassisSpeeds(states);
+    states = kinematics.toSwerveModuleStates(applySkewCorrection(speeds));
     SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_MODULE_SPEED);
     for (int i = 0; i < modules.length; i++) {
       modules[i].setTargetState(states[i]);
