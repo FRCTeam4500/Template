@@ -47,14 +47,16 @@ public class Robot extends TimedRobot {
     Trigger faceForwards = new Trigger(() -> xbox.getRightY() < -0.5);
     Trigger faceBackwards = new Trigger(() -> xbox.getRightY() > 0.5);
     Trigger resetHeading = xbox.a();
+    Trigger pieceAlign = xbox.rightTrigger();
 
-    xbox.a().and(onBlue).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
-    xbox.a().and(onRed).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(180)));
+    resetHeading.and(onBlue).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
+    resetHeading.and(onRed).onTrue(swerve.resetHeading(Rotation2d.fromDegrees(180)));
     faceForwards.and(onBlue).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(0)));
     faceForwards.and(onRed).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(180)));
     faceBackwards.and(onRed).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(0)));
     faceBackwards.and(onBlue).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(180)));
     resetHeading.onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
+    pieceAlign.whileTrue(swerve.pieceCentric(xbox.getHID()));
   }
 
   public void setupAuto() {

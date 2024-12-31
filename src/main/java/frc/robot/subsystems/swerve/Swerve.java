@@ -11,7 +11,9 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -36,21 +38,22 @@ import frc.robot.utilities.GamePieceManager;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
-// this is a doc
-
 /** The subsystem that controls our drivetrain, which is known as a swerve drive. */
 public class Swerve extends SubsystemBase implements Loggable {
   private Gyro gyro;
   private SwerveModule[] modules;
   private SwerveDriveKinematics kinematics;
   private SwerveDrivePoseEstimator estimator;
-  private Limelight[] limelights;
+  private Limelight[] tagCameras;
+  private Limelight pieceCamera;
   private Rotation2d targetHeading;
   private PIDController headingPID;
+  private PIDController piecePID;
 
   /** Creates a new {@link Swerve} using the constants defined in {@link SwerveConstants} */
   public Swerve() {
-    limelights = new Limelight[] {new Limelight("limelight-hehehe", 0)};
+    tagCameras = new Limelight[] {new Limelight("limelight-hehehe")};
+    pieceCamera = new Limelight("limelight-haha", new Pose3d(0, 0, 0.48, new Rotation3d(0, 0, 0)));
     if (RobotBase.isReal()) {
       gyro = Gyro.fromNavX(navx -> {});
     } else {
@@ -74,6 +77,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     headingPID.enableContinuousInput(-Math.PI, Math.PI);
     headingPID.setTolerance(Math.PI / 32, Math.PI / 32);
     headingPID.setSetpoint(0);
+    piecePID = new PIDController(0.25, 0, 0);
 
     RobotConfig config;
     try {
@@ -120,33 +124,24 @@ public class Swerve extends SubsystemBase implements Loggable {
   public Command angleCentric(XboxController xbox) {
     return Commands.run(
             () -> {
-              double speedCoefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
-              Rotation2d currentHeading = estimator.getEstimatedPosition().getRotation();
-              targetHeading =
-                  Rotation2d.fromRadians(
-                      targetHeading.getRadians()
-                          - withHardDeadzone(xbox.getRightX(), 0.1)
-                              * speedCoefficient
-                              * MAX_SPEEDS.omegaRadiansPerSecond
-                              * 0.02);
-              double rotational =
-                  headingPID.calculate(currentHeading.getRadians(), targetHeading.getRadians());
-              if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-                speedCoefficient *= -1;
-              }
-              double forward =
-                  speedCoefficient
-                      * withHardDeadzone(xbox.getLeftY(), 0.1)
-                      * MAX_SPEEDS.vxMetersPerSecond;
-              double sideways =
-                  speedCoefficient
-                      * withHardDeadzone(xbox.getLeftX(), 0.1)
-                      * MAX_SPEEDS.vyMetersPerSecond;
-              ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
-              drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, currentHeading));
+              drive(calculateVelRobotRel(xbox));
             },
             this)
         .beforeStarting(() -> targetHeading = estimator.getEstimatedPosition().getRotation());
+  }
+
+  public Command pieceCentric(XboxController xbox) {
+    return Commands.run(
+      () -> {
+        ChassisSpeeds original = calculateVelRobotRel(xbox);
+        drive(new ChassisSpeeds(
+          original.vxMetersPerSecond,
+          piecePID.calculate(-pieceCamera.getTX(), 0),
+          original.omegaRadiansPerSecond
+        ));
+      },
+      this
+    );
   }
 
   /**
@@ -171,6 +166,33 @@ public class Swerve extends SubsystemBase implements Loggable {
    */
   public Command setTargetHeading(Rotation2d targetHeading) {
     return Commands.runOnce(() -> this.targetHeading = targetHeading);
+  }
+
+  private ChassisSpeeds calculateVelRobotRel(XboxController xbox) {
+    double speedCoefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
+    Rotation2d currentHeading = estimator.getEstimatedPosition().getRotation();
+    targetHeading =
+        Rotation2d.fromRadians(
+            targetHeading.getRadians()
+                - withHardDeadzone(xbox.getRightX(), 0.1)
+                    * speedCoefficient
+                    * MAX_SPEEDS.omegaRadiansPerSecond
+                    * 0.02);
+    double rotational =
+        headingPID.calculate(currentHeading.getRadians(), targetHeading.getRadians());
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+      speedCoefficient *= -1;
+    }
+    double forward =
+        speedCoefficient
+            * withHardDeadzone(xbox.getLeftY(), 0.1)
+            * MAX_SPEEDS.vxMetersPerSecond;
+    double sideways =
+        speedCoefficient
+            * withHardDeadzone(xbox.getLeftX(), 0.1)
+            * MAX_SPEEDS.vyMetersPerSecond;
+    ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
+    return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, currentHeading);
   }
 
   private ChassisSpeeds applySkewCorrection(ChassisSpeeds speeds) {
@@ -231,7 +253,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     boolean speedLimit =
         (ExtendedMath.within(getSpeeds(), new ChassisSpeeds(), new ChassisSpeeds(1, 1, 2 * Math.PI))
             || !DriverStation.isAutonomous());
-    for (Limelight camera : limelights) {
+    for (Limelight camera : tagCameras) {
       PoseEstimate estimate = camera.getPoseMT1();
       if (estimate.exists()
           && speedLimit
