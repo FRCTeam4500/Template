@@ -15,8 +15,17 @@ public class LoggedMechanismRoot2d implements Loggable {
     ligments = new HashMap<>();
   }
 
-  public void append(String name, LoggedMechanismLigment2d ligment) {
+  public void setPosiiton(double x, double y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  public LoggedMechanismLigment2d append(String name, LoggedMechanismLigment2d ligment) {
+    if (ligments.containsKey(name)) {
+      throw new UnsupportedOperationException("Mechanism ligment names must be unique!");
+    }
     ligments.put(name, ligment);
+    return ligment;
   }
 
   @Override

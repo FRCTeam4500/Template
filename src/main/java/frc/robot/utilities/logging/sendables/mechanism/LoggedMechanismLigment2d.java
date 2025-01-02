@@ -4,14 +4,24 @@ import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 import java.util.HashMap;
 
+import edu.wpi.first.wpilibj.util.Color8Bit;
+
 public class LoggedMechanismLigment2d implements Loggable {
   private double angle;
   private double length;
+  private double weight;
+  private String color;
   private HashMap<String, LoggedMechanismLigment2d> ligments;
 
   public LoggedMechanismLigment2d(double length, double angle) {
-    this.angle = angle;
-    this.length = length;
+    this(angle, length, new Color8Bit(235, 137, 52), 10);
+  }
+  
+  public LoggedMechanismLigment2d(double length, double angle, Color8Bit color, double lineWeight) {
+    setAngle(angle);
+    setLength(length);
+    setLineWeight(lineWeight);
+    setColor(color);
     ligments = new HashMap<>();
   }
 
@@ -23,7 +33,18 @@ public class LoggedMechanismLigment2d implements Loggable {
     this.length = length;
   }
 
+  public void setColor(Color8Bit color) {
+    this.color = color.toHexString();
+  }
+
+  public void setLineWeight(double weight) {
+    this.weight = weight;
+  }
+
   public void append(String name, LoggedMechanismLigment2d ligment) {
+    if (ligments.containsKey(name)) {
+      throw new UnsupportedOperationException("Mechanism ligment names must be unique!");
+    }
     ligments.put(name, ligment);
   }
 
@@ -31,9 +52,9 @@ public class LoggedMechanismLigment2d implements Loggable {
   public void log(String path) {
     HoundLog.log(path, ".type", "line");
     HoundLog.log(path, "angle", angle);
-    HoundLog.log(path, "color", "#EB8934");
+    HoundLog.log(path, "color", color);
     HoundLog.log(path, "length", length);
-    HoundLog.log(path, "weight", 10);
+    HoundLog.log(path, "weight", weight);
     for (String ligmentName : ligments.keySet()) {
       HoundLog.log(path, ligmentName, ligments.get(ligmentName));
     }
