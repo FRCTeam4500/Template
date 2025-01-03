@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.utilities.GamePieceManager;
+import frc.robot.utilities.GamepieceManager;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
@@ -63,7 +63,7 @@ public class Limelight implements Loggable {
   public Limelight(String name, int pipeline, Pose3d pose) {
     table = NetworkTableInstance.getDefault().getTable(name);
     table.getEntry("pipline").setInteger(pipeline);
-    GamePieceManager.addCamera(name, pose);
+    GamepieceManager.addCamera(name, pose);
   }
 
   /**
