@@ -79,6 +79,8 @@ public class Swerve extends SubsystemBase implements Loggable {
     headingPID.setSetpoint(0);
     piecePID = new PIDController(0.25, 0, 0);
 
+    GamePieceManager.updateNT(estimator::getEstimatedPosition).schedule();
+
     RobotConfig config;
     try {
       config = RobotConfig.fromGUISettings();
@@ -262,11 +264,6 @@ public class Swerve extends SubsystemBase implements Loggable {
     for (SwerveModule module : modules) {
       module.periodic();
     }
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    GamePieceManager.updateNT(estimator.getEstimatedPosition());
   }
 
   @Override
