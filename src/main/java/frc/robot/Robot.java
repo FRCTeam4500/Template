@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.utilities.GamepieceManager;
+import frc.robot.utilities.GamepieceSimulator;
 import frc.robot.utilities.logging.HoundLog;
 import java.util.Set;
 
@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
     Trigger atComp = new Trigger(() -> DriverStation.isFMSAttached());
     atComp.onTrue(Commands.runOnce(() -> HoundLog.setOptions(compOptions)));
     atComp.onFalse(Commands.runOnce(() -> HoundLog.setOptions(homeOptions)));
-    GamepieceManager.resetField();
+    GamepieceSimulator.resetField();
   }
 
   @Override

@@ -34,7 +34,7 @@ import frc.robot.hardware.Gyro;
 import frc.robot.hardware.Limelight;
 import frc.robot.hardware.Limelight.PoseEstimate;
 import frc.robot.utilities.ExtendedMath;
-import frc.robot.utilities.GamepieceManager;
+import frc.robot.utilities.GamepieceSimulator;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
@@ -79,7 +79,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     headingPID.setSetpoint(0);
     piecePID = new PIDController(0.25, 0, 0);
 
-    GamepieceManager.setRobotPoseSupplier(estimator::getEstimatedPosition);
+    GamepieceSimulator.setRobotPoseSupplier(estimator::getEstimatedPosition);
 
     RobotConfig config;
     try {

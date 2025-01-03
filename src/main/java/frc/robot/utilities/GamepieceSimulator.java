@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 /**
  * Tracks the position of gamepieces during simulation, and updates game piece limelight readings
  */
-public class GamepieceManager {
+public class GamepieceSimulator {
   private static HashMap<NetworkTable, Pose3d> cameras = new HashMap<>();
   private static Set<Translation2d> pieces = new HashSet<>();
   private static Set<AnimatedGamepiece> animatedPieces = new HashSet<>();
