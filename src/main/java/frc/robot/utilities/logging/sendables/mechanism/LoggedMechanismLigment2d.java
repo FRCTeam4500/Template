@@ -1,10 +1,9 @@
 package frc.robot.utilities.logging.sendables.mechanism;
 
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 import java.util.HashMap;
-
-import edu.wpi.first.wpilibj.util.Color8Bit;
 
 public class LoggedMechanismLigment2d implements Loggable {
   private double angle;
@@ -16,7 +15,7 @@ public class LoggedMechanismLigment2d implements Loggable {
   public LoggedMechanismLigment2d(double length, double angle) {
     this(angle, length, new Color8Bit(235, 137, 52), 10);
   }
-  
+
   public LoggedMechanismLigment2d(double length, double angle, Color8Bit color, double lineWeight) {
     setAngle(angle);
     setLength(length);

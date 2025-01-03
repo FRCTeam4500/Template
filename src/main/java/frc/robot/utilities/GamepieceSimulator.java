@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.utilities.logging.HoundLog;
-
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,7 +58,7 @@ public class GamepieceSimulator {
   public static void setRobotPoseSupplier(Supplier<Pose2d> poseSupplier) {
     robotPoseSupplier = poseSupplier;
   }
-  
+
   /**
    * Adds a piece to the field
    *
@@ -71,7 +70,9 @@ public class GamepieceSimulator {
   }
 
   public static void animatePiece(Translation2d start, Pose3d end, double duration) {
-    animatedPieces.add(new AnimatedGamepiece(new Pose3d(new Translation3d(start), new Rotation3d()), end, duration));
+    animatedPieces.add(
+        new AnimatedGamepiece(
+            new Pose3d(new Translation3d(start), new Rotation3d()), end, duration));
     removePiece(start);
   }
 
@@ -109,91 +110,100 @@ public class GamepieceSimulator {
    * @return A command that animates any pieces added by {@link #animatePiece}
    */
   private static Command animatePieces() {
-    return Commands.run(() -> {
-      try {
-        for (AnimatedGamepiece piece : animatedPieces) {
-          if (piece.done()) {
-            animatedPieces.remove(piece);
-          }
-        }
-        Pose3d[] array = new Pose3d[animatedPieces.size()];
-        int i = 0;
-        for (AnimatedGamepiece piece : animatedPieces) {
-          array[i] = piece.getPose();
-          i++;
-        }
-        HoundLog.log("Animated Pieces", array);
-      } catch (ConcurrentModificationException e) {
-        // We dont have to do anything, stuff will be fixed next loop
-      }
-    }).ignoringDisable(true).withName("Animating Pieces");
+    return Commands.run(
+            () -> {
+              try {
+                for (AnimatedGamepiece piece : animatedPieces) {
+                  if (piece.done()) {
+                    animatedPieces.remove(piece);
+                  }
+                }
+                Pose3d[] array = new Pose3d[animatedPieces.size()];
+                int i = 0;
+                for (AnimatedGamepiece piece : animatedPieces) {
+                  array[i] = piece.getPose();
+                  i++;
+                }
+                HoundLog.log("Animated Pieces", array);
+              } catch (ConcurrentModificationException e) {
+                // We dont have to do anything, stuff will be fixed next loop
+              }
+            })
+        .ignoringDisable(true)
+        .withName("Animating Pieces");
   }
 
   /**
-   * A command that updates the network tables of the game piece cameras added via {@link #addCamera}.
-   * @return A command that updates the camera's NT values. If this isn't a simulation, returns a blank command.
+   * A command that updates the network tables of the game piece cameras added via {@link
+   * #addCamera}.
+   *
+   * @return A command that updates the camera's NT values. If this isn't a simulation, returns a
+   *     blank command.
    */
   private static Command updateNT() {
     if (RobotBase.isReal()) {
       return Commands.idle().withName("Fake Gamepiece NT Command");
     }
-    return Commands.run(() -> {
-      if (robotPoseSupplier == null) {
-        return;
-      }
-      Pose2d robotPose = robotPoseSupplier.get();
-      for (Map.Entry<NetworkTable, Pose3d> cameraEntry : cameras.entrySet()) {
-        Pose3d offset = cameraEntry.getValue();
-        Pose3d camera =
-            new Pose3d(
-                robotPose.getX() + offset.getX(),
-                robotPose.getY() + offset.getY(),
-                offset.getZ(),
-                new Rotation3d(
-                    offset.getRotation().getX(),
-                    offset.getRotation().getY(),
-                    robotPose.getRotation().getRadians() + offset.getRotation().getZ()));
-        boolean seenPiece = false;
-        double upAngle = 0;
-        double sideAngle = 0;
-        for (Translation2d piece : pieces) {
-          Pose3d poseVer = new Pose3d(new Translation3d(piece), new Rotation3d());
-          Pose3d thisPiece = poseVer.relativeTo(camera);
-          double thisDist = thisPiece.getTranslation().getNorm();
-          if (thisPiece.getX() < 0) {
-            continue;
-          }
-          double thisUp = thisPiece.getZ();
-          double thisSide = thisPiece.getY();
-          double thisUpAngle = Math.toDegrees(Math.asin(thisUp / thisDist));
-          double thisSideAngle = Math.toDegrees(Math.asin(thisSide / thisDist));
-          if (seenPiece) {
-            double thisCenterOffset = Math.hypot(thisSideAngle, thisUpAngle + 30);
-            double seenCenterOffset = Math.hypot(sideAngle, upAngle + 30);
-            if (thisCenterOffset < seenCenterOffset) {
-              upAngle = thisUpAngle;
-              sideAngle = thisSideAngle;
-            }
-          } else {
-            if (Math.abs(thisUpAngle) < 25 && Math.abs(thisSideAngle) < 30) {
-              seenPiece = true;
-              upAngle = thisUpAngle;
-              sideAngle = thisSideAngle;
-            }
-          }
-        }
-        NetworkTable table = cameraEntry.getKey();
-        if (seenPiece) {
-          table.getEntry("tv").setInteger(1);
-          table.getEntry("tx").setNumber(-sideAngle);
-          table.getEntry("ty").setNumber(upAngle);
-        } else {
-          table.getEntry("tv").setInteger(0);
-          table.getEntry("tx").setNumber(0);
-          table.getEntry("ty").setNumber(0);
-        }
-      }
-    }).ignoringDisable(true).withName("Gamepiece NT Command");
+    return Commands.run(
+            () -> {
+              if (robotPoseSupplier == null) {
+                return;
+              }
+              Pose2d robotPose = robotPoseSupplier.get();
+              for (Map.Entry<NetworkTable, Pose3d> cameraEntry : cameras.entrySet()) {
+                Pose3d offset = cameraEntry.getValue();
+                Pose3d camera =
+                    new Pose3d(
+                        robotPose.getX() + offset.getX(),
+                        robotPose.getY() + offset.getY(),
+                        offset.getZ(),
+                        new Rotation3d(
+                            offset.getRotation().getX(),
+                            offset.getRotation().getY(),
+                            robotPose.getRotation().getRadians() + offset.getRotation().getZ()));
+                boolean seenPiece = false;
+                double upAngle = 0;
+                double sideAngle = 0;
+                for (Translation2d piece : pieces) {
+                  Pose3d poseVer = new Pose3d(new Translation3d(piece), new Rotation3d());
+                  Pose3d thisPiece = poseVer.relativeTo(camera);
+                  double thisDist = thisPiece.getTranslation().getNorm();
+                  if (thisPiece.getX() < 0) {
+                    continue;
+                  }
+                  double thisUp = thisPiece.getZ();
+                  double thisSide = thisPiece.getY();
+                  double thisUpAngle = Math.toDegrees(Math.asin(thisUp / thisDist));
+                  double thisSideAngle = Math.toDegrees(Math.asin(thisSide / thisDist));
+                  if (seenPiece) {
+                    double thisCenterOffset = Math.hypot(thisSideAngle, thisUpAngle + 30);
+                    double seenCenterOffset = Math.hypot(sideAngle, upAngle + 30);
+                    if (thisCenterOffset < seenCenterOffset) {
+                      upAngle = thisUpAngle;
+                      sideAngle = thisSideAngle;
+                    }
+                  } else {
+                    if (Math.abs(thisUpAngle) < 25 && Math.abs(thisSideAngle) < 30) {
+                      seenPiece = true;
+                      upAngle = thisUpAngle;
+                      sideAngle = thisSideAngle;
+                    }
+                  }
+                }
+                NetworkTable table = cameraEntry.getKey();
+                if (seenPiece) {
+                  table.getEntry("tv").setInteger(1);
+                  table.getEntry("tx").setNumber(-sideAngle);
+                  table.getEntry("ty").setNumber(upAngle);
+                } else {
+                  table.getEntry("tv").setInteger(0);
+                  table.getEntry("tx").setNumber(0);
+                  table.getEntry("ty").setNumber(0);
+                }
+              }
+            })
+        .ignoringDisable(true)
+        .withName("Gamepiece NT Command");
   }
 
   /** Holds info about a game piece that is animated */
@@ -201,7 +211,7 @@ public class GamepieceSimulator {
     private Pose3d startPose;
     private Pose3d endPose;
     private double startTime;
-    private double endTime; 
+    private double endTime;
 
     public AnimatedGamepiece(Pose3d start, Pose3d end, double duration) {
       startPose = start;
@@ -211,7 +221,8 @@ public class GamepieceSimulator {
     }
 
     public Pose3d getPose() {
-      return startPose.interpolate(endPose, (Timer.getFPGATimestamp() - startTime) / (endTime - startTime));
+      return startPose.interpolate(
+          endPose, (Timer.getFPGATimestamp() - startTime) / (endTime - startTime));
     }
 
     public boolean done() {
@@ -220,15 +231,14 @@ public class GamepieceSimulator {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AnimatedGamepiece piece) {
-          return piece.startPose.equals(this.startPose)
+      if (obj instanceof AnimatedGamepiece piece) {
+        return piece.startPose.equals(this.startPose)
             && piece.endPose.equals(this.endPose)
             && piece.startTime == this.startTime
             && piece.endTime == this.endTime;
-        } else {
-          return false;
-        }
+      } else {
+        return false;
+      }
     }
-    
   }
 }
