@@ -21,7 +21,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.utilities.GamepieceSimulator;
+import frc.robot.utilities.gamepieces.Gamepiece;
+import frc.robot.utilities.gamepieces.GamepieceManager;
 import frc.robot.utilities.logging.HoundLog;
 import java.util.Set;
 
@@ -74,7 +75,7 @@ public class Robot extends TimedRobot {
     Trigger atComp = new Trigger(() -> DriverStation.isFMSAttached());
     atComp.onTrue(Commands.runOnce(() -> HoundLog.setOptions(compOptions)));
     atComp.onFalse(Commands.runOnce(() -> HoundLog.setOptions(homeOptions)));
-    GamepieceSimulator.resetField();
+    GamepieceManager.resetField();
   }
 
   @Override
@@ -91,5 +92,10 @@ public class Robot extends TimedRobot {
     HoundLog.log("DogLog", "Logging Loop Time", loggingLoop * 1000);
     HoundLog.log("DogLog", "Commands Loop Time", commandsLoop * 1000);
     HoundLog.log("DogLog", "Total Loop Time", 1000 * (commandsLoop + loggingLoop));
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    GamepieceManager.simulate();
   }
 }
