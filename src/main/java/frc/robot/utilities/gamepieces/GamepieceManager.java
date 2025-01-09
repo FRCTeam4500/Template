@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -19,6 +20,8 @@ public class GamepieceManager {
     private static HashSet<Gamepiece> pieces = new HashSet<>();
     private static HashMap<NetworkTable, Pose3d> cameras = new HashMap<>();
     private static Optional<Supplier<Pose2d>> robotPoseSupplier = Optional.empty();
+    private static Optional<Gamepiece> heldPiece = Optional.of(new Gamepiece(new Translation2d()));
+    private static Optional<Supplier<Transform3d>> heldTransformSupplier = Optional.of(() -> new Transform3d(0.15, 0, 0.5, new Rotation3d(0,-Math.PI / 3, 0))); 
 
     public static void setRobotPoseSupplier(Supplier<Pose2d> supplier) {
         robotPoseSupplier = Optional.of(supplier);
@@ -56,6 +59,10 @@ public class GamepieceManager {
         Gamepiece[] toRemove = pieces.stream().filter(piece -> piece.shouldDelete()).toArray(Gamepiece[]::new);
         for (Gamepiece piece : toRemove) {
             removePiece(piece);
+        }
+        if (heldPiece.isPresent() && robotPoseSupplier.isPresent() && heldTransformSupplier.isPresent()) {
+            heldPiece.get().setPose(new Pose3d(robotPoseSupplier.get().get()).transformBy(heldTransformSupplier.get().get()));
+            pieces.add(heldPiece.get());
         }
         Pose3d[] pieceArray = pieces.stream().map(piece -> piece.getPose()).toArray(Pose3d[]::new);
         HoundLog.log("Pieces", pieceArray);

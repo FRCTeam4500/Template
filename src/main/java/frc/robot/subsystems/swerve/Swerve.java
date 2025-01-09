@@ -145,6 +145,19 @@ public class Swerve extends SubsystemBase implements Loggable {
         this);
   }
 
+  public Command robotCentric(XboxController xbox) {
+    return Commands.run(() -> {
+      double coefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
+      drive(
+        new ChassisSpeeds(
+          coefficient * withHardDeadzone(-xbox.getLeftY(), 0.1) * MAX_SPEEDS.vxMetersPerSecond,
+          coefficient * withHardDeadzone(-xbox.getLeftX(), 0.1) * MAX_SPEEDS.vyMetersPerSecond,
+          coefficient * withHardDeadzone(-xbox.getRightX(), 0.1) * MAX_SPEEDS.omegaRadiansPerSecond
+        )
+      );
+    }, this);
+  }
+
   /**
    * Updates the heading of the robot
    *
@@ -273,7 +286,6 @@ public class Swerve extends SubsystemBase implements Loggable {
     HoundLog.log(path, "Pose", estimator.getEstimatedPosition());
     HoundLog.log(path, "Target Heading", targetHeading);
     HoundLog.log(path, "Gyro Angle", gyro.getAngle());
-    HoundLog.log(path, "Sideways", estimator.getEstimatedPosition().getY());
     HoundLog.log(path, "Front Left Module", modules[0]);
     HoundLog.log(path, "Front Right Module", modules[1]);
     HoundLog.log(path, "Back Left Module", modules[2]);

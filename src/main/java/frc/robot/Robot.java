@@ -58,6 +58,7 @@ public class Robot extends TimedRobot {
     faceBackwards.and(onBlue).onTrue(swerve.setTargetHeading(Rotation2d.fromDegrees(180)));
     resetHeading.onTrue(swerve.resetHeading(Rotation2d.fromDegrees(0)));
     pieceAlign.whileTrue(swerve.pieceCentric(xbox.getHID()));
+    xbox.leftBumper().whileTrue(swerve.robotCentric(xbox.getHID()));
   }
 
   public void setupAuto() {
