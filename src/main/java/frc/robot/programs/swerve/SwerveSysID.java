@@ -68,7 +68,7 @@ public class SwerveSysID extends LoggedRobot {
 
     frDrive =
         Motor.fromTalonFX(
-          SwerveWiring.FRONT_RIGHT_DRIVE_ID,
+            SwerveWiring.FRONT_RIGHT_DRIVE_ID,
             motor -> {
               TalonFXConfiguration config = new TalonFXConfiguration();
               config.CurrentLimits =
@@ -93,7 +93,7 @@ public class SwerveSysID extends LoggedRobot {
 
     blDrive =
         Motor.fromTalonFX(
-          SwerveWiring.BACK_LEFT_DRIVE_ID,
+            SwerveWiring.BACK_LEFT_DRIVE_ID,
             motor -> {
               TalonFXConfiguration config = new TalonFXConfiguration();
               config.CurrentLimits =
@@ -118,7 +118,7 @@ public class SwerveSysID extends LoggedRobot {
 
     brDrive =
         Motor.fromTalonFX(
-          SwerveWiring.BACK_RIGHT_DRIVE_ID,
+            SwerveWiring.BACK_RIGHT_DRIVE_ID,
             motor -> {
               TalonFXConfiguration config = new TalonFXConfiguration();
               config.CurrentLimits =
@@ -143,7 +143,7 @@ public class SwerveSysID extends LoggedRobot {
 
     flAngle =
         Motor.fromSparkMax(
-          SwerveWiring.FRONT_LEFT_ANGLE_ID,
+            SwerveWiring.FRONT_LEFT_ANGLE_ID,
             false,
             motor -> {
               SparkMaxConfig config = new SparkMaxConfig();
@@ -165,7 +165,7 @@ public class SwerveSysID extends LoggedRobot {
 
     frAngle =
         Motor.fromSparkMax(
-          SwerveWiring.FRONT_LEFT_ANGLE_ID,
+            SwerveWiring.FRONT_LEFT_ANGLE_ID,
             false,
             motor -> {
               SparkMaxConfig config = new SparkMaxConfig();
@@ -187,7 +187,7 @@ public class SwerveSysID extends LoggedRobot {
 
     blAngle =
         Motor.fromSparkMax(
-          SwerveWiring.BACK_LEFT_ANGLE_ID,
+            SwerveWiring.BACK_LEFT_ANGLE_ID,
             false,
             motor -> {
               SparkMaxConfig config = new SparkMaxConfig();
@@ -209,7 +209,7 @@ public class SwerveSysID extends LoggedRobot {
 
     brAngle =
         Motor.fromSparkMax(
-          SwerveWiring.BACK_RIGHT_ANGLE_ID,
+            SwerveWiring.BACK_RIGHT_ANGLE_ID,
             false,
             motor -> {
               SparkMaxConfig config = new SparkMaxConfig();
