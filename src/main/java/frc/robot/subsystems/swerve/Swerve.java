@@ -8,18 +8,17 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -33,8 +32,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.hardware.Gyro;
 import frc.robot.hardware.Limelight;
 import frc.robot.hardware.Limelight.PoseEstimate;
-import frc.robot.utilities.ExtendedMath;
-import frc.robot.utilities.gamepieces.GamepieceManager;
+import frc.robot.utilities.FeedbackController;
+import frc.robot.utilities.PoseFeedbackController;
+import frc.robot.utilities.StopTilting;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
@@ -45,20 +45,17 @@ public class Swerve extends SubsystemBase implements Loggable {
   private SwerveDriveKinematics kinematics;
   private SwerveDrivePoseEstimator estimator;
   private Limelight[] tagCameras;
-  private Limelight pieceCamera;
   private Rotation2d targetHeading;
-  private PIDController headingPID;
-  private PIDController piecePID;
+  private FeedbackController headingFeedback;
+  private PoseFeedbackController poseFeedback;
 
   /** Creates a new {@link Swerve} using the constants defined in {@link SwerveConstants} */
   public Swerve() {
-    tagCameras = new Limelight[] {new Limelight("limelight-hehehe")};
-    pieceCamera = new Limelight("limelight-haha", new Pose3d(0, 0, 0.48, new Rotation3d(0, 0, 0)));
-    if (RobotBase.isReal()) {
-      gyro = Gyro.fromNavX(navx -> {});
-    } else {
-      gyro = Gyro.fromSim(() -> getSpeeds().omegaRadiansPerSecond);
-    }
+    tagCameras =
+        new Limelight[] {
+          
+        };
+    gyro = Gyro.fromNavX(() -> getSpeeds().omegaRadiansPerSecond, navx -> {});
     modules =
         new SwerveModule[] {
           FRONT_LEFT_MODULE, FRONT_RIGHT_MODULE, BACK_LEFT_MODULE, BACK_RIGHT_MODULE
@@ -71,40 +68,99 @@ public class Swerve extends SubsystemBase implements Loggable {
             BACK_RIGHT_TRANSLATION);
     estimator =
         new SwerveDrivePoseEstimator(
-            kinematics, gyro.getAngle(), getModulePositions(), new Pose2d());
+            kinematics,
+            gyro.getAngle(),
+            getModulePositions(),
+            new Pose2d(),
+            VecBuilder.fill(0.1, 0.1, 0.1),
+            VecBuilder.fill(5, 5, 5));
+    StopTilting.setupKinematics(kinematics);
+    StopTilting.setupBase(
+        estimator::getEstimatedPosition, new Transform3d(0, 0, 0.1, Rotation3d.kZero), 39.3468644);
     targetHeading = new Rotation2d();
-    headingPID = new PIDController(5, 0, 0);
-    headingPID.enableContinuousInput(-Math.PI, Math.PI);
-    headingPID.setTolerance(Math.PI / 32, Math.PI / 32);
-    headingPID.setSetpoint(0);
-    piecePID = new PIDController(0.25, 0, 0);
-
-    GamepieceManager.setRobotPoseSupplier(estimator::getEstimatedPosition);
+    headingFeedback =
+        FeedbackController.fromPID(
+            5,
+            0,
+            0,
+            pid -> {
+              pid.enableContinuousInput(-Math.PI, Math.PI);
+              pid.setTolerance(Math.PI / 32, Math.PI / 32);
+              pid.setSetpoint(0);
+            });
+    if (RobotBase.isReal()) {
+      poseFeedback =
+          new PoseFeedbackController(
+              FeedbackController.fromPID(
+                  1.5,
+                  0,
+                  0,
+                  pid -> {
+                    pid.setTolerance(0.02, 0.1);
+                  }),
+              FeedbackController.fromPID(
+                  2,
+                  0,
+                  0,
+                  pid -> {
+                    pid.setTolerance(0.015, 0.1);
+                  }),
+              FeedbackController.fromPID(
+                  6,
+                  0,
+                  0,
+                  pid -> {
+                    pid.enableContinuousInput(0, 360);
+                    pid.setTolerance(2);
+                  }));
+    } else {
+      poseFeedback =
+          new PoseFeedbackController(
+              FeedbackController.fromPID(
+                  5,
+                  0,
+                  0,
+                  pid -> {
+                    pid.setTolerance(0.02);
+                  }),
+              FeedbackController.fromPID(
+                  5,
+                  0,
+                  0,
+                  pid -> {
+                    pid.setTolerance(0.02);
+                  }),
+              FeedbackController.fromPID(
+                  3,
+                  0,
+                  0,
+                  pid -> {
+                    pid.enableContinuousInput(0, 360);
+                    pid.setTolerance(1);
+                  }));
+    }
 
     RobotConfig config;
     try {
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
-      Alert alert = new Alert("READING AUTO CONFIG FILE FAILED!!", AlertType.kError);
-      alert.set(true);
-      alert.close();
+      HoundLog.logFault("[Swerve] Failed to read auto config...", AlertType.kError);
       System.out.println(e.getMessage());
       config =
-          new RobotConfig(
-              68,
-              6.884,
-              new ModuleConfig(0.5, 6, 1.2, DCMotor.getKrakenX60(1).withReduction(5.143), 60, 1),
-              FRONT_LEFT_TRANSLATION,
-              FRONT_RIGHT_TRANSLATION,
-              BACK_LEFT_TRANSLATION,
-              BACK_RIGHT_TRANSLATION);
+          new RobotConfig( //TODO fix
+              53.126, // robot's mass in kg
+              4.954, // Robot's moment of inertia
+              new ModuleConfig(0.045, 4.500, 1.1, DCMotor.getKrakenX60(1).withReduction(6), 40, 1),
+              FRONT_LEFT_TRANSLATION.getY()
+                  * 2 // the trackwidth of the robot (dist. from top left to top right for example)
+              );
     }
     AutoBuilder.configure(
         estimator::getEstimatedPosition,
         this::resetPose,
         this::getSpeeds,
         this::drive,
-        new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(5)),
+        new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(1)),
         config,
         () -> {
           Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
@@ -114,7 +170,7 @@ public class Swerve extends SubsystemBase implements Loggable {
   }
 
   /**
-   * @param xbox The {@link XboxController that will control the driving}
+   * @param xbox The {@link XboxController} that will control the driving
    * @return a {@link Command} that drives the robot using a {@link XboxController}.
    *     <ul>
    *       <li>Translation of the robot is controlled with the left stick, field relative
@@ -129,33 +185,56 @@ public class Swerve extends SubsystemBase implements Loggable {
               drive(calculateVelRobotRel(xbox));
             },
             this)
-        .beforeStarting(() -> targetHeading = estimator.getEstimatedPosition().getRotation());
+        .beforeStarting(() -> targetHeading = estimator.getEstimatedPosition().getRotation())
+        .withName("Angle Centric");
   }
 
-  public Command pieceCentric(XboxController xbox) {
-    return Commands.run(
-        () -> {
-          ChassisSpeeds original = calculateVelRobotRel(xbox);
-          drive(
-              new ChassisSpeeds(
-                  original.vxMetersPerSecond,
-                  piecePID.calculate(-pieceCamera.getTX(), 0),
-                  original.omegaRadiansPerSecond));
-        },
-        this);
-  }
-
+  /**
+   * @param xbox The {@link XboxController} that will control the driving
+   * @return a {@link Command} that drives the robot using a {@link XboxController}.
+   *     <ul>
+   *       <li>Translation of the robot is controlled with the left stick, robot relative
+   *       <li>Rotation of the robot is controlled with the right stick
+   *     </ul>
+   */
   public Command robotCentric(XboxController xbox) {
-    return Commands.run(() -> {
-      double coefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
-      drive(
-        new ChassisSpeeds(
-          coefficient * withHardDeadzone(-xbox.getLeftY(), 0.1) * MAX_SPEEDS.vxMetersPerSecond,
-          coefficient * withHardDeadzone(-xbox.getLeftX(), 0.1) * MAX_SPEEDS.vyMetersPerSecond,
-          coefficient * withHardDeadzone(-xbox.getRightX(), 0.1) * MAX_SPEEDS.omegaRadiansPerSecond
-        )
-      );
-    }, this);
+    return Commands.run(
+            () -> {
+              double coefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
+              drive(
+                  new ChassisSpeeds(
+                      coefficient
+                          * withHardDeadzone(-xbox.getLeftY(), 0.1)
+                          * MAX_FIELD_REL_SPEEDS.vxMetersPerSecond,
+                      coefficient
+                          * withHardDeadzone(-xbox.getLeftX(), 0.1)
+                          * MAX_FIELD_REL_SPEEDS.vyMetersPerSecond,
+                      coefficient
+                          * withHardDeadzone(-xbox.getRightX(), 0.1)
+                          * MAX_FIELD_REL_SPEEDS.omegaRadiansPerSecond));
+            },
+            this)
+        .withName("Robot Centric");
+  }
+
+  /*
+   * @param target pose on the field which the robot should try to move toward.
+   * @return a {@link Command} that drives the robot to the provided target pose.
+   */
+  public Command poseCentric(Pose2d target) {
+    return Commands.run(
+            () -> {
+              Pose2d current = estimator.getEstimatedPosition();
+              ChassisSpeeds speeds = poseFeedback.calculate(current, target);
+              drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, current.getRotation()));
+            },
+            this)
+        .beforeStarting(
+            () -> {
+              poseFeedback.reset(estimator.getEstimatedPosition());
+            })
+        .until(() -> poseFeedback.atTarget())
+        .withName("Pose Centric");
   }
 
   /**
@@ -168,7 +247,7 @@ public class Swerve extends SubsystemBase implements Loggable {
     return Commands.runOnce(
         () -> {
           resetPose(new Pose2d(estimator.getEstimatedPosition().getTranslation(), newHeading));
-          targetHeading = new Rotation2d();
+          targetHeading = newHeading;
         });
   }
 
@@ -182,6 +261,116 @@ public class Swerve extends SubsystemBase implements Loggable {
     return Commands.runOnce(() -> this.targetHeading = targetHeading);
   }
 
+  public Command driveConversionFinder(double speed, double duration) {
+    class CharacterizationState {
+      double[] startPositions = new double[4];
+      double[] endPositions = new double[4];
+      double startAngle = 0;
+      double endAngle = 0;
+    }
+    CharacterizationState state = new CharacterizationState();
+    return Commands.runOnce(
+            () -> {
+              drive(new ChassisSpeeds(0, 0, speed));
+            },
+            this)
+        .andThen(Commands.waitSeconds(1))
+        .andThen(
+            Commands.runOnce(
+                () -> {
+                  state.startAngle = gyro.getAngle().getRadians();
+                  state.startPositions =
+                      new double[] {
+                        modules[0].getCurrentPosition().distanceMeters,
+                        modules[1].getCurrentPosition().distanceMeters,
+                        modules[2].getCurrentPosition().distanceMeters,
+                        modules[3].getCurrentPosition().distanceMeters
+                      };
+                }))
+        .andThen(Commands.waitSeconds(duration))
+        .andThen(
+            Commands.runOnce(
+                () -> {
+                  state.endAngle = gyro.getAngle().getRadians();
+                  state.endPositions =
+                      new double[] {
+                        modules[0].getCurrentPosition().distanceMeters,
+                        modules[1].getCurrentPosition().distanceMeters,
+                        modules[2].getCurrentPosition().distanceMeters,
+                        modules[3].getCurrentPosition().distanceMeters
+                      };
+                  double gyroDelta = Math.abs(state.endAngle - state.startAngle);
+                  for (int i = 0; i < modules.length; i++) {
+                    double wheelDelta = Math.abs(state.endPositions[i] - state.startPositions[i]);
+                    wheelDelta /= SwerveConstants.BACK_LEFT_TRANSLATION.getNorm();
+                    System.out.println(
+                        "Module " + (i + 1) + " Coefficient: " + gyroDelta / wheelDelta);
+                  }
+                  System.out.println();
+                }))
+        .withName("Drive Conversion Factor Finder");
+  }
+
+  /**
+   * @return a {@link Command} that moves the robot back at 2m/s for 0.25s
+   */
+  public Command backup() {
+    return Commands.run(
+            () -> {
+              drive(new ChassisSpeeds(-2, 0, 0));
+            },
+            this)
+        .withTimeout(.25)
+        .withName("Backup");
+  }
+
+  /**
+   * @param pushDirection the direction to face the wheels
+   * @return a {@link Command} that turns all wheels to face provided direction
+   */
+  public Command makePushable(Rotation2d pushDirection) {
+    return Commands.run(
+            () -> {
+              FRONT_LEFT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
+              FRONT_RIGHT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
+              BACK_LEFT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
+              BACK_RIGHT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
+            },
+            this)
+        .beforeStarting(
+            () -> {
+              FRONT_LEFT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
+              FRONT_RIGHT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
+              BACK_LEFT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
+              BACK_RIGHT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
+            })
+        .withName("Pushable: " + pushDirection.getDegrees() + " Degrees");
+  }
+
+  /**
+   * @return a {@link Command} that faces all wheels to the middle of the robot (to minimize
+   *     movement)
+   */
+  public Command xLock() {
+    return Commands.run(
+            () -> {
+              FRONT_LEFT_MODULE.setTargetState(
+                  new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+              FRONT_RIGHT_MODULE.setTargetState(
+                  new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+              BACK_LEFT_MODULE.setTargetState(
+                  new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+              BACK_RIGHT_MODULE.setTargetState(
+                  new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+            },
+            this)
+        .withName("Wheel Lock");
+  }
+
+  /**
+   * @param xbox The {@link XboxController} that will control the driving
+   * @return The speeds (robot-relative) of the robot calculated from xbox inputs.
+   */
   private ChassisSpeeds calculateVelRobotRel(XboxController xbox) {
     double speedCoefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
     Rotation2d currentHeading = estimator.getEstimatedPosition().getRotation();
@@ -190,17 +379,24 @@ public class Swerve extends SubsystemBase implements Loggable {
             targetHeading.getRadians()
                 - withHardDeadzone(xbox.getRightX(), 0.1)
                     * speedCoefficient
-                    * MAX_SPEEDS.omegaRadiansPerSecond
+                    * MAX_FIELD_REL_SPEEDS.omegaRadiansPerSecond
                     * 0.02);
     double rotational =
-        headingPID.calculate(currentHeading.getRadians(), targetHeading.getRadians());
+        headingFeedback.calculate(currentHeading.getRadians(), targetHeading.getRadians());
+    if (headingFeedback.atGoal()) {
+      rotational = 0;
+    }
     if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
       speedCoefficient *= -1;
     }
     double forward =
-        speedCoefficient * withHardDeadzone(xbox.getLeftY(), 0.1) * MAX_SPEEDS.vxMetersPerSecond;
+        speedCoefficient
+            * withHardDeadzone(xbox.getLeftY(), 0.1)
+            * MAX_FIELD_REL_SPEEDS.vxMetersPerSecond;
     double sideways =
-        speedCoefficient * withHardDeadzone(xbox.getLeftX(), 0.1) * MAX_SPEEDS.vyMetersPerSecond;
+        speedCoefficient
+            * withHardDeadzone(xbox.getLeftX(), 0.1)
+            * MAX_FIELD_REL_SPEEDS.vyMetersPerSecond;
     ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
     return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, currentHeading);
   }
@@ -214,20 +410,43 @@ public class Swerve extends SubsystemBase implements Loggable {
         speeds.omegaRadiansPerSecond);
   }
 
-  public Command skewTest() {
-    return run(() -> {
-          ChassisSpeeds fieldRel = new ChassisSpeeds(3, 0, Math.PI);
-          drive(
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  fieldRel, estimator.getEstimatedPosition().getRotation()));
-        })
-        .finallyDo(() -> drive(new ChassisSpeeds()));
-  }
-
+  /**
+   * moves the robot according to provided speeds.
+   *
+   * @param speeds the target speeds (robot-relative) of the robot
+   */
   private void drive(ChassisSpeeds speeds) {
+    double coefficient =
+        MAX_ROBOT_REL_SPEEDS.vxMetersPerSecond / Math.abs(speeds.vxMetersPerSecond);
+    if (coefficient < 1) {
+      speeds =
+          new ChassisSpeeds(
+              speeds.vxMetersPerSecond * coefficient,
+              speeds.vyMetersPerSecond * coefficient,
+              speeds.omegaRadiansPerSecond * coefficient);
+    }
+    coefficient = MAX_ROBOT_REL_SPEEDS.vyMetersPerSecond / Math.abs(speeds.vyMetersPerSecond);
+    if (coefficient < 1) {
+      speeds =
+          new ChassisSpeeds(
+              speeds.vxMetersPerSecond * coefficient,
+              speeds.vyMetersPerSecond * coefficient,
+              speeds.omegaRadiansPerSecond * coefficient);
+    }
+    coefficient =
+        MAX_ROBOT_REL_SPEEDS.omegaRadiansPerSecond / Math.abs(speeds.omegaRadiansPerSecond);
+    if (coefficient < 1) {
+      speeds =
+          new ChassisSpeeds(
+              speeds.vxMetersPerSecond * coefficient,
+              speeds.vyMetersPerSecond * coefficient,
+              speeds.omegaRadiansPerSecond * coefficient);
+    }
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_MODULE_SPEED);
     speeds = kinematics.toChassisSpeeds(states);
+    speeds = StopTilting.limitAccel(speeds);
+    HoundLog.log("Swerve", "Target Speed", speeds);
     states = kinematics.toSwerveModuleStates(applySkewCorrection(speeds));
     SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_MODULE_SPEED);
     for (int i = 0; i < modules.length; i++) {
@@ -235,8 +454,13 @@ public class Swerve extends SubsystemBase implements Loggable {
     }
   }
 
+  public Pose2d getPose() {
+    return estimator.getEstimatedPosition();
+  }
+
   private void resetPose(Pose2d pose) {
     estimator.resetPosition(gyro.getAngle(), getModulePositions(), pose);
+    targetHeading = pose.getRotation();
   }
 
   private ChassisSpeeds getSpeeds() {
@@ -263,16 +487,18 @@ public class Swerve extends SubsystemBase implements Loggable {
   @Override
   public void periodic() {
     estimator.update(gyro.getAngle(), getModulePositions());
-    boolean speedLimit =
-        (ExtendedMath.within(getSpeeds(), new ChassisSpeeds(), new ChassisSpeeds(1, 1, 2 * Math.PI))
-            || !DriverStation.isAutonomous());
     for (Limelight camera : tagCameras) {
       PoseEstimate estimate = camera.getPoseMT1();
       if (estimate.exists()
-          && speedLimit
-          && (estimate.tagCount() > 1 || estimate.averageDistance() < 4))
+          && (estimate.tagCount() > 1 // sees more than one tag
+              || estimate.averageDistance() < 2 // within 2m
+              || DriverStation.isDisabled()) // robot disabled
+          && camera.isEnabled()) {
         estimator.addVisionMeasurement(
-            estimate.pose(), Timer.getFPGATimestamp() - estimate.latencySeconds());
+            estimate.pose(),
+            Timer.getFPGATimestamp()
+                - estimate.latencySeconds()); // update estimator with vision-determined pose
+      }
     }
     for (SwerveModule module : modules) {
       module.periodic();
@@ -291,5 +517,9 @@ public class Swerve extends SubsystemBase implements Loggable {
     HoundLog.log(path, "Back Left Module", modules[2]);
     HoundLog.log(path, "Back Right Module", modules[3]);
     HoundLog.log(path, "Gyro", gyro);
+    HoundLog.log(path, "At Target Pose", poseFeedback.atTarget());
+    for (Limelight camera : tagCameras) {
+      HoundLog.log(path, camera.getName(), camera);
+    }
   }
 }

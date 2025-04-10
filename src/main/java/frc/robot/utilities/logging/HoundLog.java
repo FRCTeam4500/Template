@@ -13,6 +13,16 @@ public class HoundLog extends DogLog {
     log(path + "/" + key, value);
   }
 
+  public static void log(String key, Loggable[] value) {
+    for (Loggable loggable : value) {
+      loggable.log(key);
+    }
+  }
+
+  public static void log(String path, String key, Loggable[] value) {
+    log(path + "/" + key, value);
+  }
+
   public static void log(String path, String key, boolean value) {
     log(path + "/" + key, value);
   }

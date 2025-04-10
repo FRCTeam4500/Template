@@ -1,6 +1,8 @@
 package frc.robot.utilities;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 /**
  * Holds a group of commands that can be run to get data to characterise a mechanism using SysID.
@@ -20,4 +22,20 @@ public record SysIDCommands(
     Command dynamicForward,
     Command dynamicReverse,
     Command quasistaticForward,
-    Command quasistaticReverse) {}
+    Command quasistaticReverse) {
+
+  public void putOnDashboard(String mechanismName, Subsystem... reqs) {
+    dynamicForward.addRequirements(reqs);
+    dynamicReverse.addRequirements(reqs);
+    quasistaticForward.addRequirements(reqs);
+    quasistaticReverse.addRequirements(reqs);
+    SmartDashboard.putData(
+        "Characterization/" + mechanismName + "/Dynamic Forward", dynamicForward);
+    SmartDashboard.putData(
+        "Characterization/" + mechanismName + "/Dynamic Reverse", dynamicReverse);
+    SmartDashboard.putData(
+        "Characterization/" + mechanismName + "/Quasistatic Forward", quasistaticForward);
+    SmartDashboard.putData(
+        "Characterization/" + mechanismName + "/Quasistatic Reverse", quasistaticReverse);
+  }
+}

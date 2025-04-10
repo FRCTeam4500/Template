@@ -2,15 +2,13 @@ package frc.robot.utilities;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.hardware.Motor.FeedforwardConstants;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
 /** Models a single motor mechanism described by the given {@link FeedforwardConstants} */
 public class FeedforwardSim extends SubsystemBase implements Loggable {
   private MechanismState state;
-  private FeedforwardConstants feedforward;
-  private boolean scaleGravity;
+  private FeedforwardController feedforward;
   private double volts;
   private double max = Double.POSITIVE_INFINITY;
   private double min = Double.NEGATIVE_INFINITY;
@@ -21,17 +19,15 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
    * @param feedforward The feedforward constants used to model the mechansim
    * @param initialPosition The initial position of the mechanism
    * @param scaleGravity Whether to scale kG based on the angle of the mechanism. If this is true,
-   *     units are assumed to be rotations, with 0 being horizontal, and 0.25 pointing straight up.
+   *     units are assumed to be degrees, with 0 being horizontal, and 0.25 pointing straight up.
    * @throws IllegalArgumentException if the feedforward's kV or kA is 0
    */
-  public FeedforwardSim(
-      FeedforwardConstants feedforward, double initialPosition, boolean scaleGravity) {
-    if (feedforward.kV() == 0 || feedforward.kA() == 0) {
-      throw new IllegalArgumentException("kV and/or kA can not be 0!!");
+  public FeedforwardSim(FeedforwardController feedforward, double initialPosition) {
+    if (!feedforward.canSimulate()) {
+      throw new IllegalArgumentException("The feedforward must be able to simulate acceleration!");
     }
     this.feedforward = feedforward;
     this.state = new MechanismState(initialPosition, 0, 0);
-    this.scaleGravity = scaleGravity;
   }
 
   /** Simulates the next 0.02s. If the robot is disabled, voltage is set to 0 */
@@ -39,13 +35,7 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
     if (DriverStation.isDisabled()) {
       volts = 0;
     }
-    double gravityVolts = feedforward.kG();
-    if (scaleGravity) {
-      gravityVolts *= Math.cos(state.position * 2 * Math.PI);
-    }
-    double staticVolts = Math.signum(state.velocity) * feedforward.kS();
-    double velocityVolts = state.velocity * feedforward.kV();
-    double acceleration = (volts - gravityVolts - staticVolts - velocityVolts) / feedforward.kA();
+    double acceleration = feedforward.calculateAccel(state.position, state.velocity, volts);
     double velocity = 0.02 * acceleration + state.velocity();
     double position = 0.02 * velocity + state.position();
     if (position > max) {
@@ -84,6 +74,9 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
    * @param volts The motor's new voltage
    */
   public void setVoltage(double volts) {
+    if (Math.abs(volts) > 12) {
+      volts = 12 * Math.signum(volts);
+    }
     this.volts = volts;
   }
 

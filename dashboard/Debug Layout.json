@@ -1,0 +1,249 @@
+{
+  "version": 1.0,
+  "grid_size": 128,
+  "tabs": [
+    {
+      "name": "Dashboard",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Alerts",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Auto Chooser",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Auto Chooser",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "limelight-hehehe",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Toggle Button",
+            "properties": {
+              "topic": "/SmartDashboard/[Limelight] limelight-hehehe Enabled/limelight-hehehe",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "limelight-hihihi",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Toggle Button",
+            "properties": {
+              "topic": "/SmartDashboard/[Limelight] limelight-hihihi Enabled/limelight-hihihi",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "MT1",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Toggle Button",
+            "properties": {
+              "topic": "/SmartDashboard/Vision Method/MT1",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Song Selector",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Song Selector",
+              "period": 0.06,
+              "sort_options": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Operator Buttons",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Target L1",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Target L1",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Target L2",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Target L2",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Target L3",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Target L3",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Target L4",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Target L4",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Target Low Algae",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Target Low Algae",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Target High Algae",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Target High Algae",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Stow",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Stow",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Intake",
+            "x": 256.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Intake",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Climb",
+            "x": 512.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Climb",
+              "period": 0.06,
+              "show_type": true
+            }
+          },
+          {
+            "title": "Ready Climb",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/Buttons/Ready Climb",
+              "period": 0.06,
+              "show_type": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Command Scheduler",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "Scheduler",
+            "properties": {
+              "topic": "/SmartDashboard/Debug/Command Scheduler",
+              "period": 0.06
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

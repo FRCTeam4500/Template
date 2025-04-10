@@ -3,7 +3,11 @@ package frc.robot.hardware;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 import java.util.function.Consumer;
@@ -40,26 +44,50 @@ public interface Gyro extends Loggable {
    * @param config Method to configure the navX
    * @return the navX on the RIO wrapped as a {@link Gyro}
    */
-  public static Gyro fromNavX(Consumer<AHRS> config) {
+  public static Gyro fromNavX(DoubleSupplier radiansPerSecond, Consumer<AHRS> config) {
+    if (RobotBase.isSimulation()) {
+      return fromSim(radiansPerSecond);
+    }
     AHRS navx = new AHRS(NavXComType.kMXP_SPI);
     config.accept(navx);
+    Trigger connected = new Trigger(navx::isConnected);
+    connected.onFalse(
+        Commands.runOnce(() -> HoundLog.logFault("Gyro Disconnected...", AlertType.kError))
+            .ignoringDisable(true));
+    connected.onTrue(
+        Commands.runOnce(() -> HoundLog.clearFault("Gyro Disconnected...")).ignoringDisable(true));
     return new Gyro() {
+      double lastAngle = navx.getRotation2d().getRadians();
+
       @Override
       public void log(String path) {
         HoundLog.log(path, "Connected", navx.isConnected());
         HoundLog.log(path, "Pitch", navx.getPitch());
         HoundLog.log(path, "Roll", navx.getRoll());
         HoundLog.log(path, "Angle", navx.getYaw());
+        if (!navx.isConnected()) {
+          lastAngle += radiansPerSecond.getAsDouble() * 0.02;
+        } else {
+          lastAngle = getAngle().getRadians();
+        }
       }
 
       @Override
       public Rotation2d getAngle() {
-        return navx.getRotation2d();
+        if (navx.isConnected()) {
+          return navx.getRotation2d();
+        } else {
+          return Rotation2d.fromRadians(lastAngle);
+        }
       }
 
       @Override
       public Rotation2d getAngularVelocity() {
-        return Rotation2d.fromDegrees(-navx.getRate());
+        if (navx.isConnected()) {
+          return Rotation2d.fromDegrees(-navx.getRate());
+        } else {
+          return Rotation2d.fromRadians(radiansPerSecond.getAsDouble());
+        }
       }
     };
   }

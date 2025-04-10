@@ -3,13 +3,15 @@ package frc.robot.hardware;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -17,27 +19,31 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.utilities.FeedbackController;
+import frc.robot.utilities.FeedforwardController;
 import frc.robot.utilities.FeedforwardSim;
 import frc.robot.utilities.SysIDCommands;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
 /** A class representing a motor */
 public class Motor extends SubsystemBase implements Loggable {
+  private String name;
   private double target;
   private boolean useVoltage;
+  private double maxVolts;
+  private double negativeMaxVolts;
   private TargetType type;
   private DoubleConsumer positionSetter;
   private DoubleConsumer voltageSetter;
   private DoubleSupplier positionGetter;
   private DoubleSupplier velocityGetter;
   private FeedbackController fb;
-  private FeedforwardConstants ff;
+  private FeedforwardController ff;
   private Loggable motorInfo;
+  private DutyCycleEncoder encoder;
 
   /**
    * Creates a new motor where the given parameters are used to interface with the hardware or sim
@@ -64,18 +70,33 @@ public class Motor extends SubsystemBase implements Loggable {
       DoubleSupplier positionGetter,
       DoubleSupplier velocityGetter,
       FeedbackController fb,
-      Optional<FeedforwardConstants> ff,
+      FeedforwardController ff,
       Loggable motorInfo) {
     target = 0;
     useVoltage = true;
+    maxVolts = 12;
+    negativeMaxVolts = -12;
     this.type = type;
     this.positionSetter = positionSetter;
     this.voltageSetter = voltageSetter;
     this.positionGetter = positionGetter;
     this.velocityGetter = velocityGetter;
     this.fb = fb;
-    this.ff = ff.orElse(new FeedforwardConstants(0, 0, 0, 0));
+    this.ff = ff;
     this.motorInfo = motorInfo;
+    switch (type) {
+      case Position:
+        fb.reset(positionGetter.getAsDouble());
+        break;
+      default:
+        fb.reset(velocityGetter.getAsDouble());
+        break;
+    }
+  }
+
+  public Motor withName(String name) {
+    this.name = name;
+    return this;
   }
 
   /**
@@ -84,8 +105,28 @@ public class Motor extends SubsystemBase implements Loggable {
    * @param nextTarget the target position/velocity to go to
    */
   public void setTarget(double nextTarget) {
+    if (getCurrentCommand() != null) {
+      return;
+    }
+    if (useVoltage || target != nextTarget) {
+      switch (type) {
+        case Position:
+          fb.reset(positionGetter.getAsDouble());
+          break;
+        default:
+          fb.reset(velocityGetter.getAsDouble());
+          break;
+      }
+    }
     target = nextTarget;
     useVoltage = false;
+  }
+
+  /**
+   * @return the target position/velocity of the motor
+   */
+  public double getTarget() {
+    return target;
   }
 
   /**
@@ -130,7 +171,6 @@ public class Motor extends SubsystemBase implements Loggable {
     }
     switch (type) {
       case Position:
-      case Rotation:
         fb.calculate(getPosition(), target);
         break;
       case Velocity:
@@ -138,6 +178,32 @@ public class Motor extends SubsystemBase implements Loggable {
         break;
     }
     return fb.atGoal();
+  }
+
+  public void setMaxVoltage(double volts) {
+    maxVolts = volts;
+  }
+
+  public void setMaxNegativeVoltage(double volts) {
+    negativeMaxVolts = volts;
+  }
+
+  public void changeEncoder(
+      DoubleConsumer positionSetter, DoubleSupplier positionGetter, DoubleSupplier velocityGetter) {
+    this.positionSetter = positionSetter;
+    this.positionGetter = positionGetter;
+    this.velocityGetter = velocityGetter;
+  }
+
+  public void useThroughBoreEncoder(int channel, boolean inverted, double zeroSignal) {
+    if (RobotBase.isSimulation()) {
+      return;
+    }
+    encoder = new DutyCycleEncoder(channel);
+    encoder.setInverted(inverted);
+    positionSetter = (newPosition) -> {};
+    positionGetter = () -> 360 * MathUtil.inputModulus(encoder.get() - zeroSignal, -0.5, 0.5);
+    // velocityGetter = () -> 0;
   }
 
   /**
@@ -152,32 +218,29 @@ public class Motor extends SubsystemBase implements Loggable {
       return;
     }
     if (useVoltage) {
-      voltageSetter.accept(target);
+      voltageSetter.accept(MathUtil.clamp(target, negativeMaxVolts, maxVolts));
       return;
     }
     double fbVolts = 0;
     double ffVolts = 0;
     switch (type) {
       case Position:
-        fbVolts = fb.calculate(getPosition(), target);
-        ffVolts = ff.kG() + ff.kS() * Math.signum(fbVolts);
+        double position = getPosition();
+        fbVolts = fb.calculate(position, target);
+        ffVolts = ff.calcuateVoltage(position, fbVolts);
         break;
       case Velocity:
         double velocity = getVelocity();
         fbVolts = fb.calculate(velocity, target);
-        ffVolts = ff.kS() * Math.signum(target) + ff.kV() * target;
-        break;
-      case Rotation:
-        double position = getPosition();
-        fbVolts = fb.calculate(position, target);
-        ffVolts = ff.kS() * Math.signum(fbVolts) + ff.kG() * Math.cos(2 * Math.PI * position);
+        ffVolts = ff.calculateVoltage(getPosition(), target, 0);
         break;
     }
-    voltageSetter.accept(fbVolts + ffVolts);
+    voltageSetter.accept(MathUtil.clamp(fbVolts + ffVolts, negativeMaxVolts, maxVolts));
   }
 
   @Override
   public void log(String path) {
+    if (name != "") HoundLog.log(path, "Name", name);
     HoundLog.log(path, "Motor Info", motorInfo);
     HoundLog.log(path, "Position", getPosition());
     HoundLog.log(path, "Velocity", getVelocity());
@@ -188,39 +251,16 @@ public class Motor extends SubsystemBase implements Loggable {
     } else {
       HoundLog.log(path, "Target Type", type.name());
     }
-  }
-
-  /**
-   * Gets a set of sysID commands to run to characterize a mechanism
-   *
-   * @param name Mechanism name
-   * @param voltageRampRate The rate to increase volts at when running quasistatic tests, in
-   *     volts/sec
-   * @param stepVoltage The constant voltage to apply when running dynamic tests, in volts
-   * @param duration How long the tests should last, in seconds
-   * @return a set of SysIDCommands
-   */
-  public SysIDCommands getSysIDCommands(
-      String name, double voltageRampRate, double stepVoltage, double duration) {
-    Config config =
-        new Config(
-            Volts.of(voltageRampRate).per(Seconds), Volts.of(stepVoltage), Seconds.of(duration));
-    Mechanism mech =
-        new Mechanism(
-            voltage -> setVoltage(voltage.in(Volts)),
-            log ->
-                log.motor("Motor")
-                    .value("Position", getPosition(), "IDK")
-                    .value("Velocity", getVelocity(), "IDK")
-                    .value("Voltage", target, "Volts"),
-            this,
-            name);
-    SysIdRoutine routine = new SysIdRoutine(config, mech);
-    return new SysIDCommands(
-        routine.dynamic(Direction.kForward),
-        routine.dynamic(Direction.kReverse),
-        routine.quasistatic(Direction.kForward),
-        routine.quasistatic(Direction.kReverse));
+    if (encoder != null) {
+      if (!encoder.isConnected()) {
+        HoundLog.logFault(
+            "[Motor]" + (name != "" ? " " + name : "") + " Encoder Disconnected...",
+            AlertType.kError);
+      } else {
+        HoundLog.clearFault(
+            "[Motor]" + (name != "" ? " " + name : "") + " Encoder Disconnected...");
+      }
+    }
   }
 
   /**
@@ -238,7 +278,7 @@ public class Motor extends SubsystemBase implements Loggable {
    * @param otherMotors What other motors should also be synchronized for the test
    * @return The commands to run
    */
-  public SysIDCommands getSynchronizedSysIDCommands(
+  public SysIDCommands getSysIDCommands(
       String name,
       double voltageRampRate,
       double stepVoltage,
@@ -250,16 +290,17 @@ public class Motor extends SubsystemBase implements Loggable {
     Mechanism mech =
         new Mechanism(
             voltage -> {
-              setVoltage(voltage.in(Volts));
+              setVoltage(voltage.in(Volts) + ff.calcuateVoltage(getPosition(), 0));
               for (Motor motor : otherMotors) {
-                motor.setVoltage(voltage.in(Volts));
+                motor.setVoltage(
+                    voltage.in(Volts) + motor.ff.calcuateVoltage(motor.getPosition(), 0));
               }
             },
             log -> {
               log.motor("Motor0")
                   .value("Position", getPosition(), "IDK")
                   .value("Velocity", getVelocity(), "IDK")
-                  .value("Voltage", target, "Volts");
+                  .value("Voltage", target - ff.calcuateVoltage(getPosition(), 0), "Volts");
               for (int i = 0; i < otherMotors.length; i++) {
                 Motor motor = otherMotors[i];
                 log.motor("Motor" + (i + 1))
@@ -289,27 +330,8 @@ public class Motor extends SubsystemBase implements Loggable {
     /** Targets a position */
     Position,
     /** Targets a velocity */
-    Velocity,
-    /** Targets a vertical rotation, taking into account the changing gravitational force */
-    Rotation;
+    Velocity;
   }
-
-  /**
-   * An object that holds feedforward gains
-   *
-   * <p>{@link #getSysIDCommands} can be used to obtain values for gains
-   *
-   * @param kG The voltage needed to hold the mechanism in place against gravity. For most
-   *     mechanisms, this is a constant value, but for mechanisms rotating vertically, this should
-   *     be the voltage to hold it up parallel to the ground
-   * @param kS The voltage needed to overcome static friction.
-   * @param kV The voltage needed to maintain a velocity of 1 unit/s
-   * @param kA The voltage needed to induce an acceleration of 1 unit/s^
-   * @see <a href =
-   *     "https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html#introduction-to-dc-motor-feedforward">
-   *     Introduction to Feedforward
-   */
-  public static record FeedforwardConstants(double kG, double kS, double kV, double kA) {}
 
   /**
    *
@@ -366,13 +388,13 @@ public class Motor extends SubsystemBase implements Loggable {
       Consumer<FeedforwardSim> simConfig,
       double initialPosition,
       FeedbackController fb,
-      Optional<FeedforwardConstants> ff,
+      FeedforwardController ff,
       TargetType type) {
     if (RobotBase.isSimulation()) {
-      if (ff.isEmpty()) {
+      if (!ff.canSimulate()) {
         return fromIdealSim(fb, type, initialPosition);
       } else {
-        return fromRealisticSim(simConfig, fb, ff.get(), type, initialPosition);
+        return fromRealisticSim(simConfig, fb, ff, type, initialPosition);
       }
     }
     TalonFX motor = new TalonFX(canID);
@@ -413,7 +435,7 @@ public class Motor extends SubsystemBase implements Loggable {
    *     config
    *       .encoder
    *       .positionConversionFactor(1.0 / 25) // One mechanism unit : 25 sensor units
-   *       .velocityConversionFactor(1.0 / 25/ 60) // Divide by 60 so rpm -> rps
+   *       .velocityConversionFactor(1.0 / 25) // Divide by 60 so rpm -> rps
    *     spark.configure(config, kResetSafeParameters, kPersistParameters)
    *   },
    *   sim -> {
@@ -452,13 +474,13 @@ public class Motor extends SubsystemBase implements Loggable {
       Consumer<FeedforwardSim> simConfig,
       double initialPosition,
       FeedbackController fb,
-      Optional<FeedforwardConstants> ff,
+      FeedforwardController ff,
       TargetType type) {
     if (RobotBase.isSimulation()) {
-      if (ff.isEmpty()) {
+      if (!ff.canSimulate()) {
         return fromIdealSim(fb, type, initialPosition);
       } else {
-        return fromRealisticSim(simConfig, fb, ff.get(), type, initialPosition);
+        return fromRealisticSim(simConfig, fb, ff, type, initialPosition);
       }
     }
     SparkMax motor = new SparkMax(canID, brushed ? MotorType.kBrushed : MotorType.kBrushless);
@@ -469,7 +491,7 @@ public class Motor extends SubsystemBase implements Loggable {
         position -> motor.getEncoder().setPosition(position),
         motor::setVoltage,
         () -> motor.getEncoder().getPosition(),
-        () -> motor.getEncoder().getVelocity(),
+        () -> motor.getEncoder().getVelocity() / 60,
         fb,
         ff,
         path -> {
@@ -529,17 +551,16 @@ public class Motor extends SubsystemBase implements Loggable {
       double conversionFactor,
       double initialPosition,
       FeedbackController fb,
-      Optional<FeedforwardConstants> ff,
+      FeedforwardController ff,
       TargetType type) {
     if (RobotBase.isSimulation()) {
-      if (ff.isEmpty()) {
+      if (!ff.canSimulate()) {
         return fromIdealSim(fb, type, initialPosition);
       } else {
-        return fromRealisticSim(simConfig, fb, ff.get(), type, initialPosition);
+        return fromRealisticSim(simConfig, fb, ff, type, initialPosition);
       }
     }
     TalonSRX motor = new TalonSRX(canID);
-    motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 40, 0.1), 0);
     config.accept(motor);
     motor.setSelectedSensorPosition(initialPosition / conversionFactor);
     return new Motor(
@@ -592,13 +613,13 @@ public class Motor extends SubsystemBase implements Loggable {
   public static Motor fromRealisticSim(
       Consumer<FeedforwardSim> config,
       FeedbackController fb,
-      FeedforwardConstants ff,
+      FeedforwardController ff,
       TargetType type,
       double inititalPosition) {
-    if (ff == null || ff.kV() == 0 || ff.kA() == 0) {
+    if (ff == null || !ff.canSimulate()) {
       return fromIdealSim(fb, type, inititalPosition);
     }
-    FeedforwardSim sim = new FeedforwardSim(ff, inititalPosition, type == TargetType.Rotation);
+    FeedforwardSim sim = new FeedforwardSim(ff, inititalPosition);
     config.accept(sim);
     return new Motor(
         type,
@@ -607,7 +628,7 @@ public class Motor extends SubsystemBase implements Loggable {
         () -> sim.getState().position(),
         () -> sim.getState().velocity(),
         fb,
-        Optional.of(ff),
+        ff,
         path -> {
           HoundLog.log(path, "Sim", sim);
         });
@@ -647,7 +668,7 @@ public class Motor extends SubsystemBase implements Loggable {
         type,
         position -> stateHolder[0] = position,
         voltage -> {
-          if (voltage == 0) {
+          if (DriverStation.isDisabled()) {
             stateHolder[1] = 0;
             stateHolder[2] = 0;
             return;
@@ -670,7 +691,7 @@ public class Motor extends SubsystemBase implements Loggable {
         () -> stateHolder[0],
         () -> stateHolder[1],
         fb,
-        null,
+        FeedforwardController.forNone(),
         path -> HoundLog.log(path, "Acceleration", stateHolder[2]));
   }
 }
