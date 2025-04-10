@@ -182,12 +182,11 @@ public class Limelight implements Loggable {
   }
 
   public Pair<Transform2d, Integer> getTargetPoseCameraSpace() {
-      double[] raw = table.getEntry("targetpose_cameraspace").getDoubleArray(new double[11]);
-      return new Pair<>(
-          new Transform2d(raw[2], raw[0], Rotation2d.fromDegrees(raw[5])),
-          hasTargets() ? (int) table.getEntry("tid").getInteger(-1) : -1);
-  } 
-    
+    double[] raw = table.getEntry("targetpose_cameraspace").getDoubleArray(new double[11]);
+    return new Pair<>(
+        new Transform2d(raw[2], raw[0], Rotation2d.fromDegrees(raw[5])),
+        hasTargets() ? (int) table.getEntry("tid").getInteger(-1) : -1);
+  }
 
   public Pair<Transform2d, Integer> getTargetPoseRobotSpace() {
     double[] raw = table.getEntry("targetpose_robotspace").getDoubleArray(new double[11]);

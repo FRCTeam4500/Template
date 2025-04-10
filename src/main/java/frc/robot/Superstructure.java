@@ -13,19 +13,14 @@ import frc.robot.utilities.logging.Loggable;
  */
 public class Superstructure implements Loggable {
   // Create objects for all non-drivebase subsystems
- 
-  public Superstructure() {
-    StopTilting.setupSuperstructure(
-        new Transform3d[] {
 
-        },
-        new double[] {});
+  public Superstructure() {
+    StopTilting.setupSuperstructure(new Transform3d[] {}, new double[] {});
   }
 
   public void log(String path) {
     // Call log() methods for contained subsystems
-    StopTilting.updateCenterOfMass(
-        new Transform3d[] {});
+    StopTilting.updateCenterOfMass(new Transform3d[] {});
   }
 
   public Command sing() {
