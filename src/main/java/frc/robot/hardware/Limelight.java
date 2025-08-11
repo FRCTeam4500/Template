@@ -119,6 +119,7 @@ public class Limelight implements Loggable {
 
   /**
    * Only allows megatag to use the given ids for localization
+   *
    * @param ids The list of tags to allow
    */
   public void setUseableTags(double... ids) {
@@ -172,19 +173,17 @@ public class Limelight implements Loggable {
   }
 
   /**
-   * 
-   * @return returns both the 2d transfrom of the target april tag relative to the camera, and the targeted april tag ID
+   * @return returns both the 2d transfrom of the target april tag relative to the camera, and the
+   *     targeted april tag ID
    */
   public Pair<Transform2d, Integer> getTargetPoseCameraSpace() {
     double[] raw = table.getEntry("targetpose_cameraspace").getDoubleArray(new double[11]);
-    return new Pair<>(
-        new Transform2d(raw[2], raw[0], Rotation2d.fromDegrees(raw[5])),
-        getID());
+    return new Pair<>(new Transform2d(raw[2], raw[0], Rotation2d.fromDegrees(raw[5])), getID());
   }
 
   /**
-   * 
-   * @return returns both the 2d transfrom of the target april tag relative to the robot, and the targeted april tag ID
+   * @return returns both the 2d transfrom of the target april tag relative to the robot, and the
+   *     targeted april tag ID
    */
   public Pair<Transform2d, Integer> getTargetPoseRobotSpace() {
     double[] raw = table.getEntry("targetpose_robotspace").getDoubleArray(new double[11]);
