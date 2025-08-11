@@ -96,6 +96,7 @@ public class Motor extends SubsystemBase implements Loggable {
 
   /**
    * Sets the name of the motor
+   *
    * @param name The motor's new name
    * @return This motor, for call chaining
    */
@@ -136,6 +137,7 @@ public class Motor extends SubsystemBase implements Loggable {
 
   /**
    * Using this method causes {@link #atTarget()} to always return true!
+   *
    * @param volts the target voltage
    */
   public void setVoltage(double volts) {
