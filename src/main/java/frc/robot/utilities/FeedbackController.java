@@ -8,6 +8,13 @@ import java.util.function.Consumer;
 
 /** Generalization of {@link ProfiledPIDController} */
 public interface FeedbackController {
+
+  public static record FeedbackConstants(
+    double kP,
+    double kI,
+    double kD
+  ) {}
+
   /**
    * @param goal intended final position
    * @param measurement current position
@@ -80,6 +87,11 @@ public interface FeedbackController {
     return fromPID(new PIDController(kP, kI, kD), config);
   }
 
+  public static FeedbackController fromPID(
+      FeedbackConstants constants, Consumer<PIDController> config) {
+    return fromPID(constants.kP, constants.kI, constants.kD, config);
+  }
+
   /**
    * The fancy version of {@link FeedbackController#fromPID fromPID}, that allows for profiling
    * (changing the setpoint over time)
@@ -129,6 +141,13 @@ public interface FeedbackController {
     return fromProfiledPID(new ProfiledPIDController(kP, kI, kD, constraints), config);
   }
 
+  public static FeedbackController fromProfiledPID(
+      FeedbackConstants constants,
+      Constraints constraints,
+      Consumer<ProfiledPIDController> config) {
+    return fromProfiledPID(constants.kP, constants.kI, constants.kD, constraints, config);
+  }
+
   public static FeedbackController empty(double tolerance) {
     return new FeedbackController() {
       private double goal;
@@ -160,4 +179,5 @@ public interface FeedbackController {
       }
     };
   }
+
 }

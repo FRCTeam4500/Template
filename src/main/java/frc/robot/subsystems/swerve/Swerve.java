@@ -198,18 +198,18 @@ public class Swerve extends SubsystemBase implements Loggable {
   public Command robotCentric(XboxController xbox) {
     return Commands.run(
             () -> {
-              double coefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
+              double coefficient = Math.max(1 - xbox.getLeftTriggerAxis(), SLOWEST_COEFFICIENT);
               drive(
                   new ChassisSpeeds(
                       coefficient
                           * withHardDeadzone(-xbox.getLeftY(), 0.1)
-                          * MAX_FIELD_REL_SPEEDS.vxMetersPerSecond,
+                          * MAX_TELEOP_SPEEDS.vxMetersPerSecond,
                       coefficient
                           * withHardDeadzone(-xbox.getLeftX(), 0.1)
-                          * MAX_FIELD_REL_SPEEDS.vyMetersPerSecond,
+                          * MAX_TELEOP_SPEEDS.vyMetersPerSecond,
                       coefficient
                           * withHardDeadzone(-xbox.getRightX(), 0.1)
-                          * MAX_FIELD_REL_SPEEDS.omegaRadiansPerSecond));
+                          * MAX_TELEOP_SPEEDS.omegaRadiansPerSecond));
             },
             this)
         .withName("Robot Centric");
@@ -370,14 +370,14 @@ public class Swerve extends SubsystemBase implements Loggable {
    * @return The speeds (robot-relative) of the robot calculated from xbox inputs.
    */
   private ChassisSpeeds calculateVelRobotRel(XboxController xbox) {
-    double speedCoefficient = Math.max(1 - xbox.getLeftTriggerAxis(), MIN_COEFFICIENT);
+    double speedCoefficient = Math.max(1 - xbox.getLeftTriggerAxis(), SLOWEST_COEFFICIENT);
     Rotation2d currentHeading = estimator.getEstimatedPosition().getRotation();
     targetHeading =
         Rotation2d.fromRadians(
             targetHeading.getRadians()
                 - withHardDeadzone(xbox.getRightX(), 0.1)
                     * speedCoefficient
-                    * MAX_FIELD_REL_SPEEDS.omegaRadiansPerSecond
+                    * MAX_TELEOP_SPEEDS.omegaRadiansPerSecond
                     * 0.02);
     double rotational =
         headingFeedback.calculate(currentHeading.getRadians(), targetHeading.getRadians());
@@ -390,11 +390,11 @@ public class Swerve extends SubsystemBase implements Loggable {
     double forward =
         speedCoefficient
             * withHardDeadzone(xbox.getLeftY(), 0.1)
-            * MAX_FIELD_REL_SPEEDS.vxMetersPerSecond;
+            * MAX_TELEOP_SPEEDS.vxMetersPerSecond;
     double sideways =
         speedCoefficient
             * withHardDeadzone(xbox.getLeftX(), 0.1)
-            * MAX_FIELD_REL_SPEEDS.vyMetersPerSecond;
+            * MAX_TELEOP_SPEEDS.vyMetersPerSecond;
     ChassisSpeeds fieldRel = new ChassisSpeeds(forward, sideways, rotational);
     return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRel, currentHeading);
   }
@@ -415,7 +415,7 @@ public class Swerve extends SubsystemBase implements Loggable {
    */
   private void drive(ChassisSpeeds speeds) {
     double coefficient =
-        MAX_ROBOT_REL_SPEEDS.vxMetersPerSecond / Math.abs(speeds.vxMetersPerSecond);
+        MAX_ROBOT_SPEEDS.vxMetersPerSecond / Math.abs(speeds.vxMetersPerSecond);
     if (coefficient < 1) {
       speeds =
           new ChassisSpeeds(
@@ -423,7 +423,7 @@ public class Swerve extends SubsystemBase implements Loggable {
               speeds.vyMetersPerSecond * coefficient,
               speeds.omegaRadiansPerSecond * coefficient);
     }
-    coefficient = MAX_ROBOT_REL_SPEEDS.vyMetersPerSecond / Math.abs(speeds.vyMetersPerSecond);
+    coefficient = MAX_ROBOT_SPEEDS.vyMetersPerSecond / Math.abs(speeds.vyMetersPerSecond);
     if (coefficient < 1) {
       speeds =
           new ChassisSpeeds(
@@ -432,7 +432,7 @@ public class Swerve extends SubsystemBase implements Loggable {
               speeds.omegaRadiansPerSecond * coefficient);
     }
     coefficient =
-        MAX_ROBOT_REL_SPEEDS.omegaRadiansPerSecond / Math.abs(speeds.omegaRadiansPerSecond);
+        MAX_ROBOT_SPEEDS.omegaRadiansPerSecond / Math.abs(speeds.omegaRadiansPerSecond);
     if (coefficient < 1) {
       speeds =
           new ChassisSpeeds(
