@@ -131,7 +131,7 @@ public class Motor extends SubsystemBase implements Loggable {
 
   /**
    * @param volts the target voltage
-   * @apiNote Using this method causes {@link #atTarget()} to always return true!
+   * Using this method causes {@link #atTarget()} to always return true!
    */
   public void setVoltage(double volts) {
     target = volts;
@@ -162,7 +162,7 @@ public class Motor extends SubsystemBase implements Loggable {
   }
 
   /**
-   * @apiNote This method returns true when using voltage control with {@link #setVoltage}
+   * This method returns true when using voltage control with {@link #setVoltage}
    * @return Whether we are about at the target specified by {@link #setTarget}
    */
   public boolean atTarget() {
@@ -207,9 +207,8 @@ public class Motor extends SubsystemBase implements Loggable {
   }
 
   /**
-   * A method that is run every loop (20ms). This should never be called by the user
-   *
-   * @implNote calcuate the voltage to apply to the motor here
+   * A method that is run every loop (20ms). This should never be called by the user.
+   * calcuate the voltage to apply to the motor here.
    */
   @Override
   public void periodic() {
@@ -615,11 +614,11 @@ public class Motor extends SubsystemBase implements Loggable {
       FeedbackController fb,
       FeedforwardController ff,
       TargetType type,
-      double inititalPosition) {
+      double initialPosition) {
     if (ff == null || !ff.canSimulate()) {
-      return fromIdealSim(fb, type, inititalPosition);
+      return fromIdealSim(fb, type, initialPosition);
     }
-    FeedforwardSim sim = new FeedforwardSim(ff, inititalPosition);
+    FeedforwardSim sim = new FeedforwardSim(ff, initialPosition);
     config.accept(sim);
     return new Motor(
         type,

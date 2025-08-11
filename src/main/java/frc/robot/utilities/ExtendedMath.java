@@ -51,7 +51,7 @@ public class ExtendedMath {
    *
    * @param value, value to be deadzoned
    * @param deadzone, deadzone size
-   * @return 0 if |value| < deadzone, otherwise value.
+   * @return 0 if |value| is less than deadzone, otherwise value.
    */
   public static double withHardDeadzone(double value, double deadzone) {
     if (Math.abs(value) < deadzone) return 0;
@@ -78,7 +78,7 @@ public class ExtendedMath {
    *
    * @param input number, call it x
    * @param deadzone deadzone size
-   * @return if |x| < deadzone, 0, otherwise it's a line from the deadzone boundary (deadzone,0)
+   * @return if |x| is less then deadzone, 0, otherwise it's a line from the deadzone boundary (deadzone,0)
    *     through (1,1)
    */
   public static double withContinuousDeadzone(double input, double deadzone) {

@@ -26,6 +26,7 @@ import java.util.function.DoubleSupplier;
  * }
  * double angle = gyro.getAngle().getDegrees();
  * double angularVelocity = gyro.getAngularVelocity().getDegrees();
+ * </pre>
  */
 public interface Gyro extends Loggable {
   /**

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
-/** Models a single motor mechanism described by the given {@link FeedforwardConstants} */
+/** Models a single motor mechanism described by the given {@link FeedforwardController} */
 public class FeedforwardSim extends SubsystemBase implements Loggable {
   private MechanismState state;
   private FeedforwardController feedforward;
@@ -14,12 +14,10 @@ public class FeedforwardSim extends SubsystemBase implements Loggable {
   private double min = Double.NEGATIVE_INFINITY;
 
   /**
-   * Creates a simulated mechanism, using the given {@link FeedforwardConstants}
+   * Creates a simulated mechanism, using the given {@link FeedforwardController}
    *
    * @param feedforward The feedforward constants used to model the mechansim
    * @param initialPosition The initial position of the mechanism
-   * @param scaleGravity Whether to scale kG based on the angle of the mechanism. If this is true,
-   *     units are assumed to be degrees, with 0 being horizontal, and 0.25 pointing straight up.
    * @throws IllegalArgumentException if the feedforward's kV or kA is 0
    */
   public FeedforwardSim(FeedforwardController feedforward, double initialPosition) {

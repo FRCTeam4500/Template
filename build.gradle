@@ -151,3 +151,7 @@ spotless {
         endWithNewline()
     }
 }
+
+javadoc {
+    destinationDir = file("${buildDir}/docs/javadoc")
+}

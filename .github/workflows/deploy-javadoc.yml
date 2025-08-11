@@ -1,0 +1,50 @@
+name: Deploy Javadoc to GitHub Pages
+
+on:
+  push:
+    branches:
+      - 2025 # TODO: CHANGE
+
+jobs:
+  build-javadoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Generate Javadoc
+        run: ./gradlew javadoc
+      - name: Upload Javadoc artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: javadoc-html
+          path: build/docs/javadoc # Adjust path based on your Gradle config
+
+  deploy-javadoc:
+    needs: build-javadoc
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download Javadoc artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: javadoc-html
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # Upload the downloaded javadoc
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
