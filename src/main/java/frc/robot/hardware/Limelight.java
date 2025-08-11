@@ -4,17 +4,12 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utilities.logging.HoundLog;
 import frc.robot.utilities.logging.Loggable;
 
@@ -50,26 +45,10 @@ public class Limelight implements Loggable {
    * @param name The name of the limelight. Should be "limelight-xxx"
    * @param pipeline The pipeline to be used. These are configured in a web browser.
    */
-  public Limelight(String name, int pipeline, Transform3d robotToCamera) {
+  public Limelight(String name, int pipeline) {
     this.name = name;
     table = NetworkTableInstance.getDefault().getTable(this.name);
     table.getEntry("pipline").setInteger(pipeline);
-    Trigger isBlue =
-        new Trigger(() -> DriverStation.getAlliance().orElse(Alliance.Blue).equals(Alliance.Blue));
-    isBlue.onTrue(
-        Commands.runOnce(
-                () ->
-                    table
-                        .getEntry("fiducial_id_filters_set")
-                        .setDoubleArray(new double[] {17, 18, 19, 20, 21, 22}))
-            .ignoringDisable(true));
-    isBlue.onFalse(
-        Commands.runOnce(
-                () ->
-                    table
-                        .getEntry("fiducial_id_filters_set")
-                        .setDoubleArray(new double[] {6, 7, 8, 9, 10, 11}))
-            .ignoringDisable(true));
 
     Sendable isEnabledSendable =
         new Sendable() {
@@ -91,8 +70,8 @@ public class Limelight implements Loggable {
    *
    * @param name The name of the limelight. Should be "limelight-xxx"
    */
-  public Limelight(String name, Transform3d robotToCamera) {
-    this(name, 0, robotToCamera);
+  public Limelight(String name) {
+    this(name, 0);
   }
 
   /**
@@ -131,8 +110,19 @@ public class Limelight implements Loggable {
     return table.getEntry("cl").getDouble(0) + table.getEntry("tl").getDouble(0);
   }
 
+  /**
+   * @return the primary tag in view, or -1 if no tags seen
+   */
   public int getID() {
     return (int) table.getEntry("tid").getInteger(-1);
+  }
+
+  /**
+   * Only allows megatag to use the given ids for localization
+   * @param ids The list of tags to allow
+   */
+  public void setUseableTags(double... ids) {
+    table.getEntry("fiducial_id_filters_set").setDoubleArray(ids);
   }
 
   /**
@@ -181,13 +171,21 @@ public class Limelight implements Loggable {
         hasTargets());
   }
 
+  /**
+   * 
+   * @return returns both the 2d transfrom of the target april tag relative to the camera, and the targeted april tag ID
+   */
   public Pair<Transform2d, Integer> getTargetPoseCameraSpace() {
     double[] raw = table.getEntry("targetpose_cameraspace").getDoubleArray(new double[11]);
     return new Pair<>(
         new Transform2d(raw[2], raw[0], Rotation2d.fromDegrees(raw[5])),
-        hasTargets() ? (int) table.getEntry("tid").getInteger(-1) : -1);
+        getID());
   }
 
+  /**
+   * 
+   * @return returns both the 2d transfrom of the target april tag relative to the robot, and the targeted april tag ID
+   */
   public Pair<Transform2d, Integer> getTargetPoseRobotSpace() {
     double[] raw = table.getEntry("targetpose_robotspace").getDoubleArray(new double[11]);
     return new Pair<>(
@@ -207,10 +205,16 @@ public class Limelight implements Loggable {
     HoundLog.log(path, "id", getID());
   }
 
+  /**
+   * @return the limelight's name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * @return whether the limelight is enabled
+   */
   public boolean isEnabled() {
     return enabled;
   }
