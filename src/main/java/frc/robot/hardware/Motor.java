@@ -186,14 +186,28 @@ public class Motor extends SubsystemBase implements Loggable {
     return fb.atGoal();
   }
 
+  /**
+   * The max voltage the motor can run at
+   * @param volts The max volts
+   */
   public void setMaxVoltage(double volts) {
     maxVolts = volts;
   }
 
+  /**
+   * The max negative voltage the motor can run at
+   * @param volts The max negative volts
+   */
   public void setMaxNegativeVoltage(double volts) {
     negativeMaxVolts = volts;
   }
 
+  /**
+   * Switches from the motor's internal encoder to the provided external information
+   * @param positionSetter A function that takes in the new position of the motor
+   * @param positionGetter A function that returns the current postiion of the motor
+   * @param velocityGetter A function that returns the current velocity of the motor
+   */
   public void changeEncoder(
       DoubleConsumer positionSetter, DoubleSupplier positionGetter, DoubleSupplier velocityGetter) {
     this.positionSetter = positionSetter;
@@ -201,6 +215,13 @@ public class Motor extends SubsystemBase implements Loggable {
     this.velocityGetter = velocityGetter;
   }
 
+  /**
+   * Uses a through bore encoder as this motor's encoder. The motors velocity is still calculated using the 
+   * previous encoder
+   * @param channel What DIO port the encoder is plugged into
+   * @param inverted Whether to invert the throughbore
+   * @param zeroSignal What the throughbore encoder reads when the mechanism is at its zero position
+   */
   public void useThroughBoreEncoder(int channel, boolean inverted, double zeroSignal) {
     if (RobotBase.isSimulation()) {
       return;
@@ -209,7 +230,6 @@ public class Motor extends SubsystemBase implements Loggable {
     encoder.setInverted(inverted);
     positionSetter = (newPosition) -> {};
     positionGetter = () -> 360 * MathUtil.inputModulus(encoder.get() - zeroSignal, -0.5, 0.5);
-    // velocityGetter = () -> 0;
   }
 
   /**
