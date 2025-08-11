@@ -3,7 +3,7 @@ name: Deploy Javadoc to GitHub Pages
 on:
   push:
     branches:
-      - 2025 # TODO: CHANGE
+      - ${{ github.event.repository.default_branch }} # TODO: CHANGE
 
 jobs:
   build-javadoc:
