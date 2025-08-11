@@ -78,8 +78,8 @@ public class ExtendedMath {
    *
    * @param input number, call it x
    * @param deadzone deadzone size
-   * @return if |x| is less then deadzone, 0, otherwise it's a line from the deadzone boundary (deadzone,0)
-   *     through (1,1)
+   * @return if |x| is less then deadzone, 0, otherwise it's a line from the deadzone boundary
+   *     (deadzone,0) through (1,1)
    */
   public static double withContinuousDeadzone(double input, double deadzone) {
     return withContinuousDeadzone(input, (1 / (1 - deadzone)), deadzone);

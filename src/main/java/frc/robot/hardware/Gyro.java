@@ -15,6 +15,7 @@ import java.util.function.DoubleSupplier;
 
 /**
  * Interface for a standard 2d gyro
+ *
  * <pre>
  * // Example Usage
  * Gyro gyro;
