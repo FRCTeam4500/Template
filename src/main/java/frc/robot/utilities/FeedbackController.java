@@ -9,11 +9,7 @@ import java.util.function.Consumer;
 /** Generalization of {@link ProfiledPIDController} */
 public interface FeedbackController {
 
-  public static record FeedbackConstants(
-    double kP,
-    double kI,
-    double kD
-  ) {}
+  public static record FeedbackConstants(double kP, double kI, double kD) {}
 
   /**
    * @param goal intended final position
@@ -179,5 +175,4 @@ public interface FeedbackController {
       }
     };
   }
-
 }

@@ -414,8 +414,7 @@ public class Swerve extends SubsystemBase implements Loggable {
    * @param speeds the target speeds (robot-relative) of the robot
    */
   private void drive(ChassisSpeeds speeds) {
-    double coefficient =
-        MAX_ROBOT_SPEEDS.vxMetersPerSecond / Math.abs(speeds.vxMetersPerSecond);
+    double coefficient = MAX_ROBOT_SPEEDS.vxMetersPerSecond / Math.abs(speeds.vxMetersPerSecond);
     if (coefficient < 1) {
       speeds =
           new ChassisSpeeds(
@@ -431,8 +430,7 @@ public class Swerve extends SubsystemBase implements Loggable {
               speeds.vyMetersPerSecond * coefficient,
               speeds.omegaRadiansPerSecond * coefficient);
     }
-    coefficient =
-        MAX_ROBOT_SPEEDS.omegaRadiansPerSecond / Math.abs(speeds.omegaRadiansPerSecond);
+    coefficient = MAX_ROBOT_SPEEDS.omegaRadiansPerSecond / Math.abs(speeds.omegaRadiansPerSecond);
     if (coefficient < 1) {
       speeds =
           new ChassisSpeeds(
