@@ -9,7 +9,6 @@ jobs:
       - name: debug
         run: echo ${{ github.head_ref || github.ref_name }} && echo ${{ github.event.repository.default_branch }}
       - name: crash and burn
-        if: 
         run: [[ "${{ github.head_ref || github.ref_name }}" == "${{ github.event.repository.default_branch }}" ]] && echo "yay" || exit 1
 
   build-javadoc:
