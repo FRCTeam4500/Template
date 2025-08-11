@@ -43,8 +43,8 @@ public interface FeedbackController {
   /**
    * @param pid PID controller
    * @param config function that modifies the controller, configuring it
-   * @return FeedbackController overlying the PID
-   * The setpoint will have the PID's goal position and zero velocity.
+   * @return FeedbackController overlying the PID The setpoint will have the PID's goal position and
+   *     zero velocity.
    */
   public static FeedbackController fromPID(PIDController pid, Consumer<PIDController> config) {
     pid.setTolerance(0);

@@ -59,7 +59,7 @@ public class Motor extends SubsystemBase implements Loggable {
    * @param velocityGetter A function that returns the current velocity of the motor, in units per
    *     second
    * @param fb A feedback controller, which drives the motor to its goal
-   * @param ff An optional set of feedforward constants, used to help the feedback controller
+   * @param ff A set of feedforward constants, used to help the feedback controller
    * @param motorInfo A {@link Loggable} which logs information about the motor, such as applied
    *     voltage, temperature, and current
    */
@@ -94,6 +94,11 @@ public class Motor extends SubsystemBase implements Loggable {
     }
   }
 
+  /**
+   * Sets the name of the motor
+   * @param name The motor's new name
+   * @return This motor, for call chaining
+   */
   public Motor withName(String name) {
     this.name = name;
     return this;
@@ -130,8 +135,8 @@ public class Motor extends SubsystemBase implements Loggable {
   }
 
   /**
-   * @param volts the target voltage
    * Using this method causes {@link #atTarget()} to always return true!
+   * @param volts the target voltage
    */
   public void setVoltage(double volts) {
     target = volts;
@@ -163,6 +168,7 @@ public class Motor extends SubsystemBase implements Loggable {
 
   /**
    * This method returns true when using voltage control with {@link #setVoltage}
+   *
    * @return Whether we are about at the target specified by {@link #setTarget}
    */
   public boolean atTarget() {
@@ -207,8 +213,8 @@ public class Motor extends SubsystemBase implements Loggable {
   }
 
   /**
-   * A method that is run every loop (20ms). This should never be called by the user.
-   * calcuate the voltage to apply to the motor here.
+   * A method that is run every loop (20ms). This should never be called by the user. calcuate the
+   * voltage to apply to the motor here.
    */
   @Override
   public void periodic() {
