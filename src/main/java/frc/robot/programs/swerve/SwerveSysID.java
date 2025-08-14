@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.programs.LoggedRobot;
 import frc.robot.utilities.SysIDCommands;
 import frc.robot.utilities.logging.HoundLog;
+
 public class SwerveSysID extends LoggedRobot {
   private Sendable targetSetter;
   private double target;
@@ -93,10 +94,24 @@ public class SwerveSysID extends LoggedRobot {
   }
 
   public SysIDCommands getDriveSysIDCommands() {
-    return FRONT_LEFT_DRIVE_MOTOR.getSysIDCommands("Drive SysId", 1, 2.5, 3, FRONT_RIGHT_DRIVE_MOTOR, BACK_LEFT_DRIVE_MOTOR, BACK_RIGHT_DRIVE_MOTOR);
+    return FRONT_LEFT_DRIVE_MOTOR.getSysIDCommands(
+        "Drive SysId",
+        1,
+        2.5,
+        3,
+        FRONT_RIGHT_DRIVE_MOTOR,
+        BACK_LEFT_DRIVE_MOTOR,
+        BACK_RIGHT_DRIVE_MOTOR);
   }
 
   public SysIDCommands getAngleSysIDCommands() {
-    return FRONT_LEFT_ANGLE_MOTOR.getSysIDCommands("AngleSysId", 1, 5, 5, FRONT_LEFT_ANGLE_MOTOR, BACK_LEFT_ANGLE_MOTOR, BACK_RIGHT_ANGLE_MOTOR);
+    return FRONT_LEFT_ANGLE_MOTOR.getSysIDCommands(
+        "AngleSysId",
+        1,
+        5,
+        5,
+        FRONT_LEFT_ANGLE_MOTOR,
+        BACK_LEFT_ANGLE_MOTOR,
+        BACK_RIGHT_ANGLE_MOTOR);
   }
 }

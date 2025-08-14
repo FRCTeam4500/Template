@@ -109,7 +109,8 @@ public class SwerveConstants {
           0.642,
           new FeedbackConstants(0.1, 0, 0), // angle PID
           1,
-          FeedforwardController.forConstantGravity(0, 0.15603, 0.0085738, 0.0010808)); // angle SysID
+          FeedforwardController.forConstantGravity(
+              0, 0.15603, 0.0085738, 0.0010808)); // angle SysID
 
   /** Configuration for FRONT_RIGHT_MODULE. see ModuleConfig to see what values correspond to. */
   public static final ModuleConfig FRONT_RIGHT_CONFIG =
@@ -160,7 +161,8 @@ public class SwerveConstants {
           0.879,
           new FeedbackConstants(0.1, 0, 0), // angle PID
           1,
-          FeedforwardController.forConstantGravity(0, 0.25348, 0.0092287, 0.0014289)); // angle feedforward
+          FeedforwardController.forConstantGravity(
+              0, 0.25348, 0.0092287, 0.0014289)); // angle feedforward
 
   public static final Motor FRONT_LEFT_DRIVE_MOTOR =
       Motor.fromTalonFX(

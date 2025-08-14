@@ -22,10 +22,10 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,9 +57,9 @@ public class Swerve extends SubsystemBase implements Loggable {
     gyro = Gyro.fromNavX(() -> getSpeeds().omegaRadiansPerSecond, navx -> {});
     modules =
         new SwerveModule[] {
-          new SwerveModule(FRONT_LEFT_DRIVE_MOTOR, FRONT_LEFT_ANGLE_MOTOR), 
+          new SwerveModule(FRONT_LEFT_DRIVE_MOTOR, FRONT_LEFT_ANGLE_MOTOR),
           new SwerveModule(FRONT_RIGHT_DRIVE_MOTOR, FRONT_RIGHT_ANGLE_MOTOR),
-          new SwerveModule(BACK_LEFT_DRIVE_MOTOR, BACK_LEFT_ANGLE_MOTOR), 
+          new SwerveModule(BACK_LEFT_DRIVE_MOTOR, BACK_LEFT_ANGLE_MOTOR),
           new SwerveModule(BACK_RIGHT_DRIVE_MOTOR, BACK_RIGHT_ANGLE_MOTOR)
         };
     kinematics =
@@ -309,19 +309,27 @@ public class Swerve extends SubsystemBase implements Loggable {
                     switch (i) {
                       case 0:
                         System.out.println(
-                          "Front Left Drive Motor New Conversion Factor: " + FRONT_LEFT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                            "Front Left Drive Motor New Conversion Factor: "
+                                + FRONT_LEFT_CONFIG.driveConversionFactor()
+                                    * (gyroDelta / wheelDelta));
                         break;
                       case 1:
                         System.out.println(
-                          "Front Right Drive Motor New Conversion Factor: " + FRONT_RIGHT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                            "Front Right Drive Motor New Conversion Factor: "
+                                + FRONT_RIGHT_CONFIG.driveConversionFactor()
+                                    * (gyroDelta / wheelDelta));
                         break;
-                      case 2: 
+                      case 2:
                         System.out.println(
-                          "Back Left Drive Motor New Conversion Factor: " + BACK_LEFT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                            "Back Left Drive Motor New Conversion Factor: "
+                                + BACK_LEFT_CONFIG.driveConversionFactor()
+                                    * (gyroDelta / wheelDelta));
                         break;
                       case 3:
                         System.out.println(
-                          "Back Right Drive Motor New Conversion Factor: " + BACK_RIGHT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                            "Back Right Drive Motor New Conversion Factor: "
+                                + BACK_RIGHT_CONFIG.driveConversionFactor()
+                                    * (gyroDelta / wheelDelta));
                         break;
                       default:
                         break;
