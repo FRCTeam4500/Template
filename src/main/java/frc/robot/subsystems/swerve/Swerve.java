@@ -22,6 +22,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -56,7 +57,10 @@ public class Swerve extends SubsystemBase implements Loggable {
     gyro = Gyro.fromNavX(() -> getSpeeds().omegaRadiansPerSecond, navx -> {});
     modules =
         new SwerveModule[] {
-          FRONT_LEFT_MODULE, FRONT_RIGHT_MODULE, BACK_LEFT_MODULE, BACK_RIGHT_MODULE
+          new SwerveModule(FRONT_LEFT_DRIVE_MOTOR, FRONT_LEFT_ANGLE_MOTOR), 
+          new SwerveModule(FRONT_RIGHT_DRIVE_MOTOR, FRONT_RIGHT_ANGLE_MOTOR),
+          new SwerveModule(BACK_LEFT_DRIVE_MOTOR, BACK_LEFT_ANGLE_MOTOR), 
+          new SwerveModule(BACK_RIGHT_DRIVE_MOTOR, BACK_RIGHT_ANGLE_MOTOR)
         };
     kinematics =
         new SwerveDriveKinematics(
@@ -165,6 +169,7 @@ public class Swerve extends SubsystemBase implements Loggable {
           return alliance == Alliance.Red;
         },
         this);
+    SmartDashboard.putData("Drive Conversion Factor", driveConversionFinder(0.25, 10));
   }
 
   /**
@@ -301,10 +306,27 @@ public class Swerve extends SubsystemBase implements Loggable {
                   for (int i = 0; i < modules.length; i++) {
                     double wheelDelta = Math.abs(state.endPositions[i] - state.startPositions[i]);
                     wheelDelta /= SwerveConstants.BACK_LEFT_TRANSLATION.getNorm();
-                    System.out.println(
-                        "Module " + (i + 1) + " Coefficient: " + gyroDelta / wheelDelta);
+                    switch (i) {
+                      case 0:
+                        System.out.println(
+                          "Front Left Drive Motor New Conversion Factor: " + FRONT_LEFT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                        break;
+                      case 1:
+                        System.out.println(
+                          "Front Right Drive Motor New Conversion Factor: " + FRONT_RIGHT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                        break;
+                      case 2: 
+                        System.out.println(
+                          "Back Left Drive Motor New Conversion Factor: " + BACK_LEFT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                        break;
+                      case 3:
+                        System.out.println(
+                          "Back Right Drive Motor New Conversion Factor: " + BACK_RIGHT_CONFIG.driveConversionFactor() * (gyroDelta / wheelDelta));
+                        break;
+                      default:
+                        break;
+                    }
                   }
-                  System.out.println();
                 }))
         .withName("Drive Conversion Factor Finder");
   }
@@ -329,18 +351,18 @@ public class Swerve extends SubsystemBase implements Loggable {
   public Command makePushable(Rotation2d pushDirection) {
     return Commands.run(
             () -> {
-              FRONT_LEFT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
-              FRONT_RIGHT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
-              BACK_LEFT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
-              BACK_RIGHT_MODULE.getAngleMotor().setTarget(pushDirection.getDegrees());
+              FRONT_LEFT_ANGLE_MOTOR.setTarget(pushDirection.getDegrees());
+              FRONT_RIGHT_ANGLE_MOTOR.setTarget(pushDirection.getDegrees());
+              BACK_LEFT_ANGLE_MOTOR.setTarget(pushDirection.getDegrees());
+              BACK_RIGHT_ANGLE_MOTOR.setTarget(pushDirection.getDegrees());
             },
             this)
         .beforeStarting(
             () -> {
-              FRONT_LEFT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
-              FRONT_RIGHT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
-              BACK_LEFT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
-              BACK_RIGHT_MODULE.setTargetState(new SwerveModuleState(0, pushDirection));
+              FRONT_LEFT_DRIVE_MOTOR.setTarget(0);
+              FRONT_RIGHT_DRIVE_MOTOR.setTarget(0);
+              BACK_LEFT_DRIVE_MOTOR.setTarget(0);
+              BACK_RIGHT_DRIVE_MOTOR.setTarget(0);
             })
         .withName("Pushable: " + pushDirection.getDegrees() + " Degrees");
   }
@@ -352,14 +374,10 @@ public class Swerve extends SubsystemBase implements Loggable {
   public Command xLock() {
     return Commands.run(
             () -> {
-              FRONT_LEFT_MODULE.setTargetState(
-                  new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-              FRONT_RIGHT_MODULE.setTargetState(
-                  new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-              BACK_LEFT_MODULE.setTargetState(
-                  new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-              BACK_RIGHT_MODULE.setTargetState(
-                  new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+              FRONT_LEFT_ANGLE_MOTOR.setTarget(45);
+              FRONT_RIGHT_ANGLE_MOTOR.setTarget(-45);
+              BACK_LEFT_ANGLE_MOTOR.setTarget(-45);
+              BACK_RIGHT_ANGLE_MOTOR.setTarget(45);
             },
             this)
         .withName("Wheel Lock");

@@ -102,14 +102,14 @@ public class SwerveConstants {
           0,
           false,
           17.5,
-          new FeedbackConstants(0.1, 0, 0),
-          FeedforwardController.forConstantGravity(0, 0.19635, 2.0292, 0.19562),
+          new FeedbackConstants(0.1, 0, 0), // drive PID
+          FeedforwardController.forConstantGravity(0, 0.19635, 2.0292, 0.19562), // drive sysID
           20,
           25,
           0.642,
-          new FeedbackConstants(0.1, 0, 0),
+          new FeedbackConstants(0.1, 0, 0), // angle PID
           1,
-          FeedforwardController.forConstantGravity(0, 0.15603, 0.0085738, 0.0010808));
+          FeedforwardController.forConstantGravity(0, 0.15603, 0.0085738, 0.0010808)); // angle SysID
 
   /** Configuration for FRONT_RIGHT_MODULE. see ModuleConfig to see what values correspond to. */
   public static final ModuleConfig FRONT_RIGHT_CONFIG =
@@ -153,304 +153,298 @@ public class SwerveConstants {
           0,
           false,
           17.5,
-          new FeedbackConstants(0.1, 0, 0),
-          FeedforwardController.forConstantGravity(0, 0.20206, 2.0934, 0.18192),
+          new FeedbackConstants(0.1, 0, 0), // drive PID
+          FeedforwardController.forConstantGravity(0, 0.20206, 2.0934, 0.18192), // drive sysID
           20,
           25,
           0.879,
-          new FeedbackConstants(0.1, 0, 0),
+          new FeedbackConstants(0.1, 0, 0), // angle PID
           1,
-          FeedforwardController.forConstantGravity(0, 0.25348, 0.0092287, 0.0014289));
+          FeedforwardController.forConstantGravity(0, 0.25348, 0.0092287, 0.0014289)); // angle feedforward
 
-  public static final SwerveModule FRONT_LEFT_MODULE =
-      new SwerveModule(
-          Motor.fromTalonFX(
-              SwerveWiring.FRONT_LEFT_DRIVE_ID,
-              motor -> {
-                TalonFXConfiguration config = new TalonFXConfiguration();
-                config.CurrentLimits =
-                    new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(FRONT_LEFT_CONFIG.driveSupplyCurrentLimit)
-                        .withSupplyCurrentLimitEnable(
-                            FRONT_LEFT_CONFIG.driveSupplyCurrentLimitEnable)
-                        .withStatorCurrentLimit(FRONT_LEFT_CONFIG.driveStatorCurrentLimit)
-                        .withStatorCurrentLimitEnable(
-                            FRONT_LEFT_CONFIG.driveStatorCurrentLimitEnable);
-                config.MotorOutput =
-                    new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.Clockwise_Positive);
-                config.Feedback =
-                    new FeedbackConfigs()
-                        .withSensorToMechanismRatio(FRONT_LEFT_CONFIG.driveConversionFactor);
-                StatusCode status = StatusCode.StatusCodeNotInitialized;
-                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                  status = motor.getConfigurator().apply(config);
-                }
-                if (status != StatusCode.OK) {
-                  HoundLog.logFault(
-                      "[Swerve] Front Left Drive Motor Config Error: " + status.getName(),
-                      AlertType.kError);
-                } else {
-                  Orc.addMotor(motor);
-                }
-              },
-              sim -> {},
-              0,
-              FeedbackController.fromPID(FRONT_LEFT_CONFIG.drivePID, controller -> {}),
-              FRONT_LEFT_CONFIG.driveFeedforward,
-              TargetType.Velocity),
-          Motor.fromSparkMax(
-              SwerveWiring.FRONT_LEFT_ANGLE_ID,
-              false,
-              motor -> {
-                SparkMaxConfig config = new SparkMaxConfig();
-                config
-                    .inverted(false)
-                    .smartCurrentLimit(FRONT_LEFT_CONFIG.angleStatorCurrentLimit)
-                    .idleMode(IdleMode.kCoast);
-                config
-                    .encoder
-                    .positionConversionFactor(1.0 / FRONT_LEFT_CONFIG.angleGearReduction * 360)
-                    .velocityConversionFactor(1.0 / FRONT_LEFT_CONFIG.angleGearReduction * 360);
-                REVLibError err =
-                    motor.configure(
-                        config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-                if (!err.equals(REVLibError.kOk)) {
-                  HoundLog.logFault(
-                      "[Swerve] Front Left Angle Motor Config Error: " + err.name(),
-                      AlertType.kError);
-                }
-              },
-              sim -> {},
-              (new AnalogEncoder(SwerveWiring.FRONT_LEFT_ENCODER_ID).get()
-                      - FRONT_LEFT_CONFIG.angleAbsoluteEncoderOffset)
-                  * 360,
-              FeedbackController.fromPID(
-                  FRONT_LEFT_CONFIG.anglePID,
-                  controller -> {
-                    controller.enableContinuousInput(0, 360);
-                    controller.setTolerance(FRONT_LEFT_CONFIG.angleTolerance);
-                  }),
-              FRONT_LEFT_CONFIG.angleFeedforward,
-              TargetType.Position));
+  public static final Motor FRONT_LEFT_DRIVE_MOTOR =
+      Motor.fromTalonFX(
+          SwerveWiring.FRONT_LEFT_DRIVE_ID,
+          motor -> {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+            config.CurrentLimits =
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(FRONT_LEFT_CONFIG.driveSupplyCurrentLimit())
+                    .withSupplyCurrentLimitEnable(FRONT_LEFT_CONFIG.driveSupplyCurrentLimitEnable())
+                    .withStatorCurrentLimit(FRONT_LEFT_CONFIG.driveStatorCurrentLimit())
+                    .withStatorCurrentLimitEnable(
+                        FRONT_LEFT_CONFIG.driveStatorCurrentLimitEnable());
+            config.MotorOutput =
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.Clockwise_Positive);
+            config.Feedback =
+                new FeedbackConfigs()
+                    .withSensorToMechanismRatio(FRONT_LEFT_CONFIG.driveConversionFactor());
+            StatusCode status = StatusCode.StatusCodeNotInitialized;
+            for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+              status = motor.getConfigurator().apply(config);
+            }
+            if (status != StatusCode.OK) {
+              HoundLog.logFault(
+                  "[Swerve] Front Left Drive Motor Config Error: " + status.getName(),
+                  AlertType.kError);
+            } else {
+              Orc.addMotor(motor);
+            }
+          },
+          sim -> {},
+          0,
+          FeedbackController.fromPID(FRONT_LEFT_CONFIG.drivePID(), controller -> {}),
+          FRONT_LEFT_CONFIG.driveFeedforward(),
+          TargetType.Velocity);
+  public static final Motor FRONT_LEFT_ANGLE_MOTOR =
+      Motor.fromSparkMax(
+          SwerveWiring.FRONT_LEFT_ANGLE_ID,
+          false,
+          motor -> {
+            SparkMaxConfig config = new SparkMaxConfig();
+            config
+                .inverted(false)
+                .smartCurrentLimit(FRONT_LEFT_CONFIG.angleStatorCurrentLimit())
+                .idleMode(IdleMode.kCoast);
+            config
+                .encoder
+                .positionConversionFactor(1.0 / FRONT_LEFT_CONFIG.angleGearReduction() * 360)
+                .velocityConversionFactor(1.0 / FRONT_LEFT_CONFIG.angleGearReduction() * 360);
+            REVLibError err =
+                motor.configure(
+                    config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+            if (!err.equals(REVLibError.kOk)) {
+              HoundLog.logFault(
+                  "[Swerve] Front Left Angle Motor Config Error: " + err.name(), AlertType.kError);
+            }
+          },
+          sim -> {},
+          (new AnalogEncoder(SwerveWiring.FRONT_LEFT_ENCODER_ID).get()
+                  - FRONT_LEFT_CONFIG.angleAbsoluteEncoderOffset())
+              * 360,
+          FeedbackController.fromPID(
+              FRONT_LEFT_CONFIG.anglePID(),
+              controller -> {
+                controller.enableContinuousInput(0, 360);
+                controller.setTolerance(FRONT_LEFT_CONFIG.angleTolerance());
+              }),
+          FRONT_LEFT_CONFIG.angleFeedforward(),
+          TargetType.Position);
 
-  public static final SwerveModule FRONT_RIGHT_MODULE =
-      new SwerveModule(
-          Motor.fromTalonFX(
-              SwerveWiring.FRONT_RIGHT_DRIVE_ID,
-              motor -> {
-                TalonFXConfiguration config = new TalonFXConfiguration();
-                config.CurrentLimits =
-                    new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(FRONT_RIGHT_CONFIG.driveSupplyCurrentLimit)
-                        .withSupplyCurrentLimitEnable(
-                            FRONT_RIGHT_CONFIG.driveSupplyCurrentLimitEnable)
-                        .withStatorCurrentLimit(FRONT_RIGHT_CONFIG.driveStatorCurrentLimit)
-                        .withSupplyCurrentLimitEnable(
-                            FRONT_RIGHT_CONFIG.driveStatorCurrentLimitEnable);
-                config.MotorOutput =
-                    new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.CounterClockwise_Positive);
-                config.Feedback =
-                    new FeedbackConfigs()
-                        .withSensorToMechanismRatio(FRONT_RIGHT_CONFIG.driveConversionFactor);
-                StatusCode status = StatusCode.StatusCodeNotInitialized;
-                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                  status = motor.getConfigurator().apply(config);
-                }
-                if (status != StatusCode.OK) {
-                  HoundLog.logFault(
-                      "[Swerve] Front Right Drive Motor Config Error: " + status.getName(),
-                      AlertType.kError);
-                } else {
-                  Orc.addMotor(motor);
-                }
-              },
-              sim -> {},
-              0,
-              FeedbackController.fromPID(FRONT_RIGHT_CONFIG.drivePID, controller -> {}),
-              FRONT_RIGHT_CONFIG.driveFeedforward,
-              TargetType.Velocity),
-          Motor.fromSparkMax(
-              SwerveWiring.FRONT_RIGHT_ANGLE_ID,
-              false,
-              motor -> {
-                SparkMaxConfig config = new SparkMaxConfig();
-                config
-                    .inverted(false)
-                    .smartCurrentLimit(FRONT_RIGHT_CONFIG.angleStatorCurrentLimit)
-                    .idleMode(IdleMode.kCoast);
-                config
-                    .encoder
-                    .positionConversionFactor(1.0 / FRONT_RIGHT_CONFIG.angleGearReduction * 360)
-                    .velocityConversionFactor(1.0 / FRONT_RIGHT_CONFIG.angleGearReduction * 360);
-                REVLibError err =
-                    motor.configure(
-                        config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-                if (!err.equals(REVLibError.kOk)) {
-                  HoundLog.logFault(
-                      "[Swerve] Front Right Angle Motor Config Error: " + err.name(),
-                      AlertType.kError);
-                }
-              },
-              sim -> {},
-              (new AnalogEncoder(SwerveWiring.FRONT_RIGHT_ENCODER_ID).get()
-                      - FRONT_RIGHT_CONFIG.angleAbsoluteEncoderOffset)
-                  * 360,
-              FeedbackController.fromPID(
-                  FRONT_RIGHT_CONFIG.anglePID,
-                  controller -> {
-                    controller.enableContinuousInput(0, 360);
-                    controller.setTolerance(FRONT_RIGHT_CONFIG.angleTolerance);
-                  }),
-              FRONT_RIGHT_CONFIG.angleFeedforward,
-              TargetType.Position));
+  public static final Motor FRONT_RIGHT_DRIVE_MOTOR =
+      Motor.fromTalonFX(
+          SwerveWiring.FRONT_RIGHT_DRIVE_ID,
+          motor -> {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+            config.CurrentLimits =
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(FRONT_RIGHT_CONFIG.driveSupplyCurrentLimit())
+                    .withSupplyCurrentLimitEnable(
+                        FRONT_RIGHT_CONFIG.driveSupplyCurrentLimitEnable())
+                    .withStatorCurrentLimit(FRONT_RIGHT_CONFIG.driveStatorCurrentLimit())
+                    .withSupplyCurrentLimitEnable(
+                        FRONT_RIGHT_CONFIG.driveStatorCurrentLimitEnable());
+            config.MotorOutput =
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.CounterClockwise_Positive);
+            config.Feedback =
+                new FeedbackConfigs()
+                    .withSensorToMechanismRatio(FRONT_RIGHT_CONFIG.driveConversionFactor());
+            StatusCode status = StatusCode.StatusCodeNotInitialized;
+            for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+              status = motor.getConfigurator().apply(config);
+            }
+            if (status != StatusCode.OK) {
+              HoundLog.logFault(
+                  "[Swerve] Front Right Drive Motor Config Error: " + status.getName(),
+                  AlertType.kError);
+            } else {
+              Orc.addMotor(motor);
+            }
+          },
+          sim -> {},
+          0,
+          FeedbackController.fromPID(FRONT_RIGHT_CONFIG.drivePID(), controller -> {}),
+          FRONT_RIGHT_CONFIG.driveFeedforward(),
+          TargetType.Velocity);
 
-  public static final SwerveModule BACK_LEFT_MODULE =
-      new SwerveModule(
-          Motor.fromTalonFX(
-              SwerveWiring.BACK_LEFT_DRIVE_ID,
-              motor -> {
-                TalonFXConfiguration config = new TalonFXConfiguration();
-                config.CurrentLimits =
-                    new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(BACK_LEFT_CONFIG.driveSupplyCurrentLimit)
-                        .withSupplyCurrentLimitEnable(
-                            BACK_LEFT_CONFIG.driveSupplyCurrentLimitEnable)
-                        .withStatorCurrentLimit(BACK_LEFT_CONFIG.driveStatorCurrentLimit)
-                        .withStatorCurrentLimitEnable(
-                            BACK_LEFT_CONFIG.driveStatorCurrentLimitEnable);
-                config.MotorOutput =
-                    new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.Clockwise_Positive);
-                config.Feedback =
-                    new FeedbackConfigs()
-                        .withSensorToMechanismRatio(BACK_LEFT_CONFIG.driveConversionFactor);
-                StatusCode status = StatusCode.StatusCodeNotInitialized;
-                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                  status = motor.getConfigurator().apply(config);
-                }
-                if (status != StatusCode.OK) {
-                  HoundLog.logFault(
-                      "[Swerve] Back Left Drive Motor Config Error: " + status.getName(),
-                      AlertType.kError);
-                } else {
-                  Orc.addMotor(motor);
-                }
-              },
-              sim -> {},
-              0,
-              FeedbackController.fromPID(BACK_LEFT_CONFIG.drivePID, controller -> {}),
-              BACK_LEFT_CONFIG.driveFeedforward,
-              TargetType.Velocity),
-          Motor.fromSparkMax(
-              SwerveWiring.BACK_LEFT_ANGLE_ID,
-              false,
-              motor -> {
-                SparkMaxConfig config = new SparkMaxConfig();
-                config
-                    .inverted(false)
-                    .smartCurrentLimit(BACK_LEFT_CONFIG.angleStatorCurrentLimit)
-                    .idleMode(IdleMode.kCoast);
-                config
-                    .encoder
-                    .positionConversionFactor(1.0 / BACK_LEFT_CONFIG.angleGearReduction * 360)
-                    .velocityConversionFactor(1.0 / BACK_LEFT_CONFIG.angleGearReduction * 360);
-                REVLibError err =
-                    motor.configure(
-                        config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-                if (!err.equals(REVLibError.kOk)) {
-                  HoundLog.logFault(
-                      "[Swerve] Back Left Angle Motor Config Error: " + err.name(),
-                      AlertType.kError);
-                }
-              },
-              sim -> {},
-              (new AnalogEncoder(SwerveWiring.BACK_LEFT_ENCODER_ID).get()
-                      - BACK_LEFT_CONFIG.angleAbsoluteEncoderOffset)
-                  * 360,
-              FeedbackController.fromPID(
-                  BACK_LEFT_CONFIG.anglePID,
-                  controller -> {
-                    controller.enableContinuousInput(0, 360);
-                    controller.setTolerance(BACK_LEFT_CONFIG.angleTolerance);
-                  }),
-              BACK_LEFT_CONFIG.angleFeedforward,
-              TargetType.Position));
+  public static final Motor FRONT_RIGHT_ANGLE_MOTOR =
+      Motor.fromSparkMax(
+          SwerveWiring.FRONT_RIGHT_ANGLE_ID,
+          false,
+          motor -> {
+            SparkMaxConfig config = new SparkMaxConfig();
+            config
+                .inverted(false)
+                .smartCurrentLimit(FRONT_RIGHT_CONFIG.angleStatorCurrentLimit())
+                .idleMode(IdleMode.kCoast);
+            config
+                .encoder
+                .positionConversionFactor(1.0 / FRONT_RIGHT_CONFIG.angleGearReduction() * 360)
+                .velocityConversionFactor(1.0 / FRONT_RIGHT_CONFIG.angleGearReduction() * 360);
+            REVLibError err =
+                motor.configure(
+                    config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+            if (!err.equals(REVLibError.kOk)) {
+              HoundLog.logFault(
+                  "[Swerve] Front Right Angle Motor Config Error: " + err.name(), AlertType.kError);
+            }
+          },
+          sim -> {},
+          (new AnalogEncoder(SwerveWiring.FRONT_RIGHT_ENCODER_ID).get()
+                  - FRONT_RIGHT_CONFIG.angleAbsoluteEncoderOffset())
+              * 360,
+          FeedbackController.fromPID(
+              FRONT_RIGHT_CONFIG.anglePID(),
+              controller -> {
+                controller.enableContinuousInput(0, 360);
+                controller.setTolerance(FRONT_RIGHT_CONFIG.angleTolerance());
+              }),
+          FRONT_RIGHT_CONFIG.angleFeedforward(),
+          TargetType.Position);
 
-  public static final SwerveModule BACK_RIGHT_MODULE =
-      new SwerveModule(
-          Motor.fromTalonFX(
-              SwerveWiring.BACK_RIGHT_DRIVE_ID,
-              motor -> {
-                TalonFXConfiguration config = new TalonFXConfiguration();
-                config.CurrentLimits =
-                    new CurrentLimitsConfigs()
-                        .withSupplyCurrentLimit(BACK_RIGHT_CONFIG.driveSupplyCurrentLimit)
-                        .withSupplyCurrentLimitEnable(
-                            BACK_RIGHT_CONFIG.driveStatorCurrentLimitEnable)
-                        .withStatorCurrentLimit(BACK_RIGHT_CONFIG.driveStatorCurrentLimit)
-                        .withStatorCurrentLimitEnable(
-                            BACK_RIGHT_CONFIG.driveStatorCurrentLimitEnable);
-                config.MotorOutput =
-                    new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Brake)
-                        .withInverted(InvertedValue.CounterClockwise_Positive);
-                config.Feedback =
-                    new FeedbackConfigs()
-                        .withSensorToMechanismRatio(BACK_RIGHT_CONFIG.driveConversionFactor);
-                StatusCode status = StatusCode.StatusCodeNotInitialized;
-                for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
-                  status = motor.getConfigurator().apply(config);
-                }
-                if (status != StatusCode.OK) {
-                  HoundLog.logFault(
-                      "[Swerve] Back Right Drive Motor Config Error: " + status.getName(),
-                      AlertType.kError);
-                } else {
-                  Orc.addMotor(motor);
-                }
-              },
-              sim -> {},
-              0,
-              FeedbackController.fromPID(BACK_RIGHT_CONFIG.drivePID, controller -> {}),
-              BACK_RIGHT_CONFIG.driveFeedforward,
-              TargetType.Velocity),
-          Motor.fromSparkMax(
-              SwerveWiring.BACK_RIGHT_ANGLE_ID,
-              false,
-              motor -> {
-                SparkMaxConfig config = new SparkMaxConfig();
-                config
-                    .inverted(false)
-                    .smartCurrentLimit(BACK_RIGHT_CONFIG.angleStatorCurrentLimit)
-                    .idleMode(IdleMode.kCoast);
-                config
-                    .encoder
-                    .positionConversionFactor(1.0 / BACK_RIGHT_CONFIG.angleGearReduction * 360)
-                    .velocityConversionFactor(1.0 / BACK_RIGHT_CONFIG.angleGearReduction * 360);
-                REVLibError err =
-                    motor.configure(
-                        config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-                if (!err.equals(REVLibError.kOk)) {
-                  HoundLog.logFault(
-                      "[Swerve] Back Right Angle Motor Config Error: " + err.name(),
-                      AlertType.kError);
-                }
-              },
-              sim -> {},
-              (new AnalogEncoder(SwerveWiring.BACK_RIGHT_ENCODER_ID).get()
-                      - BACK_RIGHT_CONFIG.angleAbsoluteEncoderOffset)
-                  * 360,
-              FeedbackController.fromPID(
-                  BACK_RIGHT_CONFIG.anglePID,
-                  controller -> {
-                    controller.enableContinuousInput(0, 360);
-                    controller.setTolerance(BACK_RIGHT_CONFIG.angleTolerance);
-                  }),
-              BACK_RIGHT_CONFIG.angleFeedforward,
-              TargetType.Position));
+  public static final Motor BACK_LEFT_DRIVE_MOTOR =
+      Motor.fromTalonFX(
+          SwerveWiring.BACK_LEFT_DRIVE_ID,
+          motor -> {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+            config.CurrentLimits =
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(BACK_LEFT_CONFIG.driveSupplyCurrentLimit())
+                    .withSupplyCurrentLimitEnable(BACK_LEFT_CONFIG.driveSupplyCurrentLimitEnable())
+                    .withStatorCurrentLimit(BACK_LEFT_CONFIG.driveStatorCurrentLimit())
+                    .withStatorCurrentLimitEnable(BACK_LEFT_CONFIG.driveStatorCurrentLimitEnable());
+            config.MotorOutput =
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.Clockwise_Positive);
+            config.Feedback =
+                new FeedbackConfigs()
+                    .withSensorToMechanismRatio(BACK_LEFT_CONFIG.driveConversionFactor());
+            StatusCode status = StatusCode.StatusCodeNotInitialized;
+            for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+              status = motor.getConfigurator().apply(config);
+            }
+            if (status != StatusCode.OK) {
+              HoundLog.logFault(
+                  "[Swerve] Back Left Drive Motor Config Error: " + status.getName(),
+                  AlertType.kError);
+            } else {
+              Orc.addMotor(motor);
+            }
+          },
+          sim -> {},
+          0,
+          FeedbackController.fromPID(BACK_LEFT_CONFIG.drivePID(), controller -> {}),
+          BACK_LEFT_CONFIG.driveFeedforward(),
+          TargetType.Velocity);
+
+  public static final Motor BACK_LEFT_ANGLE_MOTOR =
+      Motor.fromSparkMax(
+          SwerveWiring.BACK_LEFT_ANGLE_ID,
+          false,
+          motor -> {
+            SparkMaxConfig config = new SparkMaxConfig();
+            config
+                .inverted(false)
+                .smartCurrentLimit(BACK_LEFT_CONFIG.angleStatorCurrentLimit())
+                .idleMode(IdleMode.kCoast);
+            config
+                .encoder
+                .positionConversionFactor(1.0 / BACK_LEFT_CONFIG.angleGearReduction() * 360)
+                .velocityConversionFactor(1.0 / BACK_LEFT_CONFIG.angleGearReduction() * 360);
+            REVLibError err =
+                motor.configure(
+                    config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+            if (!err.equals(REVLibError.kOk)) {
+              HoundLog.logFault(
+                  "[Swerve] Back Left Angle Motor Config Error: " + err.name(), AlertType.kError);
+            }
+          },
+          sim -> {},
+          (new AnalogEncoder(SwerveWiring.BACK_LEFT_ENCODER_ID).get()
+                  - BACK_LEFT_CONFIG.angleAbsoluteEncoderOffset())
+              * 360,
+          FeedbackController.fromPID(
+              BACK_LEFT_CONFIG.anglePID(),
+              controller -> {
+                controller.enableContinuousInput(0, 360);
+                controller.setTolerance(BACK_LEFT_CONFIG.angleTolerance());
+              }),
+          BACK_LEFT_CONFIG.angleFeedforward(),
+          TargetType.Position);
+
+  public static final Motor BACK_RIGHT_DRIVE_MOTOR =
+      Motor.fromTalonFX(
+          SwerveWiring.BACK_RIGHT_DRIVE_ID,
+          motor -> {
+            TalonFXConfiguration config = new TalonFXConfiguration();
+            config.CurrentLimits =
+                new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimit(BACK_RIGHT_CONFIG.driveSupplyCurrentLimit())
+                    .withSupplyCurrentLimitEnable(BACK_RIGHT_CONFIG.driveStatorCurrentLimitEnable())
+                    .withStatorCurrentLimit(BACK_RIGHT_CONFIG.driveStatorCurrentLimit())
+                    .withStatorCurrentLimitEnable(
+                        BACK_RIGHT_CONFIG.driveStatorCurrentLimitEnable());
+            config.MotorOutput =
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.CounterClockwise_Positive);
+            config.Feedback =
+                new FeedbackConfigs()
+                    .withSensorToMechanismRatio(BACK_RIGHT_CONFIG.driveConversionFactor());
+            StatusCode status = StatusCode.StatusCodeNotInitialized;
+            for (int i = 0; i < 5 && status != StatusCode.OK; i++) {
+              status = motor.getConfigurator().apply(config);
+            }
+            if (status != StatusCode.OK) {
+              HoundLog.logFault(
+                  "[Swerve] Back Right Drive Motor Config Error: " + status.getName(),
+                  AlertType.kError);
+            } else {
+              Orc.addMotor(motor);
+            }
+          },
+          sim -> {},
+          0,
+          FeedbackController.fromPID(BACK_RIGHT_CONFIG.drivePID(), controller -> {}),
+          BACK_RIGHT_CONFIG.driveFeedforward(),
+          TargetType.Velocity);
+  public static final Motor BACK_RIGHT_ANGLE_MOTOR =
+      Motor.fromSparkMax(
+          SwerveWiring.BACK_RIGHT_ANGLE_ID,
+          false,
+          motor -> {
+            SparkMaxConfig config = new SparkMaxConfig();
+            config
+                .inverted(false)
+                .smartCurrentLimit(BACK_RIGHT_CONFIG.angleStatorCurrentLimit())
+                .idleMode(IdleMode.kCoast);
+            config
+                .encoder
+                .positionConversionFactor(1.0 / BACK_RIGHT_CONFIG.angleGearReduction() * 360)
+                .velocityConversionFactor(1.0 / BACK_RIGHT_CONFIG.angleGearReduction() * 360);
+            REVLibError err =
+                motor.configure(
+                    config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+            if (!err.equals(REVLibError.kOk)) {
+              HoundLog.logFault(
+                  "[Swerve] Back Right Angle Motor Config Error: " + err.name(), AlertType.kError);
+            }
+          },
+          sim -> {},
+          (new AnalogEncoder(SwerveWiring.BACK_RIGHT_ENCODER_ID).get()
+                  - BACK_RIGHT_CONFIG.angleAbsoluteEncoderOffset())
+              * 360,
+          FeedbackController.fromPID(
+              BACK_RIGHT_CONFIG.anglePID(),
+              controller -> {
+                controller.enableContinuousInput(0, 360);
+                controller.setTolerance(BACK_RIGHT_CONFIG.angleTolerance());
+              }),
+          BACK_RIGHT_CONFIG.angleFeedforward(),
+          TargetType.Position);
 }
