@@ -246,7 +246,7 @@ public class SwerveConstants {
                     .withSupplyCurrentLimitEnable(
                         FRONT_RIGHT_CONFIG.driveSupplyCurrentLimitEnable())
                     .withStatorCurrentLimit(FRONT_RIGHT_CONFIG.driveStatorCurrentLimit())
-                    .withSupplyCurrentLimitEnable(
+                    .withStatorCurrentLimitEnable(
                         FRONT_RIGHT_CONFIG.driveStatorCurrentLimitEnable());
             config.MotorOutput =
                 new MotorOutputConfigs()
