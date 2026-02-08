@@ -4,6 +4,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import java.util.function.Consumer;
 
 /** Generalization of {@link ProfiledPIDController} */
@@ -174,5 +177,41 @@ public interface FeedbackController {
         this.goal = measurement;
       }
     };
+  }
+
+  public static FeedbackController fromTunablePID(PIDController pid, DoubleSubscriber p) {
+    class TunablePID extends SubsystemBase implements FeedbackController {
+      public void periodic() {
+        pid.setP(p.get());
+       
+      }
+      
+      @Override
+      public double calculate(double measurement, double goal) {
+        return pid.calculate(measurement, goal);
+      }
+
+      @Override
+      public double getGoal() {
+        return pid.getSetpoint();
+      }
+
+      @Override
+      public State getSetpoint() {
+        return new State(pid.getSetpoint(), 0);
+      }
+
+      @Override
+      public boolean atGoal() {
+        return pid.atSetpoint();
+      }
+
+      @Override
+      public void reset(double measurement) {
+        pid.calculate(measurement, measurement);
+        pid.reset();
+      }
+    }
+    return new TunablePID();
   }
 }
